@@ -1,39 +1,72 @@
 package com.happyplaces
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.DatePickerDialog.OnDateSetListener
 import android.content.ActivityNotFoundException
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.provider.Settings
-import android.widget.Toast
+import android.util.Log
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.MultiplePermissionsReport
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-// TODO(Step 6 : Add an activity for Add Happy Place.)
-// START
+
 class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddHappyPlaceBinding
     private var calendar = Calendar.getInstance()
     private lateinit var dateSetListener: OnDateSetListener
+    private var photoUri: Uri? = null
+
+
+
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if(success){
+            photoUri?.let {
+                binding.ivPlaceImage.setImageURI(it)
+            }
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        if (permissions.all { it.value }) {
+            choosePhotoFromGallery()
+        } else {
+            showRationalDialogForPermissions()
+        }
+    }
+
+    // Registers a photo picker activity launcher in single-select mode.
+    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        // Callback is invoked after the user selects a media item or closes the
+        // photo picker.
+        if (uri != null) {
+            binding.ivPlaceImage.setImageURI(uri)
+        } else {
+            Log.d("PhotoPicker", "No media selected")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //This call the parent constructor
         super.onCreate(savedInstanceState)
+        photoUri = getPhotoFileUri()
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
-        // This is used to align the xml view to this class
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbarAddPlace)
@@ -61,41 +94,34 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         binding.tvAddImage.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle("選擇選項")
-                .setItems(arrayOf("從相簿中選擇", "從相機中選擇")) { dialog, whitch ->
-                    when (whitch) {
+                .setItems(arrayOf("從相簿中選擇", "從相機中選擇")) { _, which ->
+                    when (which) {
                         0 -> choosePhotoFromGallery()
-                        1 -> Toast.makeText(this, "即將開發相機功能", Toast.LENGTH_LONG).show()
+                        1 -> takePictureFromCamera()
                     }
                 }.show()
         }
     }
 
+    private fun getPhotoFileUri(): Uri? {
+        val storageFile: File? =
+            if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
+                externalCacheDir
+            } else {
+                cacheDir
+            }
+
+        val photoFile = File.createTempFile("tmp_image_file", ".png", storageFile).apply {
+            createNewFile()
+            deleteOnExit()
+        }
+        val fileProviderUri = FileProvider.getUriForFile(this, "${BuildConfig.APPLICATION_ID}.provider", photoFile)
+        return fileProviderUri
+    }
+
+
     private fun choosePhotoFromGallery() {
-        Dexter.withContext(this).withPermissions(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ).withListener(object : MultiplePermissionsListener {
-            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-
-                    if (report!!.areAllPermissionsGranted()) {
-                        Toast.makeText(
-                            this@AddHappyPlaceActivity,
-                            "確認權限，你現在可在相簿中選擇圖片",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-
-
-            }
-
-            override fun onPermissionRationaleShouldBeShown(
-                permissions: MutableList<PermissionRequest>?,
-                token: PermissionToken?
-            ) {
-                showRationalDialogForPermissions()
-            }
-
-        }).onSameThread().check() //因為有withListener
+        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
     }
 
     private fun showRationalDialogForPermissions() {
@@ -120,5 +146,17 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
         binding.etDate.setText(sdf.format(calendar.time).toString())
     }
+
+    private fun takePictureFromCamera() {
+        val permissions = listOf(Manifest.permission.CAMERA)
+        if (arePermissionsGranted(permissions)) {
+            takePictureLauncher.launch(photoUri)
+        } else {
+            requestPermissionLauncher.launch(permissions.toTypedArray())
+        }
+    }
+
+    private fun arePermissionsGranted(permissions: List<String>): Boolean {
+        return permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
+    }
 }
-// END
