@@ -1,7 +1,6 @@
-package com.happyplaces
+package com.happyplaces.activities
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.DatePickerDialog.OnDateSetListener
@@ -9,11 +8,9 @@ import android.content.ActivityNotFoundException
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.PickVisualMediaRequest
@@ -21,12 +18,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.happyplaces.BuildConfig
 import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+//Android Activity Result API (二) ：拍照与选择照片
+//https://juejin.cn/post/7082314521284444173
+
+//照片选择器
+//https://developer.android.com/training/data-storage/shared/photopicker?hl=zh-cn
+
+//访问共享存储空间中的媒体文件
+//https://developer.android.com/training/data-storage/shared/media?hl=zh-cn#kotlin
 
 class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddHappyPlaceBinding
@@ -34,15 +40,14 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var dateSetListener: OnDateSetListener
     private var photoUri: Uri? = null
 
-
-
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if(success){
+        if (success) {
             photoUri?.let {
                 binding.ivPlaceImage.setImageURI(it)
             }
         }
     }
+
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         if (permissions.all { it.value }) {
@@ -100,6 +105,9 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                         1 -> takePictureFromCamera()
                     }
                 }.show()
+        }
+        binding.btnSave.setOnClickListener {
+
         }
     }
 

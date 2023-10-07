@@ -35,7 +35,7 @@
         </provider>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
@@ -48,7 +48,7 @@
         <!--TODO (Step 7 : Modify the activity manifest details as per our requirement. Here we have created the Style in style.xml for NoActionBar.)-->
         <!--START-->
         <activity
-            android:name=".AddHappyPlaceActivity"
+            android:name=".activities.AddHappyPlaceActivity"
             android:label="ADD HAPPY PLACE"
             android:screenOrientation="portrait"
             android:theme="@style/CustomNoActionBarTheme"/>

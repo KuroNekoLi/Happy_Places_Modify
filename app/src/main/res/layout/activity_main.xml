@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
     <!--Here the "fab_margin" is defined in the dimen.xml-->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
