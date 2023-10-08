@@ -8,7 +8,19 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
-    <!--Here the "fab_margin" is defined in the dimen.xml-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_happy_place"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+    <TextView
+        android:id="@+id/tv_no_records_available"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/note_text_no_happy_places_found_yes"
+        android:textSize="@dimen/no_records_available_text_size"
+        />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddHappyPlace"
         android:layout_width="wrap_content"
@@ -16,20 +28,6 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_action_add_24dp" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button" />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:srcCompat="@tools:sample/avatars"
-        android:layout_marginTop="100dp"
-        />
 
 </FrameLayout>
 <!--END-->

@@ -1,8 +1,12 @@
-package com.happyplaces.models
+package com.happyplaces.database
 
 import android.net.Uri
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-data class HappyPlaceModel(
+@Entity(tableName = "place_data_table")
+data class HappyPlace(
+    @PrimaryKey(autoGenerate = true)
     val id:Int,
     val title:String,
     val image: Uri?,
