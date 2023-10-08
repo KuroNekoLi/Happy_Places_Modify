@@ -1,6 +1,5 @@
 package com.happyplaces.presentation.di
 
-
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -15,6 +14,7 @@ class HappyPlaceAdapter : ListAdapter<HappyPlace, HappyPlaceAdapter.ViewHolder>(
         fun bind(item:HappyPlace){
             binding.tvTitle.text = item.title
             binding.tvDescription.text = item.description
+
             binding.ivPlaceImage.setImageURI(item.image)
         }
     }

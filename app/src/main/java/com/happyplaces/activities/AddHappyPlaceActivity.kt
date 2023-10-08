@@ -13,22 +13,27 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModelProvider
+import com.happyplaces.App
 import com.happyplaces.BuildConfig
 import com.happyplaces.database.UserDatabase
 import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.presentation.di.HappyPlaceAdapter
+import com.happyplaces.presentation.di.HappyPlaceViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -48,6 +53,10 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var dateSetListener: OnDateSetListener
     private var photoUri: Uri? = null
 
+    private lateinit var viewModel: HappyPlaceViewModel
+    private val factory by lazy { App.instance.factory }
+
+
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             photoUri?.let {
@@ -64,12 +73,29 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         }
     }
 
-    // Registers a photo picker activity launcher in single-select mode.
+//    // Registers a photo picker activity launcher in single-select mode.
+//    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+//        // Callback is invoked after the user selects a media item or closes the
+//        // photo picker.
+//        if (uri != null) {
+//            binding.ivPlaceImage.setImageURI(uri)
+//            photoUri = uri
+//        } else {
+//            Log.d("PhotoPicker", "No media selected")
+//        }
+//    }
+
     val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        // Callback is invoked after the user selects a media item or closes the
-        // photo picker.
         if (uri != null) {
-            binding.ivPlaceImage.setImageURI(uri)
+            val inputStream = contentResolver.openInputStream(uri)
+            val file = File(getExternalFilesDir(null), "selected_image.jpg")
+            val outputStream = FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+
+            photoUri = Uri.fromFile(file)
+            binding.ivPlaceImage.setImageURI(photoUri)
         } else {
             Log.d("PhotoPicker", "No media selected")
         }
@@ -77,6 +103,11 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this,factory)[HappyPlaceViewModel::class.java]
+        viewModel.message.observe(this){
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+        }
+
         photoUri = getPhotoFileUri()
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -115,8 +146,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         }
         binding.btnSave.setOnClickListener {
             CoroutineScope(IO).launch {
-                UserDatabase.getInstance(applicationContext).dao.insertData(
-                    HappyPlace(
+                viewModel.insert( HappyPlace(
                     0,
                     "",
                     photoUri,
