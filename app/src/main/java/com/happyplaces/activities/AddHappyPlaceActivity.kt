@@ -22,9 +22,12 @@ import com.happyplaces.BuildConfig
 import com.happyplaces.database.UserDatabase
 import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.happyplaces.database.HappyPlace
+import com.happyplaces.presentation.di.HappyPlaceAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -115,7 +118,13 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 UserDatabase.getInstance(applicationContext).dao.insertData(
                     HappyPlace(
                     0,
-                    "",photoUri,"","","",0.0,0.0)
+                    "",
+                    photoUri,
+                    "",
+                    "",
+                    "",
+                    0.0,
+                    0.0)
                 )
             }
         }
