@@ -1,5 +1,6 @@
 package com.happyplaces.presentation.activities
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -35,11 +36,11 @@ class HappyPlaceDetailActivity : AppCompatActivity() {
             binding.tvDescription.text = happyPlace.description
             binding.tvLocation.text = happyPlace.location
 
-//            binding.btnViewOnMap.setOnClickListener {
-//                val intent = Intent(this@HappyPlaceDetailActivity, MapActivity::class.java)
-//                intent.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
-//                startActivity(intent)
-//            }
+            binding.btnViewOnMap.setOnClickListener {
+                val intent = Intent(this@HappyPlaceDetailActivity, MapActivity::class.java)
+                intent.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
+                startActivity(intent)
+            }
         }
 
     }
