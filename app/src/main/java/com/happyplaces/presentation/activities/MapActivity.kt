@@ -1,12 +1,12 @@
-package com.happyplaces.activities
+package com.happyplaces.presentation.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.happyplaces.R
 
-class HappyPlaceDetailActivity : AppCompatActivity() {
+class MapActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_happy_place_detail)
+        setContentView(R.layout.activity_map)
     }
 }

@@ -1,4 +1,4 @@
-package com.happyplaces.activities
+package com.happyplaces.presentation.activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,8 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.happyplaces.App
 import com.happyplaces.HappyPlaceAdapter
+import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ActivityMainBinding
-import com.happyplaces.presentation.di.HappyPlaceViewModel
+import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.util.SwipeToDeleteCallback
 import com.happyplaces.util.SwipeToEditCallback
 
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        myAdapter = HappyPlaceAdapter()
+        myAdapter = HappyPlaceAdapter { selectedItem: HappyPlace -> listItemClicked(selectedItem) }
         binding.rvHappyPlace.apply {
             adapter = myAdapter
             layoutManager = LinearLayoutManager(context)
@@ -66,5 +67,16 @@ class MainActivity : AppCompatActivity() {
         binding.fabAddHappyPlace.setOnClickListener {
             startActivity(Intent(this, AddHappyPlaceActivity::class.java))
         }
+    }
+
+    private fun listItemClicked(selectedItem: HappyPlace) {
+        Intent(this, HappyPlaceDetailActivity::class.java).let {
+            it.putExtra(EXTRA_PLACE_DETAILS, selectedItem)
+            startActivity(it)
+        }
+    }
+
+    companion object {
+        const val EXTRA_PLACE_DETAILS = "EXTRA_PLACE_DETAILS"
     }
 }

@@ -1,4 +1,4 @@
-package com.happyplaces.presentation.di
+package com.happyplaces.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

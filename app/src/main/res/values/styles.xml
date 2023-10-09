@@ -5,6 +5,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <!--TODO(Step 8: A custom theme is for No ActionBar to our activity is added. This is created over here for Maintaining the Status Bar color in all the activities added with NoActionBar Theme. Which is material standard.)-->
@@ -18,6 +20,7 @@
     <style name="CustomToolbarStyle">
         <item name="android:textColorPrimary">#FFFFFF</item>
         <item name="android:colorControlNormal">#FFFFFF</item>
+
     </style>
     <!--END-->
 

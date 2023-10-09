@@ -1,4 +1,4 @@
-package com.happyplaces.activities
+package com.happyplaces.presentation.activities
 
 import android.Manifest
 import android.app.Activity
@@ -31,7 +31,7 @@ import com.happyplaces.BuildConfig
 import com.happyplaces.R
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
-import com.happyplaces.presentation.di.HappyPlaceViewModel
+import com.happyplaces.presentation.HappyPlaceViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -195,6 +195,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
+
+
     }
 
     private fun getPhotoFileUri(): Uri? {

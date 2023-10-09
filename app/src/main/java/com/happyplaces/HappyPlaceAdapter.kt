@@ -8,17 +8,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ItemHappyPlaceBinding
 
-class HappyPlaceAdapter : ListAdapter<HappyPlace, HappyPlaceAdapter.ViewHolder>(
+class HappyPlaceAdapter(
+    private val clickListener: (HappyPlace) -> Unit
+) : ListAdapter<HappyPlace, HappyPlaceAdapter.ViewHolder>(
     HappyPlaceDiffCallback()
 ) {
 
     inner class ViewHolder(private val binding: ItemHappyPlaceBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: HappyPlace) {
+        fun bind(item: HappyPlace, clickListener: (HappyPlace) -> Unit) {
             binding.tvTitle.text = item.title
             binding.tvDescription.text = item.description
 
             binding.ivPlaceImage.setImageURI(item.image)
+            binding.cvItem.setOnClickListener { clickListener(item) }
         }
     }
 
@@ -29,7 +32,7 @@ class HappyPlaceAdapter : ListAdapter<HappyPlace, HappyPlaceAdapter.ViewHolder>(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), clickListener)
     }
 
     fun getHappyPlaceAt(position: Int): HappyPlace {
