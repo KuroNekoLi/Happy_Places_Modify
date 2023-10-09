@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--TODO (Step 7: Adding an custom border background to an image view.)-->
+<?xml version="1.0" encoding="utf-8"?><!--TODO (Step 7: Adding an custom border background to an image view.)-->
 <!--START-->
 <!--All the values used are defined in the constant files.-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
@@ -12,5 +11,4 @@
     <solid android:color="@color/white_color" />
 
     <corners android:radius="@dimen/add_place_image_shape_radius" />
-</shape>
-<!--END-->
+</shape><!--END-->

@@ -1,4 +1,4 @@
-package com.happyplaces.presentation.di
+package com.happyplaces
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,10 +8,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ItemHappyPlaceBinding
 
-class HappyPlaceAdapter : ListAdapter<HappyPlace, HappyPlaceAdapter.ViewHolder>(HappyPlaceDiffCallback()) {
+class HappyPlaceAdapter : ListAdapter<HappyPlace, HappyPlaceAdapter.ViewHolder>(
+    HappyPlaceDiffCallback()
+) {
 
-    inner class ViewHolder(private val binding: ItemHappyPlaceBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(item:HappyPlace){
+    inner class ViewHolder(private val binding: ItemHappyPlaceBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: HappyPlace) {
             binding.tvTitle.text = item.title
             binding.tvDescription.text = item.description
 
@@ -20,16 +23,22 @@ class HappyPlaceAdapter : ListAdapter<HappyPlace, HappyPlaceAdapter.ViewHolder>(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemHappyPlaceBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        val binding =
+            ItemHappyPlaceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
+
+    fun getHappyPlaceAt(position: Int): HappyPlace {
+        return getItem(position)
+    }
+
 }
 
-class HappyPlaceDiffCallback : DiffUtil.ItemCallback<HappyPlace>(){
+class HappyPlaceDiffCallback : DiffUtil.ItemCallback<HappyPlace>() {
     override fun areItemsTheSame(oldItem: HappyPlace, newItem: HappyPlace): Boolean {
         return oldItem.id == newItem.id
     }

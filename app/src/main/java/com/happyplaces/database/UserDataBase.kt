@@ -7,20 +7,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [HappyPlace::class],version = 1)
+@Database(entities = [HappyPlace::class], version = 1)
 @TypeConverters(UriTypeConverter::class)
 abstract class UserDatabase : RoomDatabase() {
 
-    abstract val dao : UserDao
+    abstract val dao: UserDao
 
-    companion object{
+    companion object {
         @Volatile
-        private var INSTANCE : UserDatabase? = null
+        private var INSTANCE: UserDatabase? = null
+
         @SuppressLint("SuspiciousIndentation")
-        fun getInstance(context: Context):UserDatabase{
-            synchronized(this){
+        fun getInstance(context: Context): UserDatabase {
+            synchronized(this) {
                 var instance = INSTANCE
-                if(instance==null){
+                if (instance == null) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         UserDatabase::class.java,

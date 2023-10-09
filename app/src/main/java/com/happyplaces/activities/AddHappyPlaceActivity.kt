@@ -20,12 +20,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.happyplaces.App
 import com.happyplaces.BuildConfig
-import com.happyplaces.database.UserDatabase
-import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.happyplaces.database.HappyPlace
-import com.happyplaces.presentation.di.HappyPlaceAdapter
+import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.happyplaces.presentation.di.HappyPlaceViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -57,54 +56,51 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private val factory by lazy { App.instance.factory }
 
 
-    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            photoUri?.let {
-                binding.ivPlaceImage.setImageURI(it)
+    private val takePictureLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                photoUri?.let {
+                    binding.ivPlaceImage.setImageURI(it)
+                }
             }
         }
-    }
 
-    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-        if (permissions.all { it.value }) {
-            choosePhotoFromGallery()
-        } else {
-            showRationalDialogForPermissions()
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions.all { it.value }) {
+                choosePhotoFromGallery()
+            } else {
+                showRationalDialogForPermissions()
+            }
         }
-    }
 
-//    // Registers a photo picker activity launcher in single-select mode.
-//    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-//        // Callback is invoked after the user selects a media item or closes the
-//        // photo picker.
-//        if (uri != null) {
-//            binding.ivPlaceImage.setImageURI(uri)
-//            photoUri = uri
-//        } else {
-//            Log.d("PhotoPicker", "No media selected")
-//        }
-//    }
+    private val pickMediaLauncher =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                lifecycleScope.launch(IO) {
+                    val inputStream = contentResolver.openInputStream(uri)
+                    val file = File(getExternalFilesDir(null), "selected_image.jpg")
+                    val outputStream = FileOutputStream(file)
+                    inputStream?.copyTo(outputStream)
+                    inputStream?.close()
+                    outputStream.close()
 
-    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) {
-            val inputStream = contentResolver.openInputStream(uri)
-            val file = File(getExternalFilesDir(null), "selected_image.jpg")
-            val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
-            inputStream?.close()
-            outputStream.close()
-
-            photoUri = Uri.fromFile(file)
-            binding.ivPlaceImage.setImageURI(photoUri)
-        } else {
-            Log.d("PhotoPicker", "No media selected")
+                    val newPhotoUri = Uri.fromFile(file)
+                    withContext(Main) {
+                        photoUri = newPhotoUri
+                        binding.ivPlaceImage.setImageURI(newPhotoUri)
+                    }
+                }
+            } else {
+                Log.d("PhotoPicker", "No media selected")
+            }
         }
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this,factory)[HappyPlaceViewModel::class.java]
-        viewModel.message.observe(this){
+        viewModel = ViewModelProvider(this, factory)[HappyPlaceViewModel::class.java]
+        viewModel.message.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
 
@@ -146,15 +142,17 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         }
         binding.btnSave.setOnClickListener {
             CoroutineScope(IO).launch {
-                viewModel.insert( HappyPlace(
-                    0,
-                    "",
-                    photoUri,
-                    "",
-                    "",
-                    "",
-                    0.0,
-                    0.0)
+                viewModel.insert(
+                    HappyPlace(
+                        0,
+                        "",
+                        photoUri,
+                        "",
+                        "",
+                        "",
+                        0.0,
+                        0.0
+                    )
                 )
             }
         }
@@ -172,19 +170,20 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             createNewFile()
             deleteOnExit()
         }
-        val fileProviderUri = FileProvider.getUriForFile(this, "${BuildConfig.APPLICATION_ID}.provider", photoFile)
+        val fileProviderUri =
+            FileProvider.getUriForFile(this, "${BuildConfig.APPLICATION_ID}.provider", photoFile)
         return fileProviderUri
     }
 
 
     private fun choosePhotoFromGallery() {
-        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
     }
 
     private fun showRationalDialogForPermissions() {
         AlertDialog.Builder(this)
             .setMessage("您似乎關閉了權限，請開啟您的權限。")
-            .setPositiveButton("設定"){ _, _ ->
+            .setPositiveButton("設定") { _, _ ->
                 try {
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                     val uri = Uri.fromParts("package", packageName, null)
@@ -194,7 +193,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
             }
-            .setNegativeButton("取消"){ dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
+            .setNegativeButton("取消") { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
             .show()
     }
 
@@ -214,6 +213,11 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     }
 
     private fun arePermissionsGranted(permissions: List<String>): Boolean {
-        return permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
+        return permissions.all {
+            ContextCompat.checkSelfPermission(
+                this,
+                it
+            ) == PackageManager.PERMISSION_GRANTED
+        }
     }
 }
