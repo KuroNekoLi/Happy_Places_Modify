@@ -25,6 +25,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_api_key"
+            />
         <activity
             android:name=".activities.HappyPlaceDetailActivity"
             android:exported="false" />

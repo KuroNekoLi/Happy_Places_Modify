@@ -74,7 +74,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
 
-
+//    implementation "com.google.android.gms:play-services-maps:18.1.0"
+    implementation "com.google.android.libraries.places:places:3.2.0"
     ksp("com.google.dagger:hilt-android-compiler:2.48")
 
     testImplementation 'junit:junit:4.13.2'

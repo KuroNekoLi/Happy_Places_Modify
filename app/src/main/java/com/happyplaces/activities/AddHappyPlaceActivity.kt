@@ -1,6 +1,7 @@
 package com.happyplaces.activities
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.DatePickerDialog.OnDateSetListener
@@ -21,8 +22,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.happyplaces.App
 import com.happyplaces.BuildConfig
+import com.happyplaces.R
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.happyplaces.presentation.di.HappyPlaceViewModel
@@ -51,6 +57,8 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private var calendar = Calendar.getInstance()
     private lateinit var dateSetListener: OnDateSetListener
     private var photoUri: Uri? = null
+    private var latitude = 0.0
+    private var longitude = 0.0
 
     private lateinit var viewModel: HappyPlaceViewModel
     private val factory by lazy { App.instance.factory }
@@ -95,10 +103,24 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 Log.d("PhotoPicker", "No media selected")
             }
         }
-
+    private val placeResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val place: Place = Autocomplete.getPlaceFromIntent(data!!)
+                binding.etLocation.setText(place.address)
+                latitude = place.latLng!!.latitude
+                longitude = place.latLng!!.longitude
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, resources.getString(R.string.google_maps_api_key))
+        }
+
         viewModel = ViewModelProvider(this, factory)[HappyPlaceViewModel::class.java]
         viewModel.message.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
@@ -154,6 +176,23 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                         0.0
                     )
                 )
+            }
+        }
+
+        binding.etLocation.setOnClickListener {
+            try {
+                // These are the list of fields which we required is passed
+                val fields = listOf(
+                    Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG,
+                    Place.Field.ADDRESS
+                )
+                // Start the autocomplete intent with a unique request code.
+                val intent =
+                    Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                        .build(applicationContext)
+                placeResultLauncher.launch(intent)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
