@@ -125,8 +125,6 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         viewModel.message.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
-
-        photoUri = getPhotoFileUri()
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -163,19 +161,43 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 }.show()
         }
         binding.btnSave.setOnClickListener {
-            CoroutineScope(IO).launch {
-                viewModel.insert(
-                    HappyPlace(
-                        0,
-                        "",
-                        photoUri,
-                        "",
-                        "",
-                        "",
-                        0.0,
-                        0.0
-                    )
-                )
+            Log.i("LinLi", "photoUri: "+photoUri);
+            when {
+                binding.etTitle.text.isNullOrEmpty() -> {
+                    Toast.makeText(this, "Please enter title", Toast.LENGTH_SHORT).show()
+                }
+
+                binding.etDescription.text.isNullOrEmpty() -> {
+                    Toast.makeText(this, "Please enter description", Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                binding.etLocation.text.isNullOrEmpty() -> {
+                    Toast.makeText(this, "Please select location", Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                photoUri == null -> {
+                    Toast.makeText(this, "Please add image", Toast.LENGTH_SHORT).show()
+                }
+
+                else -> {
+                    CoroutineScope(IO).launch {
+                        viewModel.insert(
+                            HappyPlace(
+                                0,
+                                binding.etTitle.text.toString(),
+                                photoUri,
+                                binding.etDescription.text.toString(),
+                                binding.etDate.text.toString(),
+                                binding.etLocation.text.toString(),
+                                latitude,
+                                longitude
+                            )
+                        )
+                    }
+                    finish()
+                }
             }
         }
 
@@ -247,6 +269,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private fun takePictureFromCamera() {
         val permissions = listOf(Manifest.permission.CAMERA)
         if (arePermissionsGranted(permissions)) {
+            photoUri = getPhotoFileUri()
             takePictureLauncher.launch(photoUri)
         } else {
             requestPermissionLauncher.launch(permissions.toTypedArray())
