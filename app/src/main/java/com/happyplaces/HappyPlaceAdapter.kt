@@ -47,6 +47,6 @@ class HappyPlaceDiffCallback : DiffUtil.ItemCallback<HappyPlace>() {
     }
 
     override fun areContentsTheSame(oldItem: HappyPlace, newItem: HappyPlace): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem == newItem
     }
 }

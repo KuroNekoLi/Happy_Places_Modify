@@ -40,6 +40,7 @@ import com.happyplaces.R
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.happyplaces.presentation.HappyPlaceViewModel
+import com.happyplaces.presentation.activities.MainActivity.Companion.EXTRA_PLACE_DETAILS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -62,16 +63,15 @@ import java.util.Locale
 
 class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddHappyPlaceBinding
-    private var calendar = Calendar.getInstance()
     private lateinit var dateSetListener: OnDateSetListener
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var viewModel: HappyPlaceViewModel
+    private var calendar = Calendar.getInstance()
     private var photoUri: Uri? = null
     private var latitude = 0.0
     private var longitude = 0.0
-
-    private lateinit var viewModel: HappyPlaceViewModel
+    private var happyPlace: HappyPlace? = null
     private val factory by lazy { App.instance.factory }
-
 
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -130,12 +130,17 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             }
         }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, resources.getString(R.string.google_maps_api_key))
         }
+        if (intent.hasExtra(EXTRA_PLACE_DETAILS)) {
+            happyPlace = intent.getParcelableExtra(EXTRA_PLACE_DETAILS, HappyPlace::class.java)
+        }
+
         viewModel = ViewModelProvider(this, factory)[HappyPlaceViewModel::class.java]
         viewModel.message.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
@@ -154,7 +159,22 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
             updateDateInView()
         }
+        if (happyPlace != null) {
+            supportActionBar?.title = "Edit Happy Place"
 
+            binding.etTitle.setText(happyPlace!!.title)
+            binding.etDescription.setText(happyPlace!!.description)
+            binding.etDate.setText(happyPlace!!.date)
+            binding.etLocation.setText(happyPlace!!.location)
+            latitude = happyPlace!!.latitude
+            longitude = happyPlace!!.longitude
+
+            photoUri = happyPlace!!.image
+
+            binding.ivPlaceImage.setImageURI(photoUri)
+
+            binding.btnSave.text = "UPDATE"
+        }
         binding.etDate.setOnClickListener {
             DatePickerDialog(
                 this,
@@ -195,7 +215,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                     Toast.makeText(this, "Please add image", Toast.LENGTH_SHORT).show()
                 }
 
-                else -> {
+                happyPlace == null -> {
                     CoroutineScope(IO).launch {
                         viewModel.insert(
                             HappyPlace(
@@ -209,6 +229,23 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                                 longitude
                             )
                         )
+                    }
+                    finish()
+                }
+
+                else -> {
+                    lifecycleScope.launch(IO) {
+                        happyPlace = happyPlace!!.copy(
+                            title = binding.etTitle.text.toString(),
+                            image = photoUri,
+                            description = binding.etDescription.text.toString(),
+                            date = binding.etDate.text.toString(),
+                            location = binding.etLocation.text.toString(),
+                            latitude = latitude,
+                            longitude = longitude
+                        )
+
+                        viewModel.update(happyPlace!!)
                     }
                     finish()
                 }

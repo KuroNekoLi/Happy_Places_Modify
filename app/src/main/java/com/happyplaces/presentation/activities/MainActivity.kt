@@ -19,9 +19,8 @@ import com.happyplaces.util.SwipeToEditCallback
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: HappyPlaceViewModel
-
-    private val factory by lazy { App.instance.factory }
     private lateinit var myAdapter: HappyPlaceAdapter
+    private val factory by lazy { App.instance.factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +35,11 @@ class MainActivity : AppCompatActivity() {
         val editSwipeHandler = object : SwipeToEditCallback(this) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 Toast.makeText(applicationContext, "edit", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(applicationContext, HappyPlaceDetailActivity::class.java))
+                Intent(applicationContext, AddHappyPlaceActivity::class.java).let {
+                    val itemToEdit = myAdapter.getHappyPlaceAt(viewHolder.adapterPosition)
+                    it.putExtra(EXTRA_PLACE_DETAILS, itemToEdit)
+                    startActivity(it)
+                }
                 myAdapter.notifyItemChanged(viewHolder.adapterPosition)
             }
         }
