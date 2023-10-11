@@ -75,8 +75,14 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            if (permissions.all { it.value }) {
-                choosePhotoFromGallery()
+            if (permissions[Manifest.permission.CAMERA] == true) {
+                photoUri = getPhotoFileUri()
+                takePictureLauncher.launch(photoUri)
+            }
+            if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            ) {
+                Toast.makeText(this, "地區權限已開啟", Toast.LENGTH_SHORT).show()
             } else {
                 showRationalDialogForPermissions()
             }
@@ -156,12 +162,11 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 .setItems(arrayOf("從相簿中選擇", "從相機中選擇")) { _, which ->
                     when (which) {
                         0 -> choosePhotoFromGallery()
-                        1 -> takePictureFromCamera()
+                        1 -> requestPermissionLauncher.launch(listOf(Manifest.permission.CAMERA).toTypedArray())
                     }
                 }.show()
         }
         binding.btnSave.setOnClickListener {
-            Log.i("LinLi", "photoUri: "+photoUri);
             when {
                 binding.etTitle.text.isNullOrEmpty() -> {
                     Toast.makeText(this, "Please enter title", Toast.LENGTH_SHORT).show()
@@ -218,7 +223,14 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             }
         }
 
-
+        binding.tvSelectCurrentLocation.setOnClickListener {
+            requestPermissionLauncher.launch(
+                listOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ).toTypedArray()
+            )
+        }
     }
 
     private fun getPhotoFileUri(): Uri? {
@@ -264,24 +276,5 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         val myFormat = "yyyy.MM.dd"
         val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
         binding.etDate.setText(sdf.format(calendar.time).toString())
-    }
-
-    private fun takePictureFromCamera() {
-        val permissions = listOf(Manifest.permission.CAMERA)
-        if (arePermissionsGranted(permissions)) {
-            photoUri = getPhotoFileUri()
-            takePictureLauncher.launch(photoUri)
-        } else {
-            requestPermissionLauncher.launch(permissions.toTypedArray())
-        }
-    }
-
-    private fun arePermissionsGranted(permissions: List<String>): Boolean {
-        return permissions.all {
-            ContextCompat.checkSelfPermission(
-                this,
-                it
-            ) == PackageManager.PERMISSION_GRANTED
-        }
     }
 }
