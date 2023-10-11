@@ -1,6 +1,7 @@
 package com.happyplaces.presentation.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
@@ -8,20 +9,27 @@ import android.app.DatePickerDialog.OnDateSetListener
 import android.content.ActivityNotFoundException
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -56,6 +64,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddHappyPlaceBinding
     private var calendar = Calendar.getInstance()
     private lateinit var dateSetListener: OnDateSetListener
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var photoUri: Uri? = null
     private var latitude = 0.0
     private var longitude = 0.0
@@ -83,6 +92,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
             ) {
                 Toast.makeText(this, "地區權限已開啟", Toast.LENGTH_SHORT).show()
+                requestNewLocationData()
             } else {
                 showRationalDialogForPermissions()
             }
@@ -126,7 +136,6 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, resources.getString(R.string.google_maps_api_key))
         }
-
         viewModel = ViewModelProvider(this, factory)[HappyPlaceViewModel::class.java]
         viewModel.message.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
@@ -276,5 +285,37 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         val myFormat = "yyyy.MM.dd"
         val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
         binding.etDate.setText(sdf.format(calendar.time).toString())
+    }
+
+    //更改位置信息设置
+    //https://developer.android.com/training/location/change-location-settings?hl=zh-cn
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        val locationRequest = LocationRequest.create()
+            .setInterval(10000)
+            .setFastestInterval(5000)
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.myLooper()
+        )
+    }
+
+    private val locationCallback = object : LocationCallback() {
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        override fun onLocationResult(locationResult: LocationResult) {
+            val mLastLocation: Location? = locationResult.lastLocation
+            latitude = mLastLocation!!.latitude
+            Log.e("Current Latitude", "$latitude")
+            longitude = mLastLocation.longitude
+            Log.e("Current Longitude", "$longitude")
+
+            viewModel.getAddressFromLatLng(latitude, longitude)
+            viewModel.address.observe(this@AddHappyPlaceActivity) {
+                binding.etLocation.setText(it)
+            }
+        }
     }
 }

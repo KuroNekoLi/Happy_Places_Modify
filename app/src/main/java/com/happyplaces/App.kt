@@ -24,6 +24,6 @@ class App : Application() {
 
         dao = UserDatabase.getInstance(this).dao
         repository = HappyPlaceRepository(dao)
-        factory = HappyPlaceViewModelFactory(repository)
+        factory = HappyPlaceViewModelFactory(this, repository)
     }
 }
