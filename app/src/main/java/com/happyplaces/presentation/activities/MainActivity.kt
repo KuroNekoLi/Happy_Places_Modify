@@ -4,23 +4,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.happyplaces.App
 import com.happyplaces.HappyPlaceAdapter
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ActivityMainBinding
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.util.SwipeToDeleteCallback
 import com.happyplaces.util.SwipeToEditCallback
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var viewModel: HappyPlaceViewModel
+    private val viewModel by viewModel<HappyPlaceViewModel>()
     private lateinit var myAdapter: HappyPlaceAdapter
-    private val factory by lazy { App.instance.factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +54,6 @@ class MainActivity : AppCompatActivity() {
         val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
         deleteItemTouchHelper.attachToRecyclerView(binding.rvHappyPlace)
 
-        viewModel = ViewModelProvider(this, factory)[HappyPlaceViewModel::class.java]
         viewModel.apply {
             message.observe(this@MainActivity) {
                 Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()

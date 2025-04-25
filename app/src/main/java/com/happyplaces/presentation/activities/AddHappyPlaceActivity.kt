@@ -23,7 +23,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -34,7 +33,6 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
-import com.happyplaces.App
 import com.happyplaces.BuildConfig
 import com.happyplaces.R
 import com.happyplaces.database.HappyPlace
@@ -46,6 +44,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -65,13 +64,12 @@ class AddHappyPlaceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddHappyPlaceBinding
     private lateinit var dateSetListener: OnDateSetListener
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var viewModel: HappyPlaceViewModel
+    private val viewModel by viewModel<HappyPlaceViewModel>()
     private var calendar = Calendar.getInstance()
     private var photoUri: Uri? = null
     private var latitude = 0.0
     private var longitude = 0.0
     private var happyPlace: HappyPlace? = null
-    private val factory by lazy { App.instance.factory }
 
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -141,7 +139,6 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             happyPlace = intent.getParcelableExtra(EXTRA_PLACE_DETAILS, HappyPlace::class.java)
         }
 
-        viewModel = ViewModelProvider(this, factory)[HappyPlaceViewModel::class.java]
         viewModel.message.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
