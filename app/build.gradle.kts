@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val uploadKeystorePath: String by project
+val uploadStorePassword: String by project
+val uploadKeystoreAlias: String by project
+val uploadKeyPassword: String by project
+
 android {
     namespace = "com.happyplaces"
     compileSdk = 35
@@ -17,6 +22,35 @@ android {
         versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(uploadKeystorePath)
+            storePassword = uploadStorePassword
+            keyAlias = uploadKeystoreAlias
+            keyPassword = uploadKeyPassword
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            resValue("string", "app_name", "Happy Places($name)")
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+            // Disables PNG crunching for the "debug" build type.
+            isCrunchPngs = false
+        }
     }
 
     buildFeatures {
