@@ -84,7 +84,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.CAMERA] == true) {
                 photoUri = getPhotoFileUri()
-                takePictureLauncher.launch(photoUri)
+                takePictureLauncher.launch(photoUri!!)
             }
             if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
