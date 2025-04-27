@@ -1,6 +1,6 @@
 package com.happyplaces.presentation.ui.compose
 
-import androidx.compose.foundation.Image
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,43 +27,54 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.happyplaces.R
 import lin.example.myapplication.ui.theme.HappyPlacesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHappyPlaceScreen(
+    toolbarTitle: String,
     title: String,
     onTitleChange: (String) -> Unit,
     description: String,
     onDescriptionChange: (String) -> Unit,
     date: String,
+    buttonText: String,
     onDateClick: () -> Unit,
     location: String,
     onLocationClick: () -> Unit,
     onSelectCurrentLocation: () -> Unit,
-    imageBitmap: ImageBitmap?,
+    imageUri: Uri?,
     onAddImageClick: () -> Unit,
     onSaveClick: () -> Unit,
     onBack: () -> Unit,
 ) {
+    val textFieldColor = TextFieldDefaults.colors().copy(
+        disabledTextColor = MaterialTheme.colorScheme.onSurface,          // 文字
+        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,   // 標籤
+        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,   // Placeholder
+        disabledIndicatorColor = MaterialTheme.colorScheme.outline,            // 外框線
+        disabledContainerColor = Color.Transparent                             // 背景
+    )
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Happy Place") },
+                title = { Text(toolbarTitle) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -105,24 +115,29 @@ fun AddHappyPlaceScreen(
 
             // Date (readOnly + 點擊彈出 DatePicker)
             OutlinedTextField(
-                value = date,
-                onValueChange = { /* no-op */ },
-                label = { Text(stringResource(R.string.edit_text_hint_date)) },
+                value = if (date.isBlank()) "Date" else date,
+                onValueChange = {},
+                enabled = false,
                 readOnly = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onDateClick() }
+                    .clickable {
+                        onDateClick()
+                    },
+                colors = textFieldColor
             )
 
             // Location (readOnly + 點擊彈出地圖/選擇)
             OutlinedTextField(
                 value = location,
                 onValueChange = { /* no-op */ },
+                enabled = false,
                 label = { Text(stringResource(R.string.edit_text_hint_location)) },
                 readOnly = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onLocationClick() }
+                    .clickable { onLocationClick() },
+                colors = textFieldColor
             )
 
             // 選取目前位置
@@ -162,23 +177,13 @@ fun AddHappyPlaceScreen(
                         .clickable { onAddImageClick() }
                         .padding(8.dp),                              // add_screen_place_image_padding
                 ) {
-                    if (imageBitmap != null) {
-                        Image(
-                            bitmap = imageBitmap,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Home,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .size(48.dp),
-                            tint = MaterialTheme.colorScheme.outline
-                        )
-                    }
+                    AsyncImage(
+                        model = imageUri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                        placeholder = painterResource(id = R.drawable.add_screen_image_placeholder),
+                    )
                 }
 
                 Text(
@@ -200,7 +205,7 @@ fun AddHappyPlaceScreen(
                     .height(IntrinsicSize.Min)
             ) {
                 Text(
-                    text = stringResource(R.string.btn_text_save),
+                    text = buttonText,
                     style = MaterialTheme.typography.labelLarge
                 )
             }
@@ -222,10 +227,12 @@ fun AddHappyPlaceScreenPreview() {
             location = "location",
             onLocationClick = {},
             onSelectCurrentLocation = {},
-            imageBitmap = null,
+            imageUri = null,
             onAddImageClick = {},
             onSaveClick = {},
-            onBack = {}
+            onBack = {},
+            toolbarTitle = "Add Happy Place",
+            buttonText = stringResource(R.string.btn_text_save)
         )
     }
 }

@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.app.DatePickerDialog.OnDateSetListener
 import android.content.ActivityNotFoundException
 import android.content.DialogInterface
 import android.content.Intent
@@ -16,7 +15,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,8 +22,10 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.content.FileProvider
-import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -38,15 +38,11 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.happyplaces.BuildConfig
 import com.happyplaces.R
 import com.happyplaces.database.HappyPlace
-import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.activities.MainActivity.Companion.EXTRA_PLACE_DETAILS
 import com.happyplaces.presentation.ui.compose.AddHappyPlaceScreen
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.happyplaces.presentation.ui.model.AddPlaceEvent
+import com.happyplaces.presentation.ui.model.AddPlaceUiState
 import lin.example.myapplication.ui.theme.HappyPlacesTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
@@ -65,21 +61,25 @@ import java.util.Locale
 //https://developer.android.com/training/data-storage/shared/media?hl=zh-cn#kotlin
 
 class AddHappyPlaceActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityAddHappyPlaceBinding
-    private lateinit var dateSetListener: OnDateSetListener
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val viewModel by viewModel<HappyPlaceViewModel>()
     private var calendar = Calendar.getInstance()
     private var photoUri: Uri? = null
-    private var latitude = 0.0
-    private var longitude = 0.0
     private var happyPlace: HappyPlace? = null
+
+    private val locationCallback = object : LocationCallback() {
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        override fun onLocationResult(locationResult: LocationResult) {
+            val loc: Location = locationResult.lastLocation ?: return
+            viewModel.updateCurrentLatLng(loc.latitude, loc.longitude)
+        }
+    }
 
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 photoUri?.let {
-                    binding.ivPlaceImage.setImageURI(it)
+                    viewModel.onImagePicked(it)
                 }
             }
         }
@@ -100,35 +100,20 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             }
         }
 
-    private val pickMediaLauncher =
+    private val pickVisualLauncher =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) {
-                lifecycleScope.launch(IO) {
-                    val inputStream = contentResolver.openInputStream(uri)
-                    val file = File(getExternalFilesDir(null), "selected_image.jpg")
-                    val outputStream = FileOutputStream(file)
-                    inputStream?.copyTo(outputStream)
-                    inputStream?.close()
-                    outputStream.close()
-
-                    val newPhotoUri = Uri.fromFile(file)
-                    withContext(Main) {
-                        photoUri = newPhotoUri
-                        binding.ivPlaceImage.setImageURI(newPhotoUri)
-                    }
-                }
-            } else {
-                Log.d("PhotoPicker", "No media selected")
-            }
+            uri?.let { copyToCache(it).also(viewModel::onImagePicked) }
         }
+
     private val placeResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data: Intent? = result.data
-                val place: Place = Autocomplete.getPlaceFromIntent(data!!)
-                binding.etLocation.setText(place.address)
-                latitude = place.latLng!!.latitude
-                longitude = place.latLng!!.longitude
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+            if (res.resultCode == Activity.RESULT_OK) {
+                val place = Autocomplete.getPlaceFromIntent(res.data!!)
+                viewModel.onLocationSelected(
+                    addr = place.address ?: "",
+                    lat = place.latLng?.latitude ?: 0.0,
+                    lng = place.latLng?.longitude ?: 0.0
+                )
             }
         }
 
@@ -148,155 +133,83 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         }
         enableEdgeToEdge()
         setContent {
+            val uiState by viewModel.uiState.collectAsState()
+            /** One-off events **/
+            uiState.event?.let { e ->
+                LaunchedEffect(e) {
+                    when (e) {
+                        AddPlaceEvent.ShowDatePicker -> showDatePicker()
+                        AddPlaceEvent.ShowImagePicker -> {
+                            showChooseImageAlertDialog()
+                        }
+
+                        AddPlaceEvent.ShowPlacesAutocomplete -> onClickLocation()
+                        AddPlaceEvent.RequestCurrentLocation -> requestLocationPermissions()
+                        is AddPlaceEvent.ShowToast -> Toast.makeText(
+                            this@AddHappyPlaceActivity,
+                            e.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        AddPlaceEvent.NavigateBack -> finish()
+                    }
+                    viewModel.onEventConsumed()
+                }
+            }
             HappyPlacesTheme {
                 AddHappyPlaceScreen(
-                    title = "title",
-                    onTitleChange = {},
-                    description = "description",
-                    onDescriptionChange = {},
-                    date = "date",
-                    onDateClick = {},
-                    location = "location",
-                    onLocationClick = {},
-                    onSelectCurrentLocation = {},
-                    imageBitmap = null,
-                    onAddImageClick = {},
-                    onSaveClick = {},
-                    onBack = {}
+                    title = uiState.title,
+                    onTitleChange = viewModel::onTitleChange,
+                    description = uiState.description,
+                    onDescriptionChange = viewModel::onDescriptionChange,
+                    date = uiState.date,
+                    onDateClick = viewModel::onDateClick,
+                    location = uiState.location,
+                    onLocationClick = viewModel::onLocationClick,
+                    onSelectCurrentLocation = viewModel::onSelectCurrentLocation,
+                    imageUri = uiState.imageUri,
+                    onAddImageClick = viewModel::onAddImageClick,
+                    onSaveClick = viewModel::onSaveClick,
+                    onBack = { finish() },
+                    toolbarTitle = getString(if (uiState.isEditMode) R.string.edit_happy_place else R.string.add_happy_place),
+                    buttonText = if (uiState.isEditMode) getString(R.string.btn_text_update) else getString(
+                        R.string.btn_text_save
+                    )
                 )
             }
         }
-        binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbarAddPlace)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbarAddPlace.setNavigationOnClickListener { onBackPressed() }
-
-        dateSetListener = OnDateSetListener { view, year, month, dayOfMonth ->
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month)
-            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-
-            updateDateInView()
-        }
         if (happyPlace != null) {
-            supportActionBar?.title = "Edit Happy Place"
-
-            binding.etTitle.setText(happyPlace!!.title)
-            binding.etDescription.setText(happyPlace!!.description)
-            binding.etDate.setText(happyPlace!!.date)
-            binding.etLocation.setText(happyPlace!!.location)
-            latitude = happyPlace!!.latitude
-            longitude = happyPlace!!.longitude
-
-            photoUri = happyPlace!!.image
-
-            binding.ivPlaceImage.setImageURI(photoUri)
-
-            binding.btnSave.text = "UPDATE"
-        }
-        binding.etDate.setOnClickListener {
-            DatePickerDialog(
-                this,
-                dateSetListener,
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
-
-        binding.tvAddImage.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("選擇選項")
-                .setItems(arrayOf("從相簿中選擇", "從相機中選擇")) { _, which ->
-                    when (which) {
-                        0 -> choosePhotoFromGallery()
-                        1 -> requestPermissionLauncher.launch(listOf(Manifest.permission.CAMERA).toTypedArray())
-                    }
-                }.show()
-        }
-        binding.btnSave.setOnClickListener {
-            when {
-                binding.etTitle.text.isNullOrEmpty() -> {
-                    Toast.makeText(this, "Please enter title", Toast.LENGTH_SHORT).show()
-                }
-
-                binding.etDescription.text.isNullOrEmpty() -> {
-                    Toast.makeText(this, "Please enter description", Toast.LENGTH_SHORT)
-                        .show()
-                }
-
-                binding.etLocation.text.isNullOrEmpty() -> {
-                    Toast.makeText(this, "Please select location", Toast.LENGTH_SHORT)
-                        .show()
-                }
-
-                photoUri == null -> {
-                    Toast.makeText(this, "Please add image", Toast.LENGTH_SHORT).show()
-                }
-
-                happyPlace == null -> {
-                    CoroutineScope(IO).launch {
-                        viewModel.insert(
-                            HappyPlace(
-                                0,
-                                binding.etTitle.text.toString(),
-                                photoUri,
-                                binding.etDescription.text.toString(),
-                                binding.etDate.text.toString(),
-                                binding.etLocation.text.toString(),
-                                latitude,
-                                longitude
-                            )
-                        )
-                    }
-                    finish()
-                }
-
-                else -> {
-                    lifecycleScope.launch(IO) {
-                        happyPlace = happyPlace!!.copy(
-                            title = binding.etTitle.text.toString(),
-                            image = photoUri,
-                            description = binding.etDescription.text.toString(),
-                            date = binding.etDate.text.toString(),
-                            location = binding.etLocation.text.toString(),
-                            latitude = latitude,
-                            longitude = longitude
-                        )
-
-                        viewModel.update(happyPlace!!)
-                    }
-                    finish()
-                }
-            }
-        }
-
-        binding.etLocation.setOnClickListener {
-            try {
-                // These are the list of fields which we required is passed
-                val fields = listOf(
-                    Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG,
-                    Place.Field.ADDRESS
+            viewModel.updateUiState(
+                AddPlaceUiState(
+                    id = happyPlace!!.id,
+                    title = happyPlace!!.title.orEmpty(),
+                    description = happyPlace!!.description.orEmpty(),
+                    date = happyPlace!!.date.orEmpty(),
+                    location = happyPlace!!.location.orEmpty(),
+                    latitude = happyPlace!!.latitude,
+                    longitude = happyPlace!!.longitude,
+                    imageUri = happyPlace!!.image,
+                    isEditMode = true
                 )
-                // Start the autocomplete intent with a unique request code.
-                val intent =
-                    Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
-                        .build(applicationContext)
-                placeResultLauncher.launch(intent)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        binding.tvSelectCurrentLocation.setOnClickListener {
-            requestPermissionLauncher.launch(
-                listOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ).toTypedArray()
             )
+        }
+    }
+
+    private fun onClickLocation() {
+        try {
+            // These are the list of fields which we required is passed
+            val fields = listOf(
+                Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG,
+                Place.Field.ADDRESS
+            )
+            // Start the autocomplete intent with a unique request code.
+            val intent =
+                Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                    .build(applicationContext)
+            placeResultLauncher.launch(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -319,7 +232,7 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
 
     private fun choosePhotoFromGallery() {
-        pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        pickVisualLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
     }
 
     private fun showRationalDialogForPermissions() {
@@ -339,12 +252,6 @@ class AddHappyPlaceActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun updateDateInView() {
-        val myFormat = "yyyy.MM.dd"
-        val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
-        binding.etDate.setText(sdf.format(calendar.time).toString())
-    }
-
     //更改位置信息设置
     //https://developer.android.com/training/location/change-location-settings?hl=zh-cn
     @SuppressLint("MissingPermission")
@@ -361,19 +268,44 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         )
     }
 
-    private val locationCallback = object : LocationCallback() {
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        override fun onLocationResult(locationResult: LocationResult) {
-            val mLastLocation: Location? = locationResult.lastLocation
-            latitude = mLastLocation!!.latitude
-            Log.e("Current Latitude", "$latitude")
-            longitude = mLastLocation.longitude
-            Log.e("Current Longitude", "$longitude")
+    private fun showDatePicker() {
+        DatePickerDialog(
+            this,
+            { _, y, m, d ->
+                val str = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+                    .format(Calendar.getInstance().apply { set(y, m, d) }.time)
+                viewModel.onDateSelected(str)
+            },
+            calendar[Calendar.YEAR],
+            calendar[Calendar.MONTH],
+            calendar[Calendar.DAY_OF_MONTH]
+        ).show()
+    }
 
-            viewModel.getAddressFromLatLng(latitude, longitude)
-            viewModel.address.observe(this@AddHappyPlaceActivity) {
-                binding.etLocation.setText(it)
-            }
+    private fun requestLocationPermissions() = requestPermissionLauncher.launch(
+        listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ).toTypedArray()
+    )
+
+    /** 將 PhotoPicker 回傳的檔案複製到私有目錄，並取得新 Uri */
+    private fun copyToCache(uri: Uri): Uri {
+        val dst = File(cacheDir, "picked_${System.currentTimeMillis()}.jpg")
+        contentResolver.openInputStream(uri).use { input ->
+            FileOutputStream(dst).use { output -> input?.copyTo(output) }
         }
+        return FileProvider.getUriForFile(this, "${BuildConfig.APPLICATION_ID}.provider", dst)
+    }
+
+    private fun showChooseImageAlertDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("選擇選項")
+            .setItems(arrayOf("從相簿中選擇", "從相機中選擇")) { _, which ->
+                when (which) {
+                    0 -> choosePhotoFromGallery()
+                    1 -> requestPermissionLauncher.launch(listOf(Manifest.permission.CAMERA).toTypedArray())
+                }
+            }.show()
     }
 }

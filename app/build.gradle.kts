@@ -111,4 +111,5 @@ dependencies {
     // ─── 其他 UI／權限工具 ───────────────────────────────────────────
     implementation(libs.circleimageview)
     implementation(libs.dexter)
+    implementation(libs.coil.compose)
 }

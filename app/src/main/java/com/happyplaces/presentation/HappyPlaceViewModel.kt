@@ -4,9 +4,9 @@ package com.happyplaces.presentation
 import android.content.Context
 import android.location.Address
 import android.location.Geocoder
+import android.net.Uri
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,21 +14,89 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.database.HappyPlaceRepository
+import com.happyplaces.presentation.ui.model.AddPlaceEvent
+import com.happyplaces.presentation.ui.model.AddPlaceUiState
+import com.happyplaces.presentation.ui.model.toHappyPlace
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class HappyPlaceViewModel(private val application: Context, private val repository: HappyPlaceRepository) :
+class HappyPlaceViewModel(
+    private val application: Context,
+    private val repository: HappyPlaceRepository
+) :
     ViewModel() {
+    private val _uiState = MutableStateFlow(AddPlaceUiState())
+    val uiState: StateFlow<AddPlaceUiState> = _uiState
 
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
 
-    // LiveData to hold the address. Views can observe this to get updates
-    val address: MutableLiveData<String> by lazy {
-        MutableLiveData<String>()
+    fun onTitleChange(v: String) = _uiState.update { it.copy(title = v) }
+    fun onDescriptionChange(v: String) = _uiState.update { it.copy(description = v) }
+    fun onDateSelected(dateStr: String) = _uiState.update { it.copy(date = dateStr) }
+    fun onLocationClick() =
+        _uiState.update { it.copy(event = AddPlaceEvent.ShowPlacesAutocomplete) }
+
+    fun onLocationSelected(addr: String, lat: Double, lng: Double) =
+        _uiState.update { it.copy(location = addr, latitude = lat, longitude = lng) }
+
+    fun onSelectCurrentLocation() =
+        _uiState.update { it.copy(event = AddPlaceEvent.RequestCurrentLocation) }
+
+    fun onAddImageClick() = _uiState.update { it.copy(event = AddPlaceEvent.ShowImagePicker) }
+    fun onImagePicked(uri: Uri) =
+        _uiState.update { it.copy(imageUri = uri) }
+
+    fun updateUiState(newState: AddPlaceUiState) = _uiState.update { newState }
+
+    fun onDateClick() {
+        _uiState.update { it.copy(event = AddPlaceEvent.ShowDatePicker) }
+    }
+
+    fun onEventConsumed() {
+        _uiState.update { it.copy(event = null) }
+    }
+
+    fun onSaveClick() {
+        val s = _uiState.value
+        val description = s.description
+        val photoUri = s.imageUri
+        val location = s.location
+        val isEditMode = s.isEditMode
+        when {
+            s.title.isBlank() -> {
+                _uiState.update { it.copy(event = AddPlaceEvent.ShowToast("Please enter title")) }
+            }
+
+            description.isBlank() -> {
+                _uiState.update { it.copy(event = AddPlaceEvent.ShowToast("Please enter description")) }
+            }
+
+            location.isBlank() -> {
+                _uiState.update { it.copy(event = AddPlaceEvent.ShowToast("Please select location")) }
+            }
+
+            photoUri == null -> {
+                _uiState.update { it.copy(event = AddPlaceEvent.ShowToast("Please add image")) }
+            }
+
+            isEditMode -> {
+                update()
+            }
+
+            else -> viewModelScope.launch {
+                uiState.value.toHappyPlace()?.let {
+                    insert(it)
+                    _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
+                }
+            }
+        }
     }
 
     fun getDataList() = liveData {
@@ -48,13 +116,17 @@ class HappyPlaceViewModel(private val application: Context, private val reposito
         }
     }
 
-    fun update(happyPlace: HappyPlace) = viewModelScope.launch(IO) {
-        val numberOfRows = repository.update(happyPlace)
-        withContext(Main) {
-            if (numberOfRows > 0) {
-                _message.value = "第 $numberOfRows 個資料已更新"
-            } else {
-                _message.value = "發生錯誤"
+    fun update() = viewModelScope.launch(IO) {
+        uiState.value.toHappyPlace()?.let {
+            val numberOfRows = repository.update(it)
+            withContext(Main) {
+                if (numberOfRows > 0) {
+                    _message.value = "第 $numberOfRows 個資料已更新"
+                } else {
+                    _message.value = "發生錯誤"
+                }
+                _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
+//                _uiState.update { it.copy(event = if (numberOfRows > 0) AddPlaceEvent.ShowToast("第 $numberOfRows 個資料已更新") else AddPlaceEvent.ShowToast("發生錯誤")) }
             }
         }
     }
@@ -70,34 +142,41 @@ class HappyPlaceViewModel(private val application: Context, private val reposito
         }
     }
 
-    // Function to get address from latitude and longitude
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun getAddressFromLatLng(latitude: Double, longitude: Double) {
-        viewModelScope.launch(IO) {
-            val geocoder = Geocoder(application, Locale.getDefault())
-            geocoder.getFromLocation(latitude, longitude, 1,
-                object : Geocoder.GeocodeListener {
-                    override fun onGeocode(addresses: MutableList<Address>) {
-                        if (addresses.isNotEmpty()) {
-                            val returnedAddress = addresses[0]
-                            val sb = StringBuilder()
-                            for (i in 0..returnedAddress.maxAddressLineIndex) {
-                                sb.append(returnedAddress.getAddressLine(i)).append(",")
-                            }
-                            sb.deleteCharAt(sb.length - 1) // Removing the last comma from the address.
-                            address.postValue(sb.toString())
-                        } else {
-                            Log.e("Get Address", "No Address returned!")
-                        }
-                    }
+    /** 依 API 版本選擇 Geocoder 呼叫 */
+    private fun getAddressFromLatLng(lat: Double, lng: Double) = viewModelScope.launch(IO) {
+        val geocoder = Geocoder(application, Locale.getDefault())
 
-                    override fun onError(errorMessage: String?) {
-                        super.onError(errorMessage)
-                        if (errorMessage != null) {
-                            Log.e("Get Address", errorMessage)
-                        }
-                    }
-                })
+        // Android 13 (API 33) 以上 ─ 使用非阻塞版
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            geocoder.getFromLocation(lat, lng, 1, object : Geocoder.GeocodeListener {
+                override fun onGeocode(addr: MutableList<Address>) {
+                    addr.firstOrNull()?.toFormatted()?.also(::postAddress)
+                }
+
+                override fun onError(errorMessage: String?) {
+                    Log.e("Geocoder", errorMessage ?: "unknown error")
+                }
+            })
+        } else {
+            // 舊 API：同步呼叫；因為在 IO 區域，不會阻塞 UI
+            @Suppress("DEPRECATION")
+            val list = geocoder.getFromLocation(lat, lng, 1)
+            list?.firstOrNull()?.toFormatted()?.also(::postAddress)
         }
+    }
+
+    fun updateCurrentLatLng(lat: Double, lng: Double) {
+        // 先更新經緯度 (地圖可立即用)；地址稍後再補
+        _uiState.update { it.copy(latitude = lat, longitude = lng) }
+        getAddressFromLatLng(lat, lng)
+    }
+
+    /** 將 Address 轉成完整字串 */
+    private fun Address.toFormatted(): String = buildString {
+        for (i in 0..maxAddressLineIndex) append(getAddressLine(i)).append(", ")
+    }.removeSuffix(", ")
+
+    private fun postAddress(addr: String) {
+        _uiState.update { it.copy(location = addr) }
     }
 }
