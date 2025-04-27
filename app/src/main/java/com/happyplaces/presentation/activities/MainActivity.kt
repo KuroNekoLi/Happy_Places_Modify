@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
             message.observe(this@MainActivity) {
                 Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
             }
-            getDataList().observe(this@MainActivity) {
+            getDataListLiveData().observe(this@MainActivity) {
                 myAdapter.submitList(it)
             }
         }

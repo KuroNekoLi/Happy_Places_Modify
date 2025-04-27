@@ -103,6 +103,7 @@ dependencies {
     // ─── Koin DI ──────────────────────────────────────────────────────
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation(libs.koin.compose)
 
     // ─── Google Maps / Places ────────────────────────────────────────
     implementation(libs.play.services.maps)

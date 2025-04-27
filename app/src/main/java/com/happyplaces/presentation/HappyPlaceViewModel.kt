@@ -17,10 +17,14 @@ import com.happyplaces.database.HappyPlaceRepository
 import com.happyplaces.presentation.ui.model.AddPlaceEvent
 import com.happyplaces.presentation.ui.model.AddPlaceUiState
 import com.happyplaces.presentation.ui.model.toHappyPlace
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,8 +33,10 @@ import java.util.Locale
 class HappyPlaceViewModel(
     private val application: Context,
     private val repository: HappyPlaceRepository
-) :
-    ViewModel() {
+) : ViewModel() {
+    val dataList = repository.dataList
+        .flowOn(Dispatchers.IO)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private val _uiState = MutableStateFlow(AddPlaceUiState())
     val uiState: StateFlow<AddPlaceUiState> = _uiState
 
@@ -99,7 +105,7 @@ class HappyPlaceViewModel(
         }
     }
 
-    fun getDataList() = liveData {
+    fun getDataListLiveData() = liveData {
         repository.dataList.collect {
             emit(it)
         }
