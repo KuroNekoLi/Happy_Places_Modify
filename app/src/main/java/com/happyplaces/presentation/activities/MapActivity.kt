@@ -12,7 +12,6 @@ import com.happyplaces.R
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ActivityMapBinding
 import com.happyplaces.presentation.activities.MainActivity.Companion.EXTRA_PLACE_DETAILS
-import com.google.android.gms.maps.SupportMapFragment as SupportMapFragment1
 
 class MapActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMapBinding

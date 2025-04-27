@@ -2,7 +2,6 @@ package com.happyplaces.presentation.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
@@ -15,6 +14,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -34,6 +34,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.happyplaces.BuildConfig
 import com.happyplaces.R
@@ -107,13 +108,20 @@ class AddHappyPlaceActivity : AppCompatActivity() {
 
     private val placeResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
-            if (res.resultCode == Activity.RESULT_OK) {
-                val place = Autocomplete.getPlaceFromIntent(res.data!!)
-                viewModel.onLocationSelected(
-                    addr = place.address ?: "",
-                    lat = place.latLng?.latitude ?: 0.0,
-                    lng = place.latLng?.longitude ?: 0.0
-                )
+            when (res.resultCode) {
+                RESULT_OK -> {
+                    val place = Autocomplete.getPlaceFromIntent(res.data!!)
+                    viewModel.onLocationSelected(
+                        addr = place.address ?: "",
+                        lat = place.latLng?.latitude ?: 0.0,
+                        lng = place.latLng?.longitude ?: 0.0
+                    )
+                }
+                AutocompleteActivity.RESULT_ERROR -> {
+                    val status = Autocomplete.getStatusFromIntent(res.data!!)
+                    Log.e("Places", "Autocomplete error: ${status.status}, ${status.statusMessage}")
+                    Toast.makeText(this, status.statusMessage, Toast.LENGTH_LONG).show()
+                }
             }
         }
 
