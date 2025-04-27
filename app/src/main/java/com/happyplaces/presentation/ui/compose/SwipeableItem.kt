@@ -39,7 +39,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import lin.example.myapplication.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

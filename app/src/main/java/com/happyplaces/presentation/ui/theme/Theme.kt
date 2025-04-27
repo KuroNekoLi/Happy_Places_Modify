@@ -1,4 +1,4 @@
-package lin.example.myapplication.ui.theme
+package com.happyplaces.presentation.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -10,6 +10,13 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import lin.example.myapplication.ui.theme.NormalBlue
+import lin.example.myapplication.ui.theme.Pink40
+import lin.example.myapplication.ui.theme.Pink80
+import lin.example.myapplication.ui.theme.Purple80
+import lin.example.myapplication.ui.theme.PurpleGrey40
+import lin.example.myapplication.ui.theme.PurpleGrey80
+import lin.example.myapplication.ui.theme.Typography
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,

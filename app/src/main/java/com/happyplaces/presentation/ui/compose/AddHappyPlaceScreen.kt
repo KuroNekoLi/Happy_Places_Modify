@@ -43,7 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.happyplaces.R
-import lin.example.myapplication.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

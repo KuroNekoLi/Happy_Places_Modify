@@ -44,7 +44,7 @@ import com.happyplaces.presentation.activities.MainActivity.Companion.EXTRA_PLAC
 import com.happyplaces.presentation.ui.compose.AddHappyPlaceScreen
 import com.happyplaces.presentation.ui.model.AddPlaceEvent
 import com.happyplaces.presentation.ui.model.AddPlaceUiState
-import lin.example.myapplication.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 import java.io.FileOutputStream
