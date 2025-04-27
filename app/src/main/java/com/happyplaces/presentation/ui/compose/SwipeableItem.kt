@@ -1,0 +1,186 @@
+package com.happyplaces.presentation.ui.compose
+
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.snapTo
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import lin.example.myapplication.ui.theme.HappyPlacesTheme
+import kotlin.math.abs
+import kotlin.math.roundToInt
+
+private enum class SwipeAction { Idle, Delete, Edit }
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SwipeableItem(
+    modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit,
+    content: @Composable BoxScope.() -> Unit
+) {
+    // 1. 狀態持有者
+    val swipeState = remember { AnchoredDraggableState<SwipeAction>(SwipeAction.Idle) }
+
+    // 2. 取得元件尺寸
+    var widthPx by remember { mutableIntStateOf(0) }
+    var heightPx by remember { mutableIntStateOf(0) }
+    var anchors by remember(widthPx) {
+        mutableStateOf(
+            DraggableAnchors<SwipeAction> {
+                SwipeAction.Delete at -widthPx.toFloat()
+                SwipeAction.Idle at 0f
+                SwipeAction.Edit at widthPx.toFloat()
+            }
+        )
+    }
+
+    // 3. 同步更新 Anchors
+    LaunchedEffect(anchors) {
+        swipeState.updateAnchors(anchors)
+    }
+
+    // 4. 自訂 FlingBehavior
+    val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+        state = swipeState,
+        positionalThreshold = { distance -> distance / 2f },
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .onSizeChanged { size ->
+                widthPx = size.width
+                heightPx = size.height
+                anchors = DraggableAnchors {
+                    SwipeAction.Delete at -widthPx.toFloat()
+                    SwipeAction.Idle at 0f
+                    SwipeAction.Edit at widthPx.toFloat()
+                }
+                swipeState.updateAnchors(anchors)
+            }
+    ) {
+        val offsetPx = swipeState.offset.takeIf { it.isFinite() } ?: 0f
+        val density = LocalDensity.current
+        val absOffsetDp = with(density) { abs(offsetPx).toDp() }
+        val iconSizeDp = 24.dp
+        val widthDp = with(density) { widthPx.toDp() }
+        val iconPaddingHorizontalDp = (widthDp * 0.2f - iconSizeDp) / 2f
+
+        // 背景區域
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .width(absOffsetDp)
+                .background(
+                    when {
+                        offsetPx > 0f -> Color(0xFF24AE05)
+                        offsetPx < 0f -> Color(0xFFF44336)
+                        else -> Color.Transparent
+                    }
+                )
+                .align(if (offsetPx > 0f) Alignment.CenterStart else Alignment.CenterEnd)
+        ) {
+            val icon = if (offsetPx > 0f) Icons.Default.Edit else Icons.Default.Delete
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier
+                    .align(if (offsetPx > 0f) Alignment.CenterStart else Alignment.CenterEnd)
+                    .padding(
+                        start = if (offsetPx > 0f) iconPaddingHorizontalDp else 0.dp,
+                        end = if (offsetPx < 0f) iconPaddingHorizontalDp else 0.dp
+                    )
+            )
+        }
+
+        // 前景內容 + 拖曳
+        Box(
+            Modifier
+                .offset { IntOffset(offsetPx.roundToInt(), 0) }
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .anchoredDraggable(
+                    state = swipeState,
+                    orientation = Orientation.Horizontal,
+                    flingBehavior = flingBehavior
+                )
+        ) {
+            content()
+        }
+    }
+
+    // 放手後決定行為
+    LaunchedEffect(swipeState.currentValue) {
+        when (swipeState.currentValue) {
+            SwipeAction.Edit -> {
+                swipeState.animateTo(SwipeAction.Edit)
+                onEdit()
+            }
+
+            SwipeAction.Delete -> {
+                swipeState.animateTo(SwipeAction.Delete)
+                onDelete()
+            }
+
+            SwipeAction.Idle -> {
+                swipeState.snapTo(SwipeAction.Idle)
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SwipeableItemPreview() {
+    HappyPlacesTheme {
+        SwipeableItem(
+            modifier = Modifier.fillMaxWidth(),
+            onDelete = {},
+            onEdit = {}
+        ) {
+            Text(
+                text = "SwipeableItem",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+        }
+    }
+}
