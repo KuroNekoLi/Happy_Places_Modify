@@ -18,6 +18,8 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -39,11 +41,13 @@ import com.happyplaces.database.HappyPlace
 import com.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.activities.MainActivity.Companion.EXTRA_PLACE_DETAILS
+import com.happyplaces.presentation.ui.compose.AddHappyPlaceScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import lin.example.myapplication.ui.theme.HappyPlacesTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -142,8 +146,28 @@ class AddHappyPlaceActivity : AppCompatActivity() {
         viewModel.message.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
+        enableEdgeToEdge()
+        setContent {
+            HappyPlacesTheme {
+                AddHappyPlaceScreen(
+                    title = "title",
+                    onTitleChange = {},
+                    description = "description",
+                    onDescriptionChange = {},
+                    date = "date",
+                    onDateClick = {},
+                    location = "location",
+                    onLocationClick = {},
+                    onSelectCurrentLocation = {},
+                    imageBitmap = null,
+                    onAddImageClick = {},
+                    onSaveClick = {},
+                    onBack = {}
+                )
+            }
+        }
         binding = ActivityAddHappyPlaceBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+//        setContentView(binding.root)
 
         setSupportActionBar(binding.toolbarAddPlace)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
