@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.FileProvider
+import com.example.compose.HappyPlacesTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -44,7 +45,6 @@ import com.happyplaces.presentation.activities.MainActivity.Companion.EXTRA_PLAC
 import com.happyplaces.presentation.ui.compose.AddHappyPlaceScreen
 import com.happyplaces.presentation.ui.model.AddPlaceEvent
 import com.happyplaces.presentation.ui.model.AddPlaceUiState
-import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 import java.io.FileOutputStream

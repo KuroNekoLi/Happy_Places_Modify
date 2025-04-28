@@ -17,21 +17,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.compose.HappyPlacesTheme
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.mockHappyPlaceList
-import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @Composable
 fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlace, onItemClick: (HappyPlace) -> Unit) =
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
