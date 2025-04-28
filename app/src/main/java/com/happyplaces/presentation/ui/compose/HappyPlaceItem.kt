@@ -1,9 +1,9 @@
 package com.happyplaces.presentation.ui.compose
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,42 +19,57 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.happyplaces.database.HappyPlace
+import com.happyplaces.mockHappyPlaceList
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @Composable
-fun HappyPlaceItem(place: HappyPlace) = Card(
-    shape = RoundedCornerShape(12.dp),
-    modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 8.dp),
-    colors = CardDefaults.cardColors(containerColor = Color.White),
-    elevation = CardDefaults.cardElevation(4.dp)
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(16.dp)
+fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlace, onItemClick: (HappyPlace) -> Unit) =
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        // 圓形圖片
-        AsyncImage(
-            model = place.image,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .size(64.dp)
-                .clip(CircleShape)
-        )
-
-        Spacer(Modifier.width(16.dp))
-
-        Column {
-            Text(place.title.orEmpty(), style = MaterialTheme.typography.titleMedium)
-            Text(
-                place.description.orEmpty(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                .padding(16.dp)
+                .clickable { onItemClick(place) }
+        ) {
+            // 圓形圖片
+            AsyncImage(
+                model = place.image,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
             )
+
+            Spacer(Modifier.width(16.dp))
+
+            Column {
+                Text(place.title.orEmpty(), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    place.description.orEmpty(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
+    }
+
+@Preview(showBackground = true)
+@Composable
+fun HappyPlaceItemPreview() {
+    HappyPlacesTheme {
+        HappyPlaceItem(
+            place = mockHappyPlaceList.first(),
+            onItemClick = {}
+        )
     }
 }

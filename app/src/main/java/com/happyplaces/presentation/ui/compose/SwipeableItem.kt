@@ -15,9 +15,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -33,14 +34,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private enum class SwipeAction { Idle, Delete, Edit }
@@ -49,6 +51,7 @@ private enum class SwipeAction { Idle, Delete, Edit }
 @Composable
 fun SwipeableItem(
     modifier: Modifier = Modifier,
+    cornerRadius: Dp = 12.dp,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
     content: @Composable BoxScope.() -> Unit
@@ -84,6 +87,7 @@ fun SwipeableItem(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(cornerRadius))
             .onSizeChanged { size ->
                 widthPx = size.width
                 heightPx = size.height
@@ -94,19 +98,19 @@ fun SwipeableItem(
                 }
                 swipeState.updateAnchors(anchors)
             }
+            .background(Color.Gray)
     ) {
         val offsetPx = swipeState.offset.takeIf { it.isFinite() } ?: 0f
         val density = LocalDensity.current
-        val absOffsetDp = with(density) { abs(offsetPx).toDp() }
         val iconSizeDp = 24.dp
         val widthDp = with(density) { widthPx.toDp() }
+        val heightDp = with(density) { heightPx.toDp() }
         val iconPaddingHorizontalDp = (widthDp * 0.2f - iconSizeDp) / 2f
 
         // 背景區域
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .width(absOffsetDp)
+                .fillMaxWidth()
                 .background(
                     when {
                         offsetPx > 0f -> Color(0xFF24AE05)
@@ -115,6 +119,7 @@ fun SwipeableItem(
                     }
                 )
                 .align(if (offsetPx > 0f) Alignment.CenterStart else Alignment.CenterEnd)
+                .height(heightDp)
         ) {
             val icon = if (offsetPx > 0f) Icons.Default.Edit else Icons.Default.Delete
             Icon(
@@ -152,11 +157,13 @@ fun SwipeableItem(
             SwipeAction.Edit -> {
                 swipeState.animateTo(SwipeAction.Edit)
                 onEdit()
+                swipeState.snapTo(SwipeAction.Idle)
             }
 
             SwipeAction.Delete -> {
                 swipeState.animateTo(SwipeAction.Delete)
                 onDelete()
+                swipeState.snapTo(SwipeAction.Idle)
             }
 
             SwipeAction.Idle -> {

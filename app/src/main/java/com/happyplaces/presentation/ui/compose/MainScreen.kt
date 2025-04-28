@@ -2,6 +2,7 @@ package com.happyplaces.presentation.ui.compose
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.happyplaces.R
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.mockHappyPlaceList
 import com.happyplaces.presentation.HappyPlaceViewModel
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -30,10 +33,11 @@ fun MainScreen(
     viewModel: HappyPlaceViewModel = koinViewModel(),
     onAddClick: () -> Unit,
     onEdit: (HappyPlace) -> Unit,
+    onItemClick: (HappyPlace) -> Unit,
     onDelete: (HappyPlace) -> Unit
 ) {
     val list by viewModel.dataList.collectAsState()
-    MainScreen(list = list, onAddClick = onAddClick, onEdit = onEdit, onDelete = onDelete)
+    MainScreen(list = list, onAddClick = onAddClick, onEdit = onEdit, onDelete = onDelete,onItemClick = onItemClick)
 }
 
 @Composable
@@ -41,7 +45,8 @@ fun MainScreen(
     list: List<HappyPlace>,
     onAddClick: () -> Unit,
     onDelete: (HappyPlace) -> Unit,
-    onEdit: (HappyPlace) -> Unit
+    onEdit: (HappyPlace) -> Unit,
+    onItemClick: (HappyPlace) -> Unit
 ) {
     /** 觀察資料 */
     Scaffold(
@@ -49,6 +54,9 @@ fun MainScreen(
             FloatingActionButton(onClick = onAddClick) {
                 Icon(Icons.Default.Add, contentDescription = null)
             }
+        },
+        topBar = {
+            HappyPlaceToolBar(false, stringResource(id = R.string.app_name))
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
@@ -73,10 +81,17 @@ fun MainScreen(
                     key = { it.id }
                 ) { place ->
                     SwipeableItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         onDelete = { onDelete(place) },
                         onEdit = { onEdit(place) }
                     ) {
-                        HappyPlaceItem(place)
+                        HappyPlaceItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            place = place,
+                            onItemClick = onItemClick,
+                        )
                     }
                 }
             }
@@ -87,10 +102,13 @@ fun MainScreen(
 @Preview(showBackground = true)
 @Composable
 fun MyScreenKoinPreview() {
-    MainScreen(
-        list = mockHappyPlaceList,
-        onAddClick = {},
-        onDelete = {},
-        onEdit = {}
-    )
+    HappyPlacesTheme {
+        MainScreen(
+            list = mockHappyPlaceList,
+            onAddClick = {},
+            onDelete = {},
+            onEdit = {},
+            onItemClick = {}
+        )
+    }
 }
