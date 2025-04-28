@@ -2,6 +2,7 @@ package com.happyplaces.presentation.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
                         viewModel.delete(happyPlace)
                     },
                     onItemClick = { happyPlace ->
+                        Log.i("LinLi", "onItemClick")
                         Intent(this@MainActivity, HappyPlaceDetailActivity::class.java).let {
                             it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
                             startActivity(it)

@@ -1,5 +1,6 @@
 package com.happyplaces.presentation.ui.compose
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,10 @@ fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlace, onItemClick
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(16.dp)
-                .clickable { onItemClick(place) }
+                .clickable {
+                    Log.i("LinLi", "clickable")
+                    onItemClick(place)
+                }
         ) {
             // 圓形圖片
             AsyncImage(
