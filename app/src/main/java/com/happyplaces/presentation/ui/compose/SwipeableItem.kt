@@ -1,15 +1,11 @@
 package com.happyplaces.presentation.ui.compose
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -56,10 +52,7 @@ fun SwipeableItem(
     onEdit: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
-    // 1. 狀態持有者
     val swipeState = remember { AnchoredDraggableState<SwipeAction>(SwipeAction.Idle) }
-
-    // 2. 取得元件尺寸
     var widthPx by remember { mutableIntStateOf(0) }
     var heightPx by remember { mutableIntStateOf(0) }
     var anchors by remember(widthPx) {
@@ -72,17 +65,9 @@ fun SwipeableItem(
         )
     }
 
-    // 3. 同步更新 Anchors
     LaunchedEffect(anchors) {
         swipeState.updateAnchors(anchors)
     }
-
-    // 4. 自訂 FlingBehavior
-    val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
-        state = swipeState,
-        positionalThreshold = { distance -> distance / 2f },
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-    )
 
     Box(
         modifier = modifier
@@ -141,11 +126,7 @@ fun SwipeableItem(
                 .offset { IntOffset(offsetPx.roundToInt(), 0) }
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .anchoredDraggable(
-                    state = swipeState,
-                    orientation = Orientation.Horizontal,
-                    flingBehavior = flingBehavior
-                )
+                .anchoredDraggable(swipeState, orientation = Orientation.Horizontal)
         ) {
             content()
         }
@@ -155,13 +136,11 @@ fun SwipeableItem(
     LaunchedEffect(swipeState.currentValue) {
         when (swipeState.currentValue) {
             SwipeAction.Edit -> {
-                swipeState.animateTo(SwipeAction.Edit)
                 onEdit()
                 swipeState.snapTo(SwipeAction.Idle)
             }
 
             SwipeAction.Delete -> {
-                swipeState.animateTo(SwipeAction.Delete)
                 onDelete()
                 swipeState.snapTo(SwipeAction.Idle)
             }
