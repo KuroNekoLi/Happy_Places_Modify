@@ -32,13 +32,12 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun MainScreen(
     viewModel: HappyPlaceViewModel = koinViewModel(),
-    onAddClick: () -> Unit,
-    onEdit: (HappyPlace) -> Unit,
-    onItemClick: (HappyPlace) -> Unit,
-    onDelete: (HappyPlace) -> Unit
+    onAddClick: () -> Unit = {},
+    onEdit: (HappyPlace) -> Unit = {},
+    onItemClick: (HappyPlace) -> Unit = {}
 ) {
     val list by viewModel.dataList.collectAsState()
-    MainScreen(list = list, onAddClick = onAddClick, onEdit = onEdit, onDelete = onDelete,onItemClick = onItemClick)
+    MainScreen(list = list, onAddClick = onAddClick, onEdit = onEdit, onDelete = viewModel::delete,onItemClick = onItemClick)
 }
 
 @Composable

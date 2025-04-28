@@ -31,3 +31,18 @@ fun AddPlaceUiState.toHappyPlace(): HappyPlace? {
         longitude = this.longitude
     )
 }
+
+fun HappyPlace.toAddPlaceUiState(): AddPlaceUiState {
+    return AddPlaceUiState(
+        id = this.id,
+        title = this.title.orEmpty(),
+        description = this.description.orEmpty(),
+        date = this.date.orEmpty(),
+        location = this.location.orEmpty(),
+        latitude = this.latitude,
+        longitude = this.longitude,
+        imageUri = this.image,
+        event = null,
+        isEditMode = false
+    )
+}

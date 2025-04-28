@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.compose.HappyPlacesTheme
+import com.happyplaces.database.HappyPlace
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.compose.MainScreen
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -24,16 +25,13 @@ class MainActivity : AppCompatActivity() {
                     onAddClick = {
                         startActivity(Intent(this@MainActivity, AddHappyPlaceActivity::class.java))
                     },
-                    onEdit = { happyPlace ->
+                    onEdit = { happyPlace:HappyPlace ->
                         Intent(this@MainActivity, AddHappyPlaceActivity::class.java).let {
                             it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
                             startActivity(it)
                         }
                     },
-                    onDelete = { happyPlace ->
-                        viewModel.delete(happyPlace)
-                    },
-                    onItemClick = { happyPlace ->
+                    onItemClick = { happyPlace:HappyPlace ->
                         Log.i("LinLi", "onItemClick")
                         Intent(this@MainActivity, HappyPlaceDetailActivity::class.java).let {
                             it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)

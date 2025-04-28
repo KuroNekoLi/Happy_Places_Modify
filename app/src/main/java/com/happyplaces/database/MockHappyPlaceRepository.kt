@@ -11,4 +11,7 @@ class MockHappyPlaceRepository: HappyPlaceRepository {
     override suspend fun insert(happyPlace: HappyPlace): Long = mockHappyPlaceList.size.toLong()
     override suspend fun update(happyPlace: HappyPlace): Int = mockHappyPlaceList.indexOf(happyPlace)
     override suspend fun delete(happyPlace: HappyPlace): Int = mockHappyPlaceList.indexOf(happyPlace)
+    override suspend fun getHappyPlaceById(id: Int): Flow<HappyPlace> = flow {
+        emit(mockHappyPlaceList.first { it.id == id })
+    }
 }

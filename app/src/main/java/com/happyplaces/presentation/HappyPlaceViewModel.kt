@@ -10,14 +10,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.database.HappyPlaceRepository
 import com.happyplaces.presentation.ui.model.AddPlaceEvent
 import com.happyplaces.presentation.ui.model.AddPlaceUiState
+import com.happyplaces.presentation.ui.model.toAddPlaceUiState
 import com.happyplaces.presentation.ui.model.toHappyPlace
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +34,7 @@ class HappyPlaceViewModel(
     private val repository: HappyPlaceRepository
 ) : ViewModel() {
     val dataList = repository.dataList
-        .flowOn(Dispatchers.IO)
+        .flowOn(IO)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private val _uiState = MutableStateFlow(AddPlaceUiState())
     val uiState: StateFlow<AddPlaceUiState> = _uiState
@@ -102,12 +101,6 @@ class HappyPlaceViewModel(
                     _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
                 }
             }
-        }
-    }
-
-    fun getDataListLiveData() = liveData {
-        repository.dataList.collect {
-            emit(it)
         }
     }
 
@@ -184,5 +177,13 @@ class HappyPlaceViewModel(
 
     private fun postAddress(addr: String) {
         _uiState.update { it.copy(location = addr) }
+    }
+
+    fun getHappyPlaceById(id: Int) {
+        viewModelScope.launch {
+            repository.getHappyPlaceById(id).collect {
+                _uiState.value = it.toAddPlaceUiState()
+            }
+        }
     }
 }

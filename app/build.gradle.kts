@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 val uploadKeystorePath: String by project
@@ -86,6 +87,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation (libs.androidx.navigation.compose)
+    implementation (libs.androidx.runtime)
+    implementation (libs.ui)
+
 
     // ─── Room ──────────────────────────────────────────────────────
     implementation(libs.androidx.room.runtime)
@@ -120,4 +125,6 @@ dependencies {
     implementation(libs.circleimageview)
     implementation(libs.dexter)
     implementation(libs.coil.compose)
+
+    implementation(libs.kotlinx.serialization.json)
 }
