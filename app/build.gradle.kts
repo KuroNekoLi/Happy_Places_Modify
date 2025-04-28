@@ -108,6 +108,13 @@ dependencies {
     // ─── Google Maps / Places ────────────────────────────────────────
     implementation(libs.play.services.maps)
     implementation(libs.places)
+    // Optionally, you can include the Compose utils library for Clustering,
+    // Street View metadata checks, etc.
+    implementation (libs.maps.compose.utils)
+
+    // Optionally, you can include the widgets library for ScaleBar, etc.
+    implementation (libs.maps.compose.widgets)
+    implementation(libs.maps.compose)
 
     // ─── 其他 UI／權限工具 ───────────────────────────────────────────
     implementation(libs.circleimageview)
