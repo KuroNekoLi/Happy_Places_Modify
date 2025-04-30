@@ -22,12 +22,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.happyplaces.database.HappyPlace
-import com.happyplaces.mockHappyPlaceList
+import com.happyplaces.data.datasource.local.HappyPlaceEntity
+import com.happyplaces.data.model.mockHappyPlaceEntityLists
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @Composable
-fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlace, onItemClick: (HappyPlace) -> Unit) =
+fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlaceEntity, onItemClick: (HappyPlaceEntity) -> Unit) =
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = modifier,
@@ -70,7 +70,7 @@ fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlace, onItemClick
 fun HappyPlaceItemPreview() {
     HappyPlacesTheme {
         HappyPlaceItem(
-            place = mockHappyPlaceList.first(),
+            place = mockHappyPlaceEntityLists.first(),
             onItemClick = {}
         )
     }

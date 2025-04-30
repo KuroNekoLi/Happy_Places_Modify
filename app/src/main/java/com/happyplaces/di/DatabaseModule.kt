@@ -1,8 +1,8 @@
 package com.happyplaces.di
 
 import androidx.room.Room
-import com.happyplaces.database.UserDao
-import com.happyplaces.database.UserDatabase
+import com.happyplaces.data.datasource.local.UserDao
+import com.happyplaces.data.datasource.local.UserDatabase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 

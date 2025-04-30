@@ -1,10 +1,10 @@
 package com.happyplaces.di
 
 import androidx.room.Room
-import com.happyplaces.database.HappyPlaceRepository
-import com.happyplaces.database.HappyPlaceRepositoryImpl
-import com.happyplaces.database.UserDao
-import com.happyplaces.database.UserDatabase
+import com.happyplaces.data.datasource.local.UserDao
+import com.happyplaces.data.datasource.local.UserDatabase
+import com.happyplaces.data.repository.HappyPlaceRepository
+import com.happyplaces.data.repository.HappyPlaceRepositoryImpl
 import com.happyplaces.presentation.HappyPlaceViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext

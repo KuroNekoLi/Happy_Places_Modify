@@ -1,4 +1,4 @@
-package com.happyplaces.database
+package com.happyplaces.data.datasource.local
 
 import android.net.Uri
 import android.os.Parcel
@@ -7,7 +7,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "place_data_table")
-data class HappyPlace(
+data class HappyPlaceEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val title: String?,
@@ -44,12 +44,12 @@ data class HappyPlace(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<HappyPlace> {
-        override fun createFromParcel(parcel: Parcel): HappyPlace {
-            return HappyPlace(parcel)
+    companion object CREATOR : Parcelable.Creator<HappyPlaceEntity> {
+        override fun createFromParcel(parcel: Parcel): HappyPlaceEntity {
+            return HappyPlaceEntity(parcel)
         }
 
-        override fun newArray(size: Int): Array<HappyPlace?> {
+        override fun newArray(size: Int): Array<HappyPlaceEntity?> {
             return arrayOfNulls(size)
         }
     }

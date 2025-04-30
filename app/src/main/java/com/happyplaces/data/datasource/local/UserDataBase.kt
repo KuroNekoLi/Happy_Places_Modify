@@ -1,10 +1,11 @@
-package com.happyplaces.database
+package com.happyplaces.data.datasource.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.happyplaces.util.UriTypeConverter
 
-@Database(entities = [HappyPlace::class], version = 1)
+@Database(entities = [HappyPlaceEntity::class], version = 1)
 @TypeConverters(UriTypeConverter::class)
 abstract class UserDatabase : RoomDatabase() {
     abstract val dao: UserDao

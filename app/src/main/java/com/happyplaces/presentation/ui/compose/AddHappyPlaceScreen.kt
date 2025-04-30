@@ -68,8 +68,8 @@ import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.happyplaces.BuildConfig
 import com.happyplaces.R
+import com.happyplaces.data.model.AddPlaceEvent
 import com.happyplaces.presentation.HappyPlaceViewModel
-import com.happyplaces.presentation.ui.model.AddPlaceEvent
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.compose.koinViewModel
 import java.io.File

@@ -1,4 +1,4 @@
-package com.happyplaces.database
+package com.happyplaces.util
 
 import android.net.Uri
 import androidx.room.TypeConverter

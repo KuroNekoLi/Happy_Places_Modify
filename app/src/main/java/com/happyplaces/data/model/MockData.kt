@@ -1,9 +1,9 @@
-package com.happyplaces
+package com.happyplaces.data.model
 
 import androidx.core.net.toUri
-import com.happyplaces.database.HappyPlace
+import com.happyplaces.data.datasource.local.HappyPlaceEntity
 
-val mockHappyPlace = HappyPlace(
+val mockHappyPlaceEntity = HappyPlaceEntity(
     id = 2,
     title = "大安區",
     image = "https://firebasestorage.googleapis.com/v0/b/kolfanci.appspot.com/o/rectange.png?alt=media&token=19343790-47e2-4382-890d-5b0c4fe50966".toUri(),
@@ -13,8 +13,8 @@ val mockHappyPlace = HappyPlace(
     latitude = 25.048333,
     longitude = 121.783333
 )
-val mockHappyPlaceList = listOf<HappyPlace>(
-    HappyPlace(
+val mockHappyPlaceEntityLists = listOf<HappyPlaceEntity>(
+    HappyPlaceEntity(
         id = 1,
         title = "大安區",
         image = "https://firebasestorage.googleapis.com/v0/b/kolfanci.appspot.com/o/rectange.png?alt=media&token=19343790-47e2-4382-890d-5b0c4fe50966".toUri(),
@@ -24,5 +24,5 @@ val mockHappyPlaceList = listOf<HappyPlace>(
         latitude = 25.048333,
         longitude = 121.783333
     ),
-    mockHappyPlace
+    mockHappyPlaceEntity
 )

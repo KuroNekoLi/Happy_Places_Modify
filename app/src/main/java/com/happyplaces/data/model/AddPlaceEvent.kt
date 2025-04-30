@@ -1,4 +1,4 @@
-package com.happyplaces.presentation.ui.model
+package com.happyplaces.data.model
 
 sealed class AddPlaceEvent {
     object ShowDatePicker           : AddPlaceEvent()
