@@ -22,11 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.compose.HappyPlacesTheme
 import com.happyplaces.R
 import com.happyplaces.database.HappyPlace
 import com.happyplaces.mockHappyPlaceList
 import com.happyplaces.presentation.HappyPlaceViewModel
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

@@ -6,9 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.compose.rememberNavController
-import com.example.compose.HappyPlacesTheme
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.HappyPlaceNavHost
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {

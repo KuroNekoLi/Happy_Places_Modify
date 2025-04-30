@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.compose.HappyPlacesTheme
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import kotlin.math.roundToInt
 
 private enum class SwipeAction { Idle, Delete, Edit }

@@ -30,9 +30,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.example.compose.HappyPlacesTheme
 import com.happyplaces.R
 import com.happyplaces.presentation.HappyPlaceViewModel
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

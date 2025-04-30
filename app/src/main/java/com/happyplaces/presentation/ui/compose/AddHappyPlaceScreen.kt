@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil3.compose.AsyncImage
-import com.example.compose.HappyPlacesTheme
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -71,6 +70,7 @@ import com.happyplaces.BuildConfig
 import com.happyplaces.R
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.model.AddPlaceEvent
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
 import java.text.SimpleDateFormat
