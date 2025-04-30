@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,9 +24,13 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MapScreen(
+    id:Int,
     viewModel: HappyPlaceViewModel = koinViewModel(),
     onBackClick: () -> Unit
 ){
+    LaunchedEffect(Unit) {
+        viewModel.getHappyPlaceById(id)
+    }
     val uiState by viewModel.uiState.collectAsState()
     uiState.toHappyPlace()?.let { place ->
         MapScreen(place = place, onBackClick = onBackClick, onInfoWindowClick = {})

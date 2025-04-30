@@ -13,15 +13,15 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-object Add
+data object Add
 @Serializable
 data class Edit(val id: Int)
 @Serializable
 data class Detail(val id: Int)
 @Serializable
-object Map
+data class Map(val id: Int)
 @Serializable
-object Home
+data object Home
 
 @Composable
 fun HappyPlaceNavHost(
@@ -44,11 +44,11 @@ fun HappyPlaceNavHost(
             HappyPlaceDetailScreen(
                 id = detail.id,
                 onBackClick = { navController.popBackStack() },
-                onViewOnMapClick = { }
+                onViewOnMapClick = { navController.navigate(Map(detail.id)) }
             )
         }
         composable<Map> {
-            MapScreen(onBackClick = { navController.popBackStack() })
+            MapScreen(id = it.toRoute<Map>().id,onBackClick = { navController.popBackStack() })
         }
         composable<Add> {
             AddHappyPlaceScreen { navController.popBackStack() }
