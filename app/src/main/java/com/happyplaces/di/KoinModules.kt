@@ -2,6 +2,7 @@ package com.happyplaces.di
 
 import androidx.room.Room
 import com.happyplaces.database.HappyPlaceRepository
+import com.happyplaces.database.HappyPlaceRepositoryImpl
 import com.happyplaces.database.UserDao
 import com.happyplaces.database.UserDatabase
 import com.happyplaces.presentation.HappyPlaceViewModel
@@ -23,7 +24,7 @@ val appModule = module {
     single<UserDao> { get<UserDatabase>().dao }
 
     // Repository
-    single { HappyPlaceRepository(get()) }
+    factory<HappyPlaceRepository> { HappyPlaceRepositoryImpl(get()) }
 
     // ViewModel：Koin 會自動幫你產生 Factory
     viewModel { HappyPlaceViewModel(androidApplication(), get()) }

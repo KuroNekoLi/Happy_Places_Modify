@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 val uploadKeystorePath: String by project
@@ -86,6 +87,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation (libs.androidx.navigation.compose)
+    implementation (libs.androidx.runtime)
+    implementation (libs.ui)
+
 
     // ─── Room ──────────────────────────────────────────────────────
     implementation(libs.androidx.room.runtime)
@@ -103,13 +108,23 @@ dependencies {
     // ─── Koin DI ──────────────────────────────────────────────────────
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation(libs.koin.compose)
 
     // ─── Google Maps / Places ────────────────────────────────────────
     implementation(libs.play.services.maps)
     implementation(libs.places)
+    // Optionally, you can include the Compose utils library for Clustering,
+    // Street View metadata checks, etc.
+    implementation (libs.maps.compose.utils)
+
+    // Optionally, you can include the widgets library for ScaleBar, etc.
+    implementation (libs.maps.compose.widgets)
+    implementation(libs.maps.compose)
 
     // ─── 其他 UI／權限工具 ───────────────────────────────────────────
     implementation(libs.circleimageview)
     implementation(libs.dexter)
     implementation(libs.coil.compose)
+
+    implementation(libs.kotlinx.serialization.json)
 }

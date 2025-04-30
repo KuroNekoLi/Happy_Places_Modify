@@ -25,21 +25,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
-        <activity
-            android:name=".presentation.activities.MapActivity"
-            android:label="Happy Place on Map"
-            android:screenOrientation="portrait"
-            android:theme="@style/CustomNoActionBarTheme" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_api_key" />
-
-        <activity
-            android:name=".presentation.activities.HappyPlaceDetailActivity"
-            android:label="HAPPY PLACE DETAIL"
-            android:screenOrientation="portrait"
-            android:theme="@style/CustomNoActionBarTheme"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -62,11 +51,6 @@
             </intent-filter>
         </activity> <!-- TODO (Step 7 : Modify the activity manifest details as per our requirement. Here we have created the Style in style.xml for NoActionBar.) -->
         <!-- START -->
-        <activity
-            android:name=".presentation.activities.AddHappyPlaceActivity"
-            android:label="ADD HAPPY PLACE"
-            android:screenOrientation="portrait"
-            android:theme="@style/CustomNoActionBarTheme"/>
     </application>
 
 </manifest>

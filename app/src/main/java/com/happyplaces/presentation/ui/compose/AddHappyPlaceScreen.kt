@@ -1,6 +1,15 @@
 package com.happyplaces.presentation.ui.compose
 
+import android.Manifest
+import android.app.DatePickerDialog
+import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Looper
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,33 +26,248 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import coil3.compose.AsyncImage
+import com.example.compose.HappyPlacesTheme
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.happyplaces.BuildConfig
 import com.happyplaces.R
-import lin.example.myapplication.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.HappyPlaceViewModel
+import com.happyplaces.presentation.ui.model.AddPlaceEvent
+import org.koin.androidx.compose.koinViewModel
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
+@Composable
+fun AddHappyPlaceScreen(
+    id:Int? = null,
+    viewModel: HappyPlaceViewModel = koinViewModel(),
+    onBack: () -> Unit
+) {
+    id?.let {
+        LaunchedEffect(Unit) {
+            viewModel.getHappyPlaceById(id)
+        }
+    }
+
+    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+    // --- Photo Picker & Camera ---
+    var capturedPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    var showImageDialog by remember { mutableStateOf(false) }
+
+    val pickMediaLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri -> uri?.let(viewModel::onImagePicked) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success -> if (success) capturedPhotoUri?.let(viewModel::onImagePicked) }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            capturedPhotoUri = buildFileUri(context)
+            capturedPhotoUri?.let {
+                cameraLauncher.launch(it)
+            }
+        } else {
+            Toast.makeText(context, "相機權限被拒絕", Toast.LENGTH_SHORT).show()
+        }
+    }
+    // --- Places Autocomplete ---
+    val placeLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { res ->
+        if (res.resultCode == android.app.Activity.RESULT_OK) {
+            val place = Autocomplete.getPlaceFromIntent(res.data!!)
+            viewModel.onLocationSelected(
+                addr = place.address.orEmpty(),
+                lat = place.latLng?.latitude ?: 0.0,
+                lng = place.latLng?.longitude ?: 0.0
+            )
+        }
+    }
+    // --- Location Permissions & Updates ---
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { perms ->
+        // 再次用 checkSelfPermission 顯式檢查
+        val hasFine = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val hasCoarse = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (hasFine && hasCoarse) {
+            // 取得 FusedLocationProviderClient
+            val client = LocationServices.getFusedLocationProviderClient(context)
+            // 安全呼叫 requestLocationUpdates()
+            try {
+                val locationRequest = LocationRequest.Builder(
+                    Priority.PRIORITY_HIGH_ACCURACY,    // 高精度模式
+                    10_000L                              // 更新間隔：10 秒
+                )
+                    .setMinUpdateIntervalMillis(5_000L) // 最快更新間隔：5 秒 :contentReference[oaicite:0]{index=0}
+                    .build()
+                // 2. 呼叫 requestLocationUpdates 時傳入 builder.build() 的結果
+                client.requestLocationUpdates(
+                    locationRequest,
+                    object : LocationCallback() {
+                        override fun onLocationResult(result: LocationResult) {
+                            result.lastLocation?.let { loc ->
+                                viewModel.updateCurrentLatLng(loc.latitude, loc.longitude)
+                            }
+                        }
+                    },
+                    Looper.getMainLooper()
+                )
+            } catch (e: SecurityException) {
+                // 最後保險：避免異常閃退
+                e.printStackTrace()
+            }
+        } else {
+            // 權限被拒，提示或引導設定
+            Toast.makeText(context, "位置權限被拒絕", Toast.LENGTH_SHORT).show()
+        }
+    }
+    LaunchedEffect(Unit) {
+        if (!Places.isInitialized()) {
+            Places.initialize(context, context.getString(R.string.google_maps_api_key))
+        }
+    }
+    /** One-off events **/
+    uiState.event?.let { e ->
+        LaunchedEffect(e) {
+            when (e) {
+                AddPlaceEvent.ShowDatePicker -> showDatePicker(context) {
+                    viewModel.onDateSelected(it)
+                }
+
+                AddPlaceEvent.ShowImagePicker -> showImageDialog = true
+
+                AddPlaceEvent.ShowPlacesAutocomplete -> {
+                    val fields = listOf(
+                        Place.Field.ID,
+                        Place.Field.NAME,
+                        Place.Field.LAT_LNG,
+                        Place.Field.ADDRESS
+                    )
+                    val intent = Autocomplete.IntentBuilder(
+                        AutocompleteActivityMode.FULLSCREEN,
+                        fields
+                    ).build(context)
+                    placeLauncher.launch(intent)
+                }
+
+                AddPlaceEvent.RequestCurrentLocation -> {
+                    locationPermissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                }
+
+                is AddPlaceEvent.ShowToast -> Toast.makeText(
+                    context,
+                    e.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                AddPlaceEvent.NavigateBack -> onBack
+            }
+            viewModel.onEventConsumed()
+        }
+    }
+
+    // 顯示來源選擇對話框
+    if (showImageDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageDialog = false },
+            title = { Text("選擇圖片來源") },
+            text = {
+                Column {
+                    TextButton(onClick = {
+                        pickMediaLauncher.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                        showImageDialog = false
+                    }) { Text("從相簿中選擇") }
+                    TextButton(onClick = {
+                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        showImageDialog = false
+                    }) { Text("從相機中拍照") }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {}
+        )
+    }
+
+    AddHappyPlaceScreen(
+        title = uiState.title,
+        onTitleChange = viewModel::onTitleChange,
+        description = uiState.description,
+        onDescriptionChange = viewModel::onDescriptionChange,
+        date = uiState.date,
+        onDateClick = viewModel::onDateClick,
+        location = uiState.location,
+        onLocationClick = viewModel::onLocationClick,
+        onSelectCurrentLocation = viewModel::onSelectCurrentLocation,
+        imageUri = uiState.imageUri,
+        onAddImageClick = viewModel::onAddImageClick,
+        onSaveClick = {
+            viewModel.onSaveClick()
+            onBack()
+        },
+        onBack = onBack,
+        toolbarTitle = stringResource(if (uiState.isEditMode) R.string.edit_happy_place else R.string.add_happy_place),
+        buttonText = stringResource(if (uiState.isEditMode) R.string.btn_text_update else R.string.btn_text_save)
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,20 +297,7 @@ fun AddHappyPlaceScreen(
     )
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(toolbarTitle) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                )
-            )
+            HappyPlaceToolBar(true, toolbarTitle, onBack)
         }
     ) { innerPadding ->
         Column(
@@ -211,6 +422,33 @@ fun AddHappyPlaceScreen(
             }
         }
     }
+}
+
+// Helper: 建立暫存檔並回傳 Uri
+private fun buildFileUri(context: Context): Uri {
+    val storage = if (
+        android.os.Environment.MEDIA_MOUNTED == android.os.Environment.getExternalStorageState()
+    ) context.externalCacheDir else context.cacheDir
+    val file = File.createTempFile("tmp_img", ".jpg", storage).apply { deleteOnExit() }
+    return FileProvider.getUriForFile(
+        context,
+        "${BuildConfig.APPLICATION_ID}.provider",
+        file
+    )
+}
+
+// Helper: 顯示 DatePickerDialog
+private fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
+    val cal = Calendar.getInstance()
+    DatePickerDialog(
+        context,
+        { _, y, m, d ->
+            val fmt = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+            val dateStr = fmt.format(Calendar.getInstance().apply { set(y, m, d) }.time)
+            onDateSelected(dateStr)
+        },
+        cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]
+    ).show()
 }
 
 @Preview(showBackground = true)

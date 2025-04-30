@@ -1,10 +1,12 @@
 package com.happyplaces.database
 
-class HappyPlaceRepository(private val dao: UserDao) {
+import com.happyplaces.util.ApiResource
+import kotlinx.coroutines.flow.Flow
 
-    val dataList = dao.getAllData()
-
-    suspend fun insert(happyPlace: HappyPlace): Long = dao.insertData(happyPlace)
-    suspend fun update(happyPlace: HappyPlace): Int = dao.updateData(happyPlace)
-    suspend fun delete(happyPlace: HappyPlace): Int = dao.deleteData(happyPlace)
+interface HappyPlaceRepository{
+    val dataList: Flow<List<HappyPlace>>
+    suspend fun insert(happyPlace: HappyPlace): Long
+    suspend fun update(happyPlace: HappyPlace): Int
+    suspend fun delete(happyPlace: HappyPlace): Int
+    suspend fun getHappyPlaceById(id: Int): Flow<ApiResource<HappyPlace>>
 }

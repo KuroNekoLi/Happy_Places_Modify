@@ -1,78 +1,51 @@
 package com.happyplaces.presentation.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.happyplaces.HappyPlaceAdapter
-import com.happyplaces.database.HappyPlace
-import com.happyplaces.databinding.ActivityMainBinding
+import androidx.navigation.compose.rememberNavController
+import com.example.compose.HappyPlacesTheme
 import com.happyplaces.presentation.HappyPlaceViewModel
-import com.happyplaces.util.SwipeToDeleteCallback
-import com.happyplaces.util.SwipeToEditCallback
+import com.happyplaces.presentation.ui.HappyPlaceNavHost
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
     private val viewModel by viewModel<HappyPlaceViewModel>()
-    private lateinit var myAdapter: HappyPlaceAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-
-        myAdapter = HappyPlaceAdapter { selectedItem: HappyPlace -> listItemClicked(selectedItem) }
-        binding.rvHappyPlace.apply {
-            adapter = myAdapter
-            layoutManager = LinearLayoutManager(context)
-        }
-
-        val editSwipeHandler = object : SwipeToEditCallback(this) {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                Toast.makeText(applicationContext, "edit", Toast.LENGTH_SHORT).show()
-                Intent(applicationContext, AddHappyPlaceActivity::class.java).let {
-                    val itemToEdit = myAdapter.getHappyPlaceAt(viewHolder.adapterPosition)
-                    it.putExtra(EXTRA_PLACE_DETAILS, itemToEdit)
-                    startActivity(it)
-                }
-                myAdapter.notifyItemChanged(viewHolder.adapterPosition)
+        enableEdgeToEdge()
+        setContent {
+            val navController = rememberNavController()
+            HappyPlacesTheme {
+                HappyPlaceNavHost(navController = navController)
+//                MainScreen(
+//                    onAddClick = {
+//                        startActivity(Intent(this@MainActivity, AddHappyPlaceActivity::class.java))
+//                    },
+//                    onEdit = { happyPlace:HappyPlace ->
+//                        Intent(this@MainActivity, AddHappyPlaceActivity::class.java).let {
+//                            it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
+//                            startActivity(it)
+//                        }
+//                    },
+//                    onItemClick = { happyPlace:HappyPlace ->
+//                        Log.i("LinLi", "onItemClick")
+//                        Intent(this@MainActivity, HappyPlaceDetailActivity::class.java).let {
+//                            it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
+//                            startActivity(it)
+//                        }
+//                    }
+//                )
             }
         }
-        val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
-        editItemTouchHelper.attachToRecyclerView(binding.rvHappyPlace)
-
-        val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                Toast.makeText(applicationContext, "delete", Toast.LENGTH_SHORT).show()
-                val itemToDelete = myAdapter.getHappyPlaceAt(viewHolder.adapterPosition)
-                viewModel.delete(itemToDelete)
-            }
-        }
-        val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
-        deleteItemTouchHelper.attachToRecyclerView(binding.rvHappyPlace)
 
         viewModel.apply {
             message.observe(this@MainActivity) {
                 Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
             }
-            getDataList().observe(this@MainActivity) {
-                myAdapter.submitList(it)
-            }
-        }
-        setContentView(binding.root)
-
-        binding.fabAddHappyPlace.setOnClickListener {
-            startActivity(Intent(this, AddHappyPlaceActivity::class.java))
-        }
-    }
-
-    private fun listItemClicked(selectedItem: HappyPlace) {
-        Intent(this, HappyPlaceDetailActivity::class.java).let {
-            it.putExtra(EXTRA_PLACE_DETAILS, selectedItem)
-            startActivity(it)
         }
     }
 
