@@ -1,7 +1,7 @@
 package com.happyplaces.presentation.ui.compose
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,7 +24,7 @@ fun HappyPlaceToolBar(hasBack: Boolean, toolbarTitle: String, onBack: () -> Unit
         navigationIcon = {
             if (hasBack) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onPrimary)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         },
