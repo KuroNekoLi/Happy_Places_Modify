@@ -1,6 +1,7 @@
 package com.happyplaces.presentation.ui.compose
 
 import android.Manifest
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.pm.PackageManager
@@ -117,13 +118,13 @@ fun AddHappyPlaceScreen(
     // --- Places Autocomplete ---
     val placeLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ) { res ->
-        if (res.resultCode == android.app.Activity.RESULT_OK) {
-            val place = Autocomplete.getPlaceFromIntent(res.data!!)
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val place = Autocomplete.getPlaceFromIntent(result.data!!)
             viewModel.onLocationSelected(
-                addr = place.address.orEmpty(),
-                lat = place.latLng?.latitude ?: 0.0,
-                lng = place.latLng?.longitude ?: 0.0
+                addr = place.formattedAddress.orEmpty(),
+                lat  = place.location?.latitude ?: 0.0,
+                lng  = place.location?.longitude ?: 0.0
             )
         }
     }
