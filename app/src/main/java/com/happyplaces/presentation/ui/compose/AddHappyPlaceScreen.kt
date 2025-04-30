@@ -78,9 +78,16 @@ import java.util.Locale
 
 @Composable
 fun AddHappyPlaceScreen(
+    id:Int? = null,
     viewModel: HappyPlaceViewModel = koinViewModel(),
     onBack: () -> Unit
 ) {
+    id?.let {
+        LaunchedEffect(Unit) {
+            viewModel.getHappyPlaceById(id)
+        }
+    }
+
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     // --- Photo Picker & Camera ---

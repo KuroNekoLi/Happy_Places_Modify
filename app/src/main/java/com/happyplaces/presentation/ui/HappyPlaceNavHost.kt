@@ -55,5 +55,12 @@ fun HappyPlaceNavHost(
 
             ) { navController.popBackStack() }
         }
+        composable<Edit> { backStackEntry ->
+            val detail:Edit = backStackEntry.toRoute()
+            AddHappyPlaceScreen(
+                id = detail.id,
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }

@@ -43,6 +43,6 @@ fun HappyPlace.toAddPlaceUiState(): AddPlaceUiState {
         longitude = this.longitude,
         imageUri = this.image,
         event = null,
-        isEditMode = false
+        isEditMode = true
     )
 }
