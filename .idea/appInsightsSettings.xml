@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.linli.happyplace.debug" />
+                  <option name="mobileSdkAppId" value="1:925702393224:android:37b101e7dd8670a838fe3d" />
+                  <option name="projectId" value="com-linli-happyplaces" />
+                  <option name="projectNumber" value="925702393224" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

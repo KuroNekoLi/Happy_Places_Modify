@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 val uploadKeystorePath: String by project
@@ -91,7 +92,6 @@ dependencies {
     implementation (libs.androidx.runtime)
     implementation (libs.ui)
 
-
     // ─── Room ──────────────────────────────────────────────────────
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -125,6 +125,8 @@ dependencies {
     implementation(libs.circleimageview)
     implementation(libs.dexter)
     implementation(libs.coil.compose)
-
     implementation(libs.kotlinx.serialization.json)
+
+    // ─── Firebase ──────────────────────────────────────────────────────
+    implementation(libs.firebase.firestore)
 }
