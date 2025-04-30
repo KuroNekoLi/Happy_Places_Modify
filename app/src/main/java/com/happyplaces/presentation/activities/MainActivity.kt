@@ -17,28 +17,36 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+//        val db = FirebaseFirestore.getInstance()
+//        val articleRef = db.collection("articles").document()  // 自動 ID
+//        val data = mapOf(
+//            "creatorId" to "123",
+//            "title" to "test",
+//            "description" to "test content",
+//            "visitDate" to 1682832000000,      // long (毫秒)
+//            "address" to "taipei",
+//            "latitude" to 25.0330,             // double
+//            "longitude" to 121.5654,           // double
+//            "imageUrl" to "https://cdn2.ettoday.net/activity/images/115/article_25908_1_b.jpg",
+//            "createdAt" to System.currentTimeMillis()
+//        )
+//        articleRef.set(data)
+
+//        db.collection("articles")
+//            .get()
+//            .addOnSuccessListener { documents ->
+//                for (document in documents) {
+//                    Log.d("LinLi", "${document.id} => ${document.data}")
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                Log.w("TAG", "Error getting documents.", e)
+//            }
         setContent {
             val navController = rememberNavController()
             HappyPlacesTheme {
                 HappyPlaceNavHost(navController = navController)
-//                MainScreen(
-//                    onAddClick = {
-//                        startActivity(Intent(this@MainActivity, AddHappyPlaceActivity::class.java))
-//                    },
-//                    onEdit = { happyPlace:HappyPlace ->
-//                        Intent(this@MainActivity, AddHappyPlaceActivity::class.java).let {
-//                            it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
-//                            startActivity(it)
-//                        }
-//                    },
-//                    onItemClick = { happyPlace:HappyPlace ->
-//                        Log.i("LinLi", "onItemClick")
-//                        Intent(this@MainActivity, HappyPlaceDetailActivity::class.java).let {
-//                            it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
-//                            startActivity(it)
-//                        }
-//                    }
-//                )
             }
         }
 
@@ -47,9 +55,5 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    companion object {
-        const val EXTRA_PLACE_DETAILS = "EXTRA_PLACE_DETAILS"
     }
 }
