@@ -1,13 +1,14 @@
 package com.happyplaces.presentation.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.happyplaces.presentation.ui.compose.AddHappyPlaceScreen
 import com.happyplaces.presentation.ui.compose.HappyPlaceDetailScreen
 import com.happyplaces.presentation.ui.compose.MainScreen
+import com.happyplaces.presentation.ui.compose.MapScreen
 import kotlinx.serialization.Serializable
 
 
@@ -24,8 +25,7 @@ object Home
 
 @Composable
 fun HappyPlaceNavHost(
-    navController: NavHostController,
-    modifier: Modifier = Modifier
+    navController: NavHostController
 ) {
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
@@ -40,8 +40,20 @@ fun HappyPlaceNavHost(
             )
         }
         composable<Detail> { backStackEntry ->
-            val id:Int = backStackEntry.toRoute()
-            HappyPlaceDetailScreen(id = id,onBackClick = { navController.popBackStack() }, onViewOnMapClick = { })
+            val detail:Detail = backStackEntry.toRoute()
+            HappyPlaceDetailScreen(
+                id = detail.id,
+                onBackClick = { navController.popBackStack() },
+                onViewOnMapClick = { }
+            )
+        }
+        composable<Map> {
+            MapScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable<Add> {
+            AddHappyPlaceScreen(
+
+            ) { navController.popBackStack() }
         }
     }
 }

@@ -1,16 +1,14 @@
 package com.happyplaces.presentation.activities
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.compose.rememberNavController
 import com.example.compose.HappyPlacesTheme
-import com.happyplaces.database.HappyPlace
 import com.happyplaces.presentation.HappyPlaceViewModel
-import com.happyplaces.presentation.ui.compose.MainScreen
+import com.happyplaces.presentation.ui.HappyPlaceNavHost
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
@@ -20,25 +18,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val navController = rememberNavController()
             HappyPlacesTheme {
-                MainScreen(
-                    onAddClick = {
-                        startActivity(Intent(this@MainActivity, AddHappyPlaceActivity::class.java))
-                    },
-                    onEdit = { happyPlace:HappyPlace ->
-                        Intent(this@MainActivity, AddHappyPlaceActivity::class.java).let {
-                            it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
-                            startActivity(it)
-                        }
-                    },
-                    onItemClick = { happyPlace:HappyPlace ->
-                        Log.i("LinLi", "onItemClick")
-                        Intent(this@MainActivity, HappyPlaceDetailActivity::class.java).let {
-                            it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
-                            startActivity(it)
-                        }
-                    }
-                )
+                HappyPlaceNavHost(navController = navController)
+//                MainScreen(
+//                    onAddClick = {
+//                        startActivity(Intent(this@MainActivity, AddHappyPlaceActivity::class.java))
+//                    },
+//                    onEdit = { happyPlace:HappyPlace ->
+//                        Intent(this@MainActivity, AddHappyPlaceActivity::class.java).let {
+//                            it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
+//                            startActivity(it)
+//                        }
+//                    },
+//                    onItemClick = { happyPlace:HappyPlace ->
+//                        Log.i("LinLi", "onItemClick")
+//                        Intent(this@MainActivity, HappyPlaceDetailActivity::class.java).let {
+//                            it.putExtra(EXTRA_PLACE_DETAILS, happyPlace)
+//                            startActivity(it)
+//                        }
+//                    }
+//                )
             }
         }
 

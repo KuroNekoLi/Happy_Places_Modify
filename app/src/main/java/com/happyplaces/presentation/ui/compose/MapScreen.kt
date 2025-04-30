@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -15,7 +17,20 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.happyplaces.database.HappyPlace
+import com.happyplaces.presentation.HappyPlaceViewModel
+import com.happyplaces.presentation.ui.model.toHappyPlace
+import org.koin.androidx.compose.koinViewModel
 
+@Composable
+fun MapScreen(
+    viewModel: HappyPlaceViewModel = koinViewModel(),
+    onBackClick: () -> Unit
+){
+    val uiState by viewModel.uiState.collectAsState()
+    uiState.toHappyPlace()?.let { place ->
+        MapScreen(place = place, onBackClick = onBackClick, onInfoWindowClick = {})
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(

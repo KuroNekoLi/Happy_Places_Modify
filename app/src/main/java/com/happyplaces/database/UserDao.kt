@@ -24,5 +24,5 @@ interface UserDao {
     fun getAllData(): Flow<List<HappyPlace>>
 
     @Query("SELECT * FROM place_data_table WHERE id = :id")
-    fun getHappyPlaceById(id: Int): Flow<HappyPlace>
+    fun getHappyPlaceById(id: Int): HappyPlace?
 }
