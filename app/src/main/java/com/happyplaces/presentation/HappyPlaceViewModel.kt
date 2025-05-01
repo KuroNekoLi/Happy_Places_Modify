@@ -97,16 +97,15 @@ class HappyPlaceViewModel(
                 update()
             }
 
-            else -> viewModelScope.launch {
+            else ->
                 uiState.value.toHappyPlace()?.let {
                     insert(it)
                     _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
-                }
             }
         }
     }
 
-    fun insert(happyPlace: HappyPlace): Job = viewModelScope.launch(IO) {
+    fun insert(happyPlace: HappyPlace): Job = viewModelScope.launch {
         val resultFlow = repository.insert(happyPlace)
         resultFlow.collect {
             it.data?.let {
@@ -118,7 +117,7 @@ class HappyPlaceViewModel(
         }
     }
 
-    fun update() = viewModelScope.launch(IO) {
+    fun update() = viewModelScope.launch {
         uiState.value.toHappyPlace()?.let {
             val resultFlow = repository.update(it)
             resultFlow.collect {
@@ -138,7 +137,7 @@ class HappyPlaceViewModel(
         }
     }
 
-    fun delete(happyPlace: HappyPlace) = viewModelScope.launch(IO) {
+    fun delete(happyPlace: HappyPlace) = viewModelScope.launch {
         val resultFlow = repository.delete(happyPlace)
         resultFlow.collect {
             it.data?.let { rowsDeleted ->

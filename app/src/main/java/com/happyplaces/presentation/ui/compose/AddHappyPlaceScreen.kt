@@ -226,7 +226,7 @@ fun AddHappyPlaceScreen(
                     Toast.LENGTH_SHORT
                 ).show()
 
-                AddPlaceEvent.NavigateBack -> onBack
+                AddPlaceEvent.NavigateBack -> onBack()
             }
             viewModel.onEventConsumed()
         }
@@ -272,7 +272,6 @@ fun AddHappyPlaceScreen(
         onAddImageClick = viewModel::onAddImageClick,
         onSaveClick = {
             viewModel.onSaveClick()
-            onBack()
         },
         onBack = onBack,
         toolbarTitle = stringResource(if (uiState.isEditMode) R.string.edit_happy_place else R.string.add_happy_place),
