@@ -71,6 +71,7 @@ import com.happyplaces.R
 import com.happyplaces.data.model.AddPlaceEvent
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
+import com.happyplaces.util.SetupPreviewKoin
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
 import java.text.SimpleDateFormat
@@ -474,4 +475,12 @@ fun AddHappyPlaceScreenPreview() {
             buttonText = stringResource(R.string.btn_text_save)
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MockAddHappyPlaceScreenPreview() {
+    SetupPreviewKoin()
+    val viewModel: HappyPlaceViewModel = koinViewModel()
+    AddHappyPlaceScreen(id=1,viewModel = viewModel){}
 }
