@@ -41,6 +41,7 @@ class HappyPlaceRepositoryImpl(
         .onStart { /* optional */ }
         .catch { e -> emit(ApiResource.Error(e.localizedMessage ?: "新增失敗")) }
         .flowOn(Dispatchers.IO)
+
     override fun update(happyPlace: HappyPlace): Flow<ApiResource<Int>> = flow {
         emit(ApiResource.Loading())
         // 遠端更新
@@ -107,13 +108,13 @@ class HappyPlaceRepositoryImpl(
 
 private fun PlaceDto.toHappyPlaceEntity(): HappyPlaceEntity {
     return HappyPlaceEntity(
-        id          = this.id,
-        title       = this.title,
-        image       = this.imageUrl.toUri(),
+        id = this.id,
+        title = this.title,
+        image = this.imageUrl.toUri(),
         description = this.description,
-        date        = this.createdAt.toDateString(),
-        location    = this.address,
-        latitude    = this.latitude,
-        longitude   = this.longitude
+        date = this.createdAt.toDateString(),
+        location = this.address,
+        latitude = this.latitude,
+        longitude = this.longitude
     )
 }

@@ -101,7 +101,7 @@ class HappyPlaceViewModel(
                 uiState.value.toHappyPlace()?.let {
                     insert(it)
                     _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
-            }
+                }
         }
     }
 

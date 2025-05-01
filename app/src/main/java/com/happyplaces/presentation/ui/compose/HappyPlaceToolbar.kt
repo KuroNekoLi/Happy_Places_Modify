@@ -24,7 +24,11 @@ fun HappyPlaceToolBar(hasBack: Boolean, toolbarTitle: String, onBack: () -> Unit
         navigationIcon = {
             if (hasBack) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onPrimary)
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
             }
         },

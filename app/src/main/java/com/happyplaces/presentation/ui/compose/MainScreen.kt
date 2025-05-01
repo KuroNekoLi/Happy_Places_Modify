@@ -38,8 +38,12 @@ fun MainScreen(
 ) {
     val dataListApiResourceFlow by viewModel.dataListApiResourceFlow.collectAsState()
     MainScreen(
-        list = dataListApiResourceFlow.data?:emptyList(), onAddClick = onAddClick, onEdit = onEdit, onDelete = viewModel::delete,
-        onItemClick = onItemClick)
+        list = dataListApiResourceFlow.data ?: emptyList(),
+        onAddClick = onAddClick,
+        onEdit = onEdit,
+        onDelete = viewModel::delete,
+        onItemClick = onItemClick
+    )
 }
 
 @Composable

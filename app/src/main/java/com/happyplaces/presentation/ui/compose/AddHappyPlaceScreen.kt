@@ -83,7 +83,7 @@ import java.util.Locale
 
 @Composable
 fun AddHappyPlaceScreen(
-    id:String? = null,
+    id: String? = null,
     viewModel: HappyPlaceViewModel = koinViewModel(),
     onBack: () -> Unit
 ) {
@@ -103,7 +103,7 @@ fun AddHappyPlaceScreen(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        uri?.let{
+        uri?.let {
             context.contentResolver.takePersistableUriPermission(it, flag)
             viewModel.onImagePicked(it)
         }
@@ -133,8 +133,8 @@ fun AddHappyPlaceScreen(
             val place = Autocomplete.getPlaceFromIntent(result.data!!)
             viewModel.onLocationSelected(
                 addr = place.formattedAddress.orEmpty(),
-                lat  = place.location?.latitude ?: 0.0,
-                lng  = place.location?.longitude ?: 0.0
+                lat = place.location?.latitude ?: 0.0,
+                lng = place.location?.longitude ?: 0.0
             )
         }
     }
@@ -494,5 +494,5 @@ fun AddHappyPlaceScreenPreview() {
 fun MockAddHappyPlaceScreenPreview() {
     SetupPreviewKoin()
     val viewModel: HappyPlaceViewModel = koinViewModel()
-    AddHappyPlaceScreen(id="1",viewModel = viewModel){}
+    AddHappyPlaceScreen(id = "1", viewModel = viewModel) {}
 }

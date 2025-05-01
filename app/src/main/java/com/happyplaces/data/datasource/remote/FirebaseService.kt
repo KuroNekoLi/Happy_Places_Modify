@@ -11,6 +11,7 @@ import kotlinx.coroutines.tasks.await
 
 /** 文章資料庫 */
 const val ARTICLE_COLLECTION = "articles"
+
 class FirebaseService(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) : PlaceService {
@@ -21,6 +22,7 @@ class FirebaseService(
                 it.toObjects(PlaceDto::class.java)
             }
             .catch { e -> emit(emptyList()) }
+
     override suspend fun addPlace(place: PlaceDto): String {
         // 1. 取得一個新的 DocumentReference
         val docRef = firestore.collection(ARTICLE_COLLECTION).document()
@@ -31,6 +33,7 @@ class FirebaseService(
         // 4. 回傳這筆資料的 ID
         return docRef.id
     }
+
     override suspend fun updatePlace(place: PlaceDto) {
         // 假設 PlaceDto.id 就是 documentId
         firestore.collection(ARTICLE_COLLECTION)
@@ -38,6 +41,7 @@ class FirebaseService(
             .set(place, SetOptions.merge())   // 或用 .update(map) 做部分欄位更新
             .await()
     }
+
     override suspend fun deletePlace(id: String) {
         firestore.collection(ARTICLE_COLLECTION)
             .document(id)

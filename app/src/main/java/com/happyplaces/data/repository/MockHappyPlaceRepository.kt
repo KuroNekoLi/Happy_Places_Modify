@@ -42,7 +42,7 @@ class MockHappyPlaceRepository(
     }
 
     // Read single：先發 Loading，再發 Success/​Error
-    override  fun getHappyPlaceById(id: String): Flow<ApiResource<HappyPlace>> = flow {
+    override fun getHappyPlaceById(id: String): Flow<ApiResource<HappyPlace>> = flow {
         emit(ApiResource.Loading())
         val item = mockHappyPlaceLists.find { it.id == id }
         if (item != null) {

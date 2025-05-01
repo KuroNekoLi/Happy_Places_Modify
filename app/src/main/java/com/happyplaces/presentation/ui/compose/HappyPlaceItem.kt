@@ -30,7 +30,11 @@ import com.happyplaces.data.model.mockHappyPlaceLists
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @Composable
-fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlace, onItemClick: (HappyPlace) -> Unit) =
+fun HappyPlaceItem(
+    modifier: Modifier = Modifier,
+    place: HappyPlace,
+    onItemClick: (HappyPlace) -> Unit
+) =
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = modifier,
