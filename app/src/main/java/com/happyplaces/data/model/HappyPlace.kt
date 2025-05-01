@@ -3,7 +3,7 @@ package com.happyplaces.data.model
 import android.net.Uri
 
 data class HappyPlace(
-    val id: Int = 0,
+    val id: String = "",
     val title: String?,
     val image: Uri?,
     val description: String?,

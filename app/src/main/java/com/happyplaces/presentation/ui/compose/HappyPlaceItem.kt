@@ -1,5 +1,6 @@
 package com.happyplaces.presentation.ui.compose
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,6 +45,7 @@ fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlace, onItemClick
                     onItemClick(place)
                 }
         ) {
+            Log.i("LinLi", "place.image = ${place.image}")
             // 圓形圖片
             AsyncImage(
                 model = ImageRequest.Builder(context)

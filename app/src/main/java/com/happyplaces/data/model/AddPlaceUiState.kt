@@ -3,7 +3,7 @@ package com.happyplaces.data.model
 import android.net.Uri
 
 data class AddPlaceUiState(
-    val id: Int = 0,
+    val id: String = "",
     val title: String = "",
     val description: String = "",
     val date: String = "",

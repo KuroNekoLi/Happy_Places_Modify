@@ -17,6 +17,7 @@ import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.data.model.toAddPlaceUiState
 import com.happyplaces.data.model.toHappyPlace
 import com.happyplaces.data.repository.HappyPlaceRepository
+import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -34,9 +35,9 @@ class HappyPlaceViewModel(
     private val application: Context,
     private val repository: HappyPlaceRepository
 ) : ViewModel() {
-    val dataList = repository.dataList
+    val dataListApiResourceFlow = repository.getAllHappyPlaces()
         .flowOn(IO)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ApiResource.Loading())
     private val _uiState = MutableStateFlow(AddPlaceUiState())
     val uiState: StateFlow<AddPlaceUiState> = _uiState
 
@@ -106,38 +107,50 @@ class HappyPlaceViewModel(
     }
 
     fun insert(happyPlace: HappyPlace): Job = viewModelScope.launch(IO) {
-        val newRowId = repository.insert(happyPlace)
-        withContext(Main) {
-            if (newRowId > -1) {
-                _message.value = "第 $newRowId 個資料已新增"
-            } else {
-                _message.value = "發生錯誤"
+        val resultFlow = repository.insert(happyPlace)
+        resultFlow.collect {
+            it.data?.let {
+                _message.value = "第 $it 個資料已新增"
+            }
+            it.message?.let {
+                _message.value = it
             }
         }
     }
 
     fun update() = viewModelScope.launch(IO) {
         uiState.value.toHappyPlace()?.let {
-            val numberOfRows = repository.update(it)
-            withContext(Main) {
-                if (numberOfRows > 0) {
-                    _message.value = "第 $numberOfRows 個資料已更新"
-                } else {
-                    _message.value = "發生錯誤"
-                }
-                _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
+            val resultFlow = repository.update(it)
+            resultFlow.collect {
+                it.data?.let {
+                    if (it > 0) {
+                        _message.value = "第 $it 個資料已更新"
+                    } else {
+                        _message.value = "發生錯誤"
+                    }
+                    _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
 //                _uiState.update { it.copy(event = if (numberOfRows > 0) AddPlaceEvent.ShowToast("第 $numberOfRows 個資料已更新") else AddPlaceEvent.ShowToast("發生錯誤")) }
+                }
+                it.message?.let {
+                    _message.value = it
+                }
             }
         }
     }
 
     fun delete(happyPlace: HappyPlace) = viewModelScope.launch(IO) {
-        val numberOfRowsDeleted = repository.delete(happyPlace)
-        withContext(Main) {
-            if (numberOfRowsDeleted > 0) {
-                _message.value = "第 $numberOfRowsDeleted 個資料已刪除"
-            } else {
-                _message.value = "發生錯誤"
+        val resultFlow = repository.delete(happyPlace)
+        resultFlow.collect {
+            it.data?.let { rowsDeleted ->
+                withContext(Main) {
+                    _message.value =
+                        if (rowsDeleted > 0) "第 $rowsDeleted 個資料已刪除" else "發生錯誤"
+                }
+            }
+            it.message?.let { errorMessage ->
+                withContext(Main) {
+                    _message.value = errorMessage
+                }
             }
         }
     }
@@ -180,7 +193,7 @@ class HappyPlaceViewModel(
         _uiState.update { it.copy(location = addr) }
     }
 
-    fun getHappyPlaceById(id: Int) {
+    fun getHappyPlaceById(id: String) {
         viewModelScope.launch {
             repository.getHappyPlaceById(id).collect {
                 it.data?.let {

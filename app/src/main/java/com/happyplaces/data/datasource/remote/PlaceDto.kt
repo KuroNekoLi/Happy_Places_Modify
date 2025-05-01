@@ -4,7 +4,7 @@ import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.IgnoreExtraProperties
 
 @IgnoreExtraProperties
-data class PlaceDao(
+data class PlaceDto(
     @DocumentId
     val id: String = "",
     val creatorId: String = "",

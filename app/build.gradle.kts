@@ -125,6 +125,7 @@ dependencies {
     implementation(libs.circleimageview)
     implementation(libs.dexter)
     implementation(libs.coil.compose)
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
     implementation(libs.kotlinx.serialization.json)
 
     // ─── Firebase ──────────────────────────────────────────────────────

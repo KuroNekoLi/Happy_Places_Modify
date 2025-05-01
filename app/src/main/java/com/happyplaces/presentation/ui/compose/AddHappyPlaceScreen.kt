@@ -83,7 +83,7 @@ import java.util.Locale
 
 @Composable
 fun AddHappyPlaceScreen(
-    id:Int? = null,
+    id:String? = null,
     viewModel: HappyPlaceViewModel = koinViewModel(),
     onBack: () -> Unit
 ) {
@@ -495,5 +495,5 @@ fun AddHappyPlaceScreenPreview() {
 fun MockAddHappyPlaceScreenPreview() {
     SetupPreviewKoin()
     val viewModel: HappyPlaceViewModel = koinViewModel()
-    AddHappyPlaceScreen(id=1,viewModel = viewModel){}
+    AddHappyPlaceScreen(id="1",viewModel = viewModel){}
 }

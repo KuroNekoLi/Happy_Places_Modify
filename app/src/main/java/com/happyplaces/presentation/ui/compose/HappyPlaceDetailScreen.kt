@@ -40,7 +40,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HappyPlaceDetailScreen(
-    id:Int,
+    id:String,
     viewModel: HappyPlaceViewModel = koinViewModel(),
     onBackClick: () -> Unit,
     onViewOnMapClick: () -> Unit

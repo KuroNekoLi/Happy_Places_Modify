@@ -36,9 +36,9 @@ fun MainScreen(
     onEdit: (HappyPlace) -> Unit = {},
     onItemClick: (HappyPlace) -> Unit = {}
 ) {
-    val list by viewModel.dataList.collectAsState()
+    val dataListApiResourceFlow by viewModel.dataListApiResourceFlow.collectAsState()
     MainScreen(
-        list = list, onAddClick = onAddClick, onEdit = onEdit, onDelete = viewModel::delete,
+        list = dataListApiResourceFlow.data?:emptyList(), onAddClick = onAddClick, onEdit = onEdit, onDelete = viewModel::delete,
         onItemClick = onItemClick)
 }
 

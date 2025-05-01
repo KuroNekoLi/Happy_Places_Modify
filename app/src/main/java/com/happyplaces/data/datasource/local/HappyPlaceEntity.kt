@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "place_data_table")
 data class HappyPlaceEntity(
     @PrimaryKey
-    val id: Int,
+    val id: String,
     val title: String?,
     val image: Uri?,
     val description: String?,
@@ -19,7 +19,7 @@ data class HappyPlaceEntity(
     val longitude: Double
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt(),
+        parcel.readString().toString(),
         parcel.readString(),
         parcel.readParcelable(Uri::class.java.classLoader),
         parcel.readString(),
@@ -30,7 +30,7 @@ data class HappyPlaceEntity(
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
+        parcel.writeString(id)
         parcel.writeString(title)
         parcel.writeParcelable(image, flags)
         parcel.writeString(description)

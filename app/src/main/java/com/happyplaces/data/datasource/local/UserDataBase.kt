@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.happyplaces.util.UriTypeConverter
 
-@Database(entities = [HappyPlaceEntity::class], version = 2)
+@Database(entities = [HappyPlaceEntity::class], version = 3)
 @TypeConverters(UriTypeConverter::class)
 abstract class UserDatabase : RoomDatabase() {
     abstract val dao: UserDao

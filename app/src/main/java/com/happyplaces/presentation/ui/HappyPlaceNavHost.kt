@@ -15,11 +15,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object Add
 @Serializable
-data class Edit(val id: Int)
+data class Edit(val id: String)
 @Serializable
-data class Detail(val id: Int)
+data class Detail(val id: String)
 @Serializable
-data class Map(val id: Int)
+data class Map(val id: String)
 @Serializable
 data object Home
 
