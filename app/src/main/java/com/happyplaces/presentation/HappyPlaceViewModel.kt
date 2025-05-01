@@ -11,14 +11,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.happyplaces.data.datasource.local.HappyPlaceEntity
 import com.happyplaces.data.model.AddPlaceEvent
 import com.happyplaces.data.model.AddPlaceUiState
+import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.data.model.toAddPlaceUiState
 import com.happyplaces.data.model.toHappyPlace
 import com.happyplaces.data.repository.HappyPlaceRepository
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -104,8 +105,8 @@ class HappyPlaceViewModel(
         }
     }
 
-    fun insert(happyPlaceEntity: HappyPlaceEntity) = viewModelScope.launch(IO) {
-        val newRowId = repository.insert(happyPlaceEntity)
+    fun insert(happyPlace: HappyPlace): Job = viewModelScope.launch(IO) {
+        val newRowId = repository.insert(happyPlace)
         withContext(Main) {
             if (newRowId > -1) {
                 _message.value = "第 $newRowId 個資料已新增"
@@ -130,8 +131,8 @@ class HappyPlaceViewModel(
         }
     }
 
-    fun delete(happyPlaceEntity: HappyPlaceEntity) = viewModelScope.launch(IO) {
-        val numberOfRowsDeleted = repository.delete(happyPlaceEntity)
+    fun delete(happyPlace: HappyPlace) = viewModelScope.launch(IO) {
+        val numberOfRowsDeleted = repository.delete(happyPlace)
         withContext(Main) {
             if (numberOfRowsDeleted > 0) {
                 _message.value = "第 $numberOfRowsDeleted 個資料已刪除"

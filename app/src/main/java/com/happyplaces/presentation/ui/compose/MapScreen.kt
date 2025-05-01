@@ -17,7 +17,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
-import com.happyplaces.data.datasource.local.HappyPlaceEntity
+import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.data.model.toHappyPlace
 import com.happyplaces.presentation.HappyPlaceViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -39,7 +39,7 @@ fun MapScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
-    place: HappyPlaceEntity,
+    place: HappyPlace,
     onBackClick: () -> Unit,
     onInfoWindowClick: () -> Unit
 ) {

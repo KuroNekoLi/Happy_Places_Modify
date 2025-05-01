@@ -23,8 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.happyplaces.R
-import com.happyplaces.data.datasource.local.HappyPlaceEntity
-import com.happyplaces.data.model.mockHappyPlaceEntityLists
+import com.happyplaces.data.model.HappyPlace
+import com.happyplaces.data.model.mockHappyPlaceLists
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.compose.koinViewModel
@@ -33,20 +33,22 @@ import org.koin.androidx.compose.koinViewModel
 fun MainScreen(
     viewModel: HappyPlaceViewModel = koinViewModel(),
     onAddClick: () -> Unit = {},
-    onEdit: (HappyPlaceEntity) -> Unit = {},
-    onItemClick: (HappyPlaceEntity) -> Unit = {}
+    onEdit: (HappyPlace) -> Unit = {},
+    onItemClick: (HappyPlace) -> Unit = {}
 ) {
     val list by viewModel.dataList.collectAsState()
-    MainScreen(list = list, onAddClick = onAddClick, onEdit = onEdit, onDelete = viewModel::delete,onItemClick = onItemClick)
+    MainScreen(
+        list = list, onAddClick = onAddClick, onEdit = onEdit, onDelete = viewModel::delete,
+        onItemClick = onItemClick)
 }
 
 @Composable
 fun MainScreen(
-    list: List<HappyPlaceEntity>,
+    list: List<HappyPlace>,
     onAddClick: () -> Unit,
-    onDelete: (HappyPlaceEntity) -> Unit,
-    onEdit: (HappyPlaceEntity) -> Unit,
-    onItemClick: (HappyPlaceEntity) -> Unit
+    onDelete: (HappyPlace) -> Unit,
+    onEdit: (HappyPlace) -> Unit,
+    onItemClick: (HappyPlace) -> Unit
 ) {
     /** 觀察資料 */
     Scaffold(
@@ -105,7 +107,7 @@ fun MainScreen(
 fun MyScreenKoinPreview() {
     HappyPlacesTheme {
         MainScreen(
-            list = mockHappyPlaceEntityLists,
+            list = mockHappyPlaceLists,
             onAddClick = {},
             onDelete = {},
             onEdit = {},

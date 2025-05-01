@@ -1,13 +1,13 @@
 package com.happyplaces.data.repository
 
-import com.happyplaces.data.datasource.local.HappyPlaceEntity
+import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.flow.Flow
 
 interface HappyPlaceRepository{
-    val dataList: Flow<List<HappyPlaceEntity>>
-    suspend fun insert(happyPlaceEntity: HappyPlaceEntity): Long
-    suspend fun update(happyPlaceEntity: HappyPlaceEntity): Int
-    suspend fun delete(happyPlaceEntity: HappyPlaceEntity): Int
-    suspend fun getHappyPlaceById(id: Int): Flow<ApiResource<HappyPlaceEntity>>
+    val dataList: Flow<List<HappyPlace>>
+    suspend fun insert(happyPlace: HappyPlace): Long
+    suspend fun update(happyPlace: HappyPlace): Int
+    suspend fun delete(happyPlace: HappyPlace): Int
+    suspend fun getHappyPlaceById(id: Int): Flow<ApiResource<HappyPlace>>
 }

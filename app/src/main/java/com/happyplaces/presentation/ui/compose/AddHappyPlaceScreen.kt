@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Looper
@@ -57,6 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -98,7 +101,13 @@ fun AddHappyPlaceScreen(
 
     val pickMediaLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
-    ) { uri -> uri?.let(viewModel::onImagePicked) }
+    ) { uri ->
+        val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        uri?.let{
+            context.contentResolver.takePersistableUriPermission(it, flag)
+            viewModel.onImagePicked(it)
+        }
+    }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
@@ -390,8 +399,12 @@ fun AddHappyPlaceScreen(
                         .clickable { onAddImageClick() }
                         .padding(8.dp),                              // add_screen_place_image_padding
                 ) {
+                    val context = LocalContext.current
                     AsyncImage(
-                        model = imageUri,
+                        model = ImageRequest.Builder(context)
+                            .data(imageUri)
+                            .crossfade(true)
+                            .build(),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),

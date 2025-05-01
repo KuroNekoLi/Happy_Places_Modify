@@ -1,25 +1,36 @@
 package com.happyplaces.presentation.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.firestore.FirebaseFirestore
+import com.happyplaces.data.datasource.remote.PlaceRemoteDataSource
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.HappyPlaceNavHost
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
     private val viewModel by viewModel<HappyPlaceViewModel>()
+    private val remoteDataSource by inject<PlaceRemoteDataSource>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-//        val db = FirebaseFirestore.getInstance()
-//        val articleRef = db.collection("articles").document()  // 自動 ID
+        lifecycleScope.launch {
+            remoteDataSource.getPlaces().collect {
+                Log.i("LinLi", "getPlaces: $it")
+            }
+        }
+        val db = FirebaseFirestore.getInstance()
+        val articleRef = db.collection("articles").document()  // 自動 ID
 //        val data = mapOf(
 //            "creatorId" to "123",
 //            "title" to "test",

@@ -1,7 +1,6 @@
 package com.happyplaces.data.model
 
 import android.net.Uri
-import com.happyplaces.data.datasource.local.HappyPlaceEntity
 
 data class AddPlaceUiState(
     val id: Int = 0,
@@ -16,11 +15,11 @@ data class AddPlaceUiState(
     val isEditMode: Boolean = false
 )
 
-fun AddPlaceUiState.toHappyPlace(): HappyPlaceEntity? {
+fun AddPlaceUiState.toHappyPlace(): HappyPlace? {
     if (this.latitude == null || this.longitude == null) {
         return null
     }
-    return HappyPlaceEntity(
+    return HappyPlace(
         id = this.id,
         title = this.title,
         image = this.imageUri,
@@ -32,7 +31,7 @@ fun AddPlaceUiState.toHappyPlace(): HappyPlaceEntity? {
     )
 }
 
-fun HappyPlaceEntity.toAddPlaceUiState(): AddPlaceUiState {
+fun HappyPlace.toAddPlaceUiState(): AddPlaceUiState {
     return AddPlaceUiState(
         id = this.id,
         title = this.title.orEmpty(),

@@ -1,6 +1,5 @@
 package com.happyplaces.presentation.ui.compose
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,32 +18,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.happyplaces.data.datasource.local.HappyPlaceEntity
-import com.happyplaces.data.model.mockHappyPlaceEntityLists
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.happyplaces.data.model.HappyPlace
+import com.happyplaces.data.model.mockHappyPlaceLists
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @Composable
-fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlaceEntity, onItemClick: (HappyPlaceEntity) -> Unit) =
+fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlace, onItemClick: (HappyPlace) -> Unit) =
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = modifier,
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
+        val context = LocalContext.current
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(16.dp)
                 .clickable {
-                    Log.i("LinLi", "clickable")
                     onItemClick(place)
                 }
         ) {
             // 圓形圖片
             AsyncImage(
-                model = place.image,
+                model = ImageRequest.Builder(context)
+                    .data(place.image)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -70,7 +75,7 @@ fun HappyPlaceItem(modifier: Modifier = Modifier, place: HappyPlaceEntity, onIte
 fun HappyPlaceItemPreview() {
     HappyPlacesTheme {
         HappyPlaceItem(
-            place = mockHappyPlaceEntityLists.first(),
+            place = mockHappyPlaceLists.first(),
             onItemClick = {}
         )
     }

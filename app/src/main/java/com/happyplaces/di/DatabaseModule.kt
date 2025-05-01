@@ -13,7 +13,10 @@ val databaseModule = module {
             androidContext(),
             UserDatabase::class.java,
             "happy_place_data_database"
-        ).build()
+
+        )
+            .fallbackToDestructiveMigration(false)
+            .build()
     }
     // DAO
     single<UserDao> { get<UserDatabase>().dao }
