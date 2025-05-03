@@ -1,4 +1,4 @@
-package com.happyplaces.data.repository
+package com.happyplaces.domain
 
 import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.util.ApiResource

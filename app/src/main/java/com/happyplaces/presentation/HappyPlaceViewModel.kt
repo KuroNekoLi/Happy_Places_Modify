@@ -16,7 +16,7 @@ import com.happyplaces.data.model.AddPlaceUiState
 import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.data.model.toAddPlaceUiState
 import com.happyplaces.data.model.toHappyPlace
-import com.happyplaces.data.repository.HappyPlaceRepository
+import com.happyplaces.domain.HappyPlaceRepository
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
