@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:925702393224:android:37b101e7dd8670a838fe3d",
+        "mobilesdk_app_id": "1:925702393224:android:99728a17f2b46b1638fe3d",
         "android_client_info": {
-          "package_name": "com.linli.happyplace.debug"
+          "package_name": "com.linli.happyplace"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "925702393224-deflvj66abt2999hbh66sk2j494a3ngt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCn5ZvAlPZhB-zqqOeqrIJz-o07dS1Lyjs"
@@ -20,7 +25,41 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "925702393224-deflvj66abt2999hbh66sk2j494a3ngt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:925702393224:android:37b101e7dd8670a838fe3d",
+        "android_client_info": {
+          "package_name": "com.linli.happyplace.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "925702393224-deflvj66abt2999hbh66sk2j494a3ngt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCn5ZvAlPZhB-zqqOeqrIJz-o07dS1Lyjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "925702393224-deflvj66abt2999hbh66sk2j494a3ngt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

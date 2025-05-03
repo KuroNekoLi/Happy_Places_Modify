@@ -130,4 +130,9 @@ dependencies {
 
     // ─── Firebase ──────────────────────────────────────────────────────
     implementation(libs.firebase.firestore)
+    implementation("com.firebaseui:firebase-ui-auth:9.0.0")
+
+    // Required only if Facebook login support is required
+    // Find the latest Facebook SDK releases here: https://goo.gl/Ce5L94
+    implementation("com.facebook.android:facebook-android-sdk:18.0.3")
 }
