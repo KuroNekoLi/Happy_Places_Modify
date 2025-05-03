@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "925702393224-cfc1elo6lk65f9jg71ck4pcjbk9kl3uh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.linli.happyplace",
+            "certificate_hash": "fdddb335804c600da5e531080ce5ff4217ad5c0a"
+          }
+        },
+        {
           "client_id": "925702393224-deflvj66abt2999hbh66sk2j494a3ngt.apps.googleusercontent.com",
           "client_type": 3
         }

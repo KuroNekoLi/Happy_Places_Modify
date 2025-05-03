@@ -6,54 +6,44 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.firestore.FirebaseFirestore
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.happyplaces.data.datasource.remote.PlaceRemoteDataSource
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.HappyPlaceNavHost
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
     private val viewModel by viewModel<HappyPlaceViewModel>()
     private val remoteDataSource by inject<PlaceRemoteDataSource>()
+    private val signInLauncher = registerForActivityResult(
+        FirebaseAuthUIActivityResultContract(),
+    ) { res ->
+        Log.i("LinLi", "signInLauncher: $res")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        lifecycleScope.launch {
-            remoteDataSource.getPlaces().collect {
-                Log.i("LinLi", "getPlaces: $it")
-            }
-        }
-        val db = FirebaseFirestore.getInstance()
-        val articleRef = db.collection("articles").document()  // 自動 ID
-//        val data = mapOf(
-//            "creatorId" to "123",
-//            "title" to "test",
-//            "description" to "test content",
-//            "visitDate" to 1682832000000,      // long (毫秒)
-//            "address" to "taipei",
-//            "latitude" to 25.0330,             // double
-//            "longitude" to 121.5654,           // double
-//            "imageUrl" to "https://cdn2.ettoday.net/activity/images/115/article_25908_1_b.jpg",
-//            "createdAt" to System.currentTimeMillis()
-//        )
-//        articleRef.set(data)
 
-//        db.collection("articles")
-//            .get()
-//            .addOnSuccessListener { documents ->
-//                for (document in documents) {
-//                    Log.d("LinLi", "${document.id} => ${document.data}")
-//                }
-//            }
-//            .addOnFailureListener { e ->
-//                Log.w("TAG", "Error getting documents.", e)
-//            }
+        // Choose authentication providers
+        val providers = arrayListOf(
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.PhoneBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build(),
+            AuthUI.IdpConfig.FacebookBuilder().build(),
+            AuthUI.IdpConfig.TwitterBuilder().build(),
+        )
+
+// Create and launch sign-in intent
+        val signInIntent = AuthUI.getInstance()
+            .createSignInIntentBuilder()
+            .setAvailableProviders(providers)
+            .build()
+        signInLauncher.launch(signInIntent)
         setContent {
             val navController = rememberNavController()
             HappyPlacesTheme {
