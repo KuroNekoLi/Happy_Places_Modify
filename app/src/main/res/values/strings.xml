@@ -18,8 +18,8 @@
     <string name="edit_happy_place">Edit Happy Place</string>
     <string name="btn_text_update">Update</string>
     <!-- Facebook application ID and custom URL scheme (app ID prefixed by 'fb'). -->
-    <string name="facebook_application_id" translatable="false">1415622542774472</string>
-    <string name="facebook_login_protocol_scheme" translatable="false">fb1415622542774472</string>
-    <string name="facebook_client_token" translatable="false">2ed5f4801623573aadee4f836b192a5c</string>
+    <string name="facebook_application_id" translatable="false">1003688418519046</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb1003688418519046</string>
+    <string name="facebook_client_token" translatable="false">6ea8610314833af56be2745b0eddb6f8</string>
 
 </resources>

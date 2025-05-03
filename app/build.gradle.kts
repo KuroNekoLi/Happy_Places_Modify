@@ -135,4 +135,11 @@ dependencies {
     // Required only if Facebook login support is required
     // Find the latest Facebook SDK releases here: https://goo.gl/Ce5L94
     implementation("com.facebook.android:facebook-android-sdk:18.0.3")
+    implementation (platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
+    // Also add the dependencies for the Credential Manager libraries and specify their versions
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 }
