@@ -11,7 +11,6 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
-import com.happyplaces.R
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.HappyPlaceNavHost
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
@@ -46,20 +45,20 @@ class MainActivity : AppCompatActivity() {
                 // 使用者已登出
             }
         }
-
-        AuthUI.getInstance()
-            .signOut(this)
-            .addOnCompleteListener {
-                // Create and launch sign-in intent
-                val signInIntent = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .setLogo(R.drawable.icon) // Set logo drawable
-                    .setTheme(R.style.AppTheme) // Set theme
-                    .setCredentialManagerEnabled(false)
-                    .build()
-                signInLauncher.launch(signInIntent)
-            }
+//
+//        AuthUI.getInstance()
+//            .signOut(this)
+//            .addOnCompleteListener {
+//                // Create and launch sign-in intent
+//                val signInIntent = AuthUI.getInstance()
+//                    .createSignInIntentBuilder()
+//                    .setAvailableProviders(providers)
+//                    .setLogo(R.drawable.icon) // Set logo drawable
+//                    .setTheme(R.style.AppTheme) // Set theme
+//                    .setCredentialManagerEnabled(false)
+//                    .build()
+//                signInLauncher.launch(signInIntent)
+//            }
 
 
         setContent {
