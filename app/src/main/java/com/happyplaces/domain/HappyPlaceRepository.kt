@@ -1,6 +1,6 @@
 package com.happyplaces.domain
 
-import com.happyplaces.data.model.HappyPlace
+import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.flow.Flow
 

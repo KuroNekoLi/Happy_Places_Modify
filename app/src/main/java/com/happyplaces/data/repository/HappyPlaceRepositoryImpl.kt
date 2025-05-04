@@ -5,8 +5,8 @@ import com.happyplaces.data.datasource.local.HappyPlaceEntity
 import com.happyplaces.data.datasource.local.UserDao
 import com.happyplaces.data.datasource.remote.PlaceDto
 import com.happyplaces.data.datasource.remote.PlaceRemoteDataSource
-import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.domain.HappyPlaceRepository
+import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.util.ApiResource
 import com.happyplaces.util.toDateString
 import com.happyplaces.util.toHappyPlace

@@ -1,4 +1,4 @@
-package com.happyplaces.data.model
+package com.happyplaces.domain.model
 
 import android.net.Uri
 

@@ -1,6 +1,7 @@
 package com.happyplaces.data.model
 
 import androidx.core.net.toUri
+import com.happyplaces.domain.model.HappyPlace
 
 val mockHappyPlace = HappyPlace(
     id = "2",

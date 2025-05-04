@@ -13,10 +13,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.happyplaces.data.model.AddPlaceEvent
 import com.happyplaces.data.model.AddPlaceUiState
-import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.data.model.toAddPlaceUiState
 import com.happyplaces.data.model.toHappyPlace
 import com.happyplaces.domain.HappyPlaceRepository
+import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main

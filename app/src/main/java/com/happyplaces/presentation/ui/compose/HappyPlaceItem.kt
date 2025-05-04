@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.data.model.mockHappyPlaceLists
+import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @Composable

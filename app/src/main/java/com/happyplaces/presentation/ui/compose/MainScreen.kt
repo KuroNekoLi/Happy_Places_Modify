@@ -23,8 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.happyplaces.R
-import com.happyplaces.data.model.HappyPlace
 import com.happyplaces.data.model.mockHappyPlaceLists
+import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import org.koin.androidx.compose.koinViewModel

@@ -1,6 +1,7 @@
 package com.happyplaces.data.model
 
 import android.net.Uri
+import com.happyplaces.domain.model.HappyPlace
 
 data class AddPlaceUiState(
     val id: String = "",
