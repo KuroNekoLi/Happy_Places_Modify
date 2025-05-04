@@ -58,4 +58,10 @@ class MockHappyPlaceRepository(
         emit(ApiResource.Loading())
         emit(ApiResource.Success(mockHappyPlaceLists.toList()))
     }
+
+    override fun updateAllHappyPlaces(): Flow<ApiResource<Unit>> {
+        return flow {
+            emit(ApiResource.Success(Unit))
+        }
+    }
 }

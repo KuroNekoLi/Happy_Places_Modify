@@ -32,4 +32,8 @@ interface UserDao {
     /** ★ 新增：以 Flow 方式訂閱單筆資料 ★ */
     @Query("SELECT * FROM place_data_table WHERE id = :id")
     fun getHappyPlaceByIdFlow(id: String): Flow<HappyPlaceEntity?>
+
+    @Query("DELETE FROM place_data_table")
+    suspend fun clearAllData()
+
 }

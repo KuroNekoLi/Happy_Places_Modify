@@ -18,6 +18,7 @@ import com.happyplaces.data.model.toHappyPlace
 import com.happyplaces.domain.HappyPlaceRepository
 import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.util.ApiResource
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -60,8 +61,6 @@ class HappyPlaceViewModel(
     fun onImagePicked(uri: Uri) =
         _uiState.update { it.copy(imageUrl = uri.toString()) }
 
-    fun updateUiState(newState: AddPlaceUiState) = _uiState.update { newState }
-
     fun onDateClick() {
         _uiState.update { it.copy(event = AddPlaceEvent.ShowDatePicker) }
     }
@@ -97,22 +96,24 @@ class HappyPlaceViewModel(
                 update()
             }
 
-            else ->
-                uiState.value.toHappyPlace()?.let {
-                    insert(it)
-                    _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
-                }
+            else -> uiState.value.toHappyPlace()?.let { happyPlace ->
+                insert(happyPlace)
+                _uiState.update { state -> state.copy(event = AddPlaceEvent.NavigateBack) }
+            }
         }
     }
 
-    fun insert(happyPlace: HappyPlace): Job = viewModelScope.launch {
+    fun insert(happyPlace: HappyPlace): Job =
+        CoroutineScope(IO).launch { //使用CoroutineScope而不使用viewModelScope是因為不想在viewModel重新建立時取消工作
         val resultFlow = repository.insert(happyPlace)
         resultFlow.collect {
-            it.data?.let {
-                _message.value = "第 $it 個資料已新增"
-            }
-            it.message?.let {
-                _message.value = it
+            withContext(Main) {
+                it.data?.let {
+                    _message.value = "第 $it 個資料已新增"
+                }
+                it.message?.let {
+                    _message.value = it
+                }
             }
         }
     }
@@ -181,6 +182,17 @@ class HappyPlaceViewModel(
         // 先更新經緯度 (地圖可立即用)；地址稍後再補
         _uiState.update { it.copy(latitude = lat, longitude = lng) }
         getAddressFromLatLng(lat, lng)
+    }
+
+    fun updateAllHappyPlaces() {
+        viewModelScope.launch {
+            repository.updateAllHappyPlaces().collect {
+                it.data?.let {
+
+                }
+            }
+        }
+
     }
 
     /** 將 Address 轉成完整字串 */

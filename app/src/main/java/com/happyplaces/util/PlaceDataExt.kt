@@ -3,12 +3,13 @@ package com.happyplaces.util
 import com.happyplaces.data.datasource.local.HappyPlaceEntity
 import com.happyplaces.data.datasource.remote.PlaceDto
 import com.happyplaces.domain.model.HappyPlace
+import okhttp3.internal.toLongOrDefault
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 fun HappyPlaceEntity.toHappyPlace(): HappyPlace = HappyPlace(
-    id = id,
+    id = id.toString(),
     title = title,
     image = image,
     description = description,
@@ -39,7 +40,7 @@ fun List<PlaceDto>.toHappyPlace(): List<HappyPlace> {
 }
 
 fun HappyPlace.toHappyPlaceEntity() = HappyPlaceEntity(
-    id = this.id,
+    id = this.id.toLongOrDefault(0),
     title = this.title,
     image = this.image,
     description = this.description,

@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -37,6 +38,9 @@ fun MainScreen(
     onItemClick: (HappyPlace) -> Unit = {}
 ) {
     val dataListApiResourceFlow by viewModel.dataListApiResourceFlow.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.updateAllHappyPlaces()
+    }
     MainScreen(
         list = dataListApiResourceFlow.data ?: emptyList(),
         onAddClick = onAddClick,

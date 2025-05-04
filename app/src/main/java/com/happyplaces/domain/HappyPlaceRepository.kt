@@ -10,4 +10,5 @@ interface HappyPlaceRepository {
     fun delete(happyPlace: HappyPlace): Flow<ApiResource<Int>>
     fun getHappyPlaceById(id: String): Flow<ApiResource<HappyPlace>>
     fun getAllHappyPlaces(): Flow<ApiResource<List<HappyPlace>>>
+    fun updateAllHappyPlaces(): Flow<ApiResource<Unit>>
 }
