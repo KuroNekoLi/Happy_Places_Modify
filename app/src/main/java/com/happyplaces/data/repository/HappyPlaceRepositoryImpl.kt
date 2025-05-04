@@ -1,6 +1,5 @@
 package com.happyplaces.data.repository
 
-import androidx.core.net.toUri
 import com.happyplaces.data.datasource.local.HappyPlaceEntity
 import com.happyplaces.data.datasource.local.UserDao
 import com.happyplaces.data.datasource.remote.PlaceDto
@@ -111,7 +110,7 @@ private fun PlaceDto.toHappyPlaceEntity(): HappyPlaceEntity {
     return HappyPlaceEntity(
         id = this.id,
         title = this.title,
-        image = this.imageUrl.toUri(),
+        image = this.imageUrl,
         description = this.description,
         date = this.createdAt.toDateString(),
         location = this.address,

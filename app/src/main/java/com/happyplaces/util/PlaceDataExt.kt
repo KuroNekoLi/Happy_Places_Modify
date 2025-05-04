@@ -1,6 +1,5 @@
 package com.happyplaces.util
 
-import androidx.core.net.toUri
 import com.happyplaces.data.datasource.local.HappyPlaceEntity
 import com.happyplaces.data.datasource.remote.PlaceDto
 import com.happyplaces.domain.model.HappyPlace
@@ -26,7 +25,7 @@ fun PlaceDto.toHappyPlace(): HappyPlace {
     return HappyPlace(
         id = "0", // 因為 Room 會 autoGenerate，所以設為 0
         title = this.title,
-        image = this.imageUrl.toUri(),
+        image = this.imageUrl,
         description = this.description,
         date = formattedDate,
         location = this.address,

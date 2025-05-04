@@ -268,7 +268,7 @@ fun AddHappyPlaceScreen(
         location = uiState.location,
         onLocationClick = viewModel::onLocationClick,
         onSelectCurrentLocation = viewModel::onSelectCurrentLocation,
-        imageUri = uiState.imageUri,
+        imageUrl = uiState.imageUrl,
         onAddImageClick = viewModel::onAddImageClick,
         onSaveClick = {
             viewModel.onSaveClick()
@@ -293,7 +293,7 @@ fun AddHappyPlaceScreen(
     location: String,
     onLocationClick: () -> Unit,
     onSelectCurrentLocation: () -> Unit,
-    imageUri: Uri?,
+    imageUrl: String?,
     onAddImageClick: () -> Unit,
     onSaveClick: () -> Unit,
     onBack: () -> Unit,
@@ -401,7 +401,7 @@ fun AddHappyPlaceScreen(
                     val context = LocalContext.current
                     AsyncImage(
                         model = ImageRequest.Builder(context)
-                            .data(imageUri)
+                            .data(imageUrl)
                             .crossfade(true)
                             .build(),
                         contentDescription = null,
@@ -479,7 +479,7 @@ fun AddHappyPlaceScreenPreview() {
             location = "location",
             onLocationClick = {},
             onSelectCurrentLocation = {},
-            imageUri = null,
+            imageUrl = null,
             onAddImageClick = {},
             onSaveClick = {},
             onBack = {},

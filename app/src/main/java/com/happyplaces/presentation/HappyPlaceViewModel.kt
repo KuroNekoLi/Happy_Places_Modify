@@ -58,7 +58,7 @@ class HappyPlaceViewModel(
 
     fun onAddImageClick() = _uiState.update { it.copy(event = AddPlaceEvent.ShowImagePicker) }
     fun onImagePicked(uri: Uri) =
-        _uiState.update { it.copy(imageUri = uri) }
+        _uiState.update { it.copy(imageUrl = uri.toString()) }
 
     fun updateUiState(newState: AddPlaceUiState) = _uiState.update { newState }
 
@@ -73,7 +73,7 @@ class HappyPlaceViewModel(
     fun onSaveClick() {
         val s = _uiState.value
         val description = s.description
-        val photoUri = s.imageUri
+        val photoUri = s.imageUrl
         val location = s.location
         val isEditMode = s.isEditMode
         when {

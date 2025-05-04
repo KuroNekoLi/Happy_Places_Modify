@@ -1,6 +1,5 @@
 package com.happyplaces.data.model
 
-import android.net.Uri
 import com.happyplaces.domain.model.HappyPlace
 
 data class AddPlaceUiState(
@@ -11,7 +10,7 @@ data class AddPlaceUiState(
     val location: String = "",
     val latitude: Double? = null,
     val longitude: Double? = null,
-    val imageUri: Uri? = null,
+    val imageUrl: String? = null,
     val event: AddPlaceEvent? = null,
     val isEditMode: Boolean = false
 )
@@ -23,7 +22,7 @@ fun AddPlaceUiState.toHappyPlace(): HappyPlace? {
     return HappyPlace(
         id = this.id,
         title = this.title,
-        image = this.imageUri,
+        image = this.imageUrl,
         description = this.description,
         date = this.date,
         location = this.location,
@@ -41,7 +40,7 @@ fun HappyPlace.toAddPlaceUiState(): AddPlaceUiState {
         location = this.location.orEmpty(),
         latitude = this.latitude,
         longitude = this.longitude,
-        imageUri = this.image,
+        imageUrl = this.image,
         event = null,
         isEditMode = true
     )

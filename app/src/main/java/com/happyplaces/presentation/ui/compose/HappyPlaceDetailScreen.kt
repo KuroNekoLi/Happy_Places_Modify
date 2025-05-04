@@ -1,6 +1,5 @@
 package com.happyplaces.presentation.ui.compose
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,11 +21,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -51,7 +47,7 @@ fun HappyPlaceDetailScreen(
     val happyPlace by viewModel.uiState.collectAsState()
     HappyPlaceDetailScreen(
         toolbarTitle = happyPlace.title,
-        imageUri = happyPlace.imageUri,
+        imageUrl = happyPlace.imageUrl,
         description = happyPlace.description,
         location = happyPlace.location,
         onBackClick = onBackClick,
@@ -63,7 +59,7 @@ fun HappyPlaceDetailScreen(
 @Composable
 fun HappyPlaceDetailScreen(
     toolbarTitle: String,
-    imageUri: Uri?,
+    imageUrl: String?,
     description: String,
     location: String,
     onBackClick: () -> Unit,
@@ -83,7 +79,7 @@ fun HappyPlaceDetailScreen(
             val context = LocalContext.current
             AsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(imageUri)
+                    .data(imageUrl)
                     .crossfade(true)
                     .build(),
                 contentDescription = null,
@@ -140,7 +136,7 @@ fun HappyPlaceDetailScreenPreview() {
     HappyPlacesTheme {
         HappyPlaceDetailScreen(
             toolbarTitle = "Add Happy Place",
-            imageUri = null,
+            imageUrl = null,
             description = "Description",
             location = "Location",
             onBackClick = {},
