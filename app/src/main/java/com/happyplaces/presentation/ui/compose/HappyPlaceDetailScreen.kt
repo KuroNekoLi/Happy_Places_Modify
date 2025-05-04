@@ -98,8 +98,6 @@ fun HappyPlaceDetailScreen(
             // 描述文字
             Text(
                 text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = colorResource(id = R.color.detail_screen_description_text_color),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = dimensionResource(id = R.dimen.detail_screen_description_margin))
@@ -110,8 +108,6 @@ fun HappyPlaceDetailScreen(
             // 位置文字
             Text(
                 text = location,
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                color = colorResource(id = R.color.colorAccent),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = dimensionResource(id = R.dimen.detail_screen_location_marginStartEnd))
@@ -130,8 +126,6 @@ fun HappyPlaceDetailScreen(
             ) {
                 Text(
                     text = stringResource(id = R.string.btn_text_view_on_map),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = colorResource(id = R.color.white_color)
                 )
             }
 
