@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -68,6 +69,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.happyplaces.BuildConfig
 import com.happyplaces.R
@@ -136,6 +138,18 @@ fun AddHappyPlaceScreen(
                 lat = place.location?.latitude ?: 0.0,
                 lng = place.location?.longitude ?: 0.0
             )
+        } else if (result.resultCode == AutocompleteActivity.RESULT_ERROR) {
+            result.data?.let { intent ->
+                val status = Autocomplete.getStatusFromIntent(intent)
+                Log.e("LinLi", "Places Autocomplete error: ${status.statusMessage}")
+                Toast.makeText(
+                    context,
+                    "Get place failed,please contract with the developer.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        } else if (result.resultCode == Activity.RESULT_CANCELED) {
+            Log.i("LinLi", "Places Autocomplete canceled by user")
         }
     }
     // --- Location Permissions & Updates ---
