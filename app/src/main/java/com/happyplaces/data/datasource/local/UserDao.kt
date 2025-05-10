@@ -34,6 +34,9 @@ interface UserDao {
     fun getHappyPlaceByIdFlow(id: String): Flow<HappyPlaceEntity?>
 
     @Query("DELETE FROM place_data_table")
-    suspend fun clearAllData()
+    suspend fun clearAllData(): Int
 
+    /** 新增：以 List 方式取得所有資料，用於本地與遠端資料比對 */
+    @Query("SELECT * FROM place_data_table")
+    suspend fun getAllDataList(): List<HappyPlaceEntity>
 }

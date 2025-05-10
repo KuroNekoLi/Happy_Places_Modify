@@ -18,12 +18,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import okhttp3.internal.toLongOrDefault
 
@@ -33,7 +33,6 @@ class HappyPlaceRepositoryImpl(
 ) : HappyPlaceRepository {
     override fun insert(happyPlace: HappyPlace): Flow<ApiResource<Long>> = flow {
         emit(ApiResource.Loading())  // 1. 本地插入前先發 Loading
-        // 2. 本地寫入並取得自動遞增 rowId
         val entity = happyPlace.toHappyPlaceEntity()
         val rowId = dao.insertData(entity)  // Room 回傳自動產生的主鍵
         emit(ApiResource.Success(rowId))     // 3. 立即回傳 Success 結果
@@ -108,31 +107,34 @@ class HappyPlaceRepositoryImpl(
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun updateAllHappyPlaces(): Flow<ApiResource<Unit>> {
-        Log.i("LinLi", "updateAllHappyPlaces() called")
-        return placeRemoteDataSource.getPlaces()                    // 1. 遠端流: Flow<List<Dto>>
-            .flatMapLatest { dtos ->
-                Log.i("LinLi", "updateAllHappyPlaces dtos: $dtos")
-                // 把遠端 DTO 寫進 Room
-                dao.clearAllData()
-                dao.insertAllData(dtos.map { it.toHappyPlaceEntity() }).apply {
-                    Log.i("LinLi", "updateAllHappyPlaces: 新增 ${this} 筆資料")
-                }
-                // 轉為本地 Entity Flow< List<HappyPlaceEntity> >
-                dao.getAllData()
+    override fun updateAllHappyPlaces(): Flow<ApiResource<Unit>> = flow {
+        emit(ApiResource.Loading())
+        // 1. 取得遠端資料
+        val remoteDtos = placeRemoteDataSource.getPlaces().first()
+        // 2. 取得本地現有資料
+        val localEntities = dao.getAllDataList()
+        // 3. 計算要刪除的 local id、以及本地 id Set
+        val remoteIds = remoteDtos.map { it.id.toLongOrDefault(0) }.toSet()
+        val localIds = localEntities.map { it.id }.toSet()
+        val toDelete = localEntities.filter { it.id !in remoteIds }
+        // 4. 刪除不存在於遠端的本地項目
+        toDelete.forEach { dao.deleteData(it) }
+        // 5. 同步新增或更新
+        remoteDtos.forEach { dto ->
+            val entity = dto.toHappyPlaceEntity()
+            if (entity.id in localIds) {
+                dao.updateData(entity)
+            } else {
+                dao.insertData(entity)
             }
-            .transform { list ->
-                // 先發 Loading
-                emit(ApiResource.Loading())
-                // 再發 Success
-                emit(ApiResource.Success(Unit))
-            }
-            .catch { e ->
-                Log.i("LinLi", "updateAllHappyPlaces: 更新失敗 $e")
-                emit(ApiResource.Error(e.message ?: "未知錯誤"))
-            }
-            .flowOn(Dispatchers.IO)
+        }
+        emit(ApiResource.Success(Unit))
     }
+        .catch { e ->
+            Log.i("LinLi", "updateAllHappyPlaces: 更新失敗 $e")
+            emit(ApiResource.Error(e.message ?: "未知錯誤"))
+        }
+        .flowOn(Dispatchers.IO)
 }
 
 private fun PlaceDto.toHappyPlaceEntity(): HappyPlaceEntity {
