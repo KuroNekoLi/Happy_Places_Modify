@@ -11,6 +11,8 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.happyplaces.R
 import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.HappyPlaceNavHost
@@ -36,7 +38,24 @@ class MainActivity : AppCompatActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.AnonymousBuilder().build()
         )
-
+        Firebase.auth.currentUser?.let {
+            showMainScreen()
+        } ?: run {
+            AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener {
+                    // Create and launch sign-in intent
+                    val signInIntent = AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .setLogo(R.drawable.icon) // Set logo drawable
+                        .setTheme(R.style.AppTheme) // Set theme
+                        .setCredentialManagerEnabled(false)
+                        .build()
+                    signInLauncher.launch(signInIntent)
+                    showMainScreen()
+                }
+        }
         FirebaseAuth.getInstance().addAuthStateListener { auth ->
             val user = auth.currentUser
             if (user != null) {
@@ -45,28 +64,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Log.i("LinLi", "logout")
                 // 使用者已登出
-            }
-        }
-
-        AuthUI.getInstance()
-            .signOut(this)
-            .addOnCompleteListener {
-                // Create and launch sign-in intent
-                val signInIntent = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .setLogo(R.drawable.icon) // Set logo drawable
-                    .setTheme(R.style.AppTheme) // Set theme
-                    .setCredentialManagerEnabled(false)
-                    .build()
-                signInLauncher.launch(signInIntent)
-            }
-
-
-        setContent {
-            val navController = rememberNavController()
-            HappyPlacesTheme {
-                HappyPlaceNavHost(navController = navController)
             }
         }
 
@@ -101,4 +98,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+}
+
+private fun MainActivity.showMainScreen() {
+    setContent {
+        val navController = rememberNavController()
+        HappyPlacesTheme {
+            HappyPlaceNavHost(navController = navController)
+        }
+    }
 }
