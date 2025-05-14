@@ -3,7 +3,6 @@ package com.happyplaces.util
 import com.happyplaces.data.datasource.local.HappyPlaceEntity
 import com.happyplaces.data.datasource.remote.PlaceDto
 import com.happyplaces.domain.model.HappyPlace
-import okhttp3.internal.toLongOrDefault
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -35,12 +34,8 @@ fun PlaceDto.toHappyPlace(): HappyPlace {
     )
 }
 
-fun List<PlaceDto>.toHappyPlace(): List<HappyPlace> {
-    return this.map { it.toHappyPlace() }
-}
-
 fun HappyPlace.toHappyPlaceEntity() = HappyPlaceEntity(
-    id = this.id.toLongOrDefault(0),
+    id = this.id,
     title = this.title,
     image = this.image,
     description = this.description,
@@ -56,13 +51,13 @@ fun HappyPlace.toPlaceDto(): PlaceDto {
     val parsedDate = this.date?.let {
         try {
             SimpleDateFormat(dateFormatPattern, Locale.getDefault()).parse(it)?.time ?: 0L
-        } catch (e: Exception) {
-            0L // fallback if date parsing fails
+        } catch (_: Exception) {
+            0L
         }
     } ?: 0L
 
     return PlaceDto(
-        id = "",
+        id = this.id,
         creatorId = "Lin",
         title = this.title.orEmpty(),
         description = this.description.orEmpty(),

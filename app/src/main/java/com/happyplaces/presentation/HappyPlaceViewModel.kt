@@ -206,7 +206,10 @@ class HappyPlaceViewModel(
 
     fun getHappyPlaceById(id: String) {
         viewModelScope.launch {
+            Log.i("LinLi", "id : $id")
             repository.getHappyPlaceById(id).collect {
+                Log.i("LinLi", "it : ${it.data}")
+                Log.i("LinLi", "it : ${it.message}")
                 it.data?.let {
                     _uiState.value = it.toAddPlaceUiState()
                 }

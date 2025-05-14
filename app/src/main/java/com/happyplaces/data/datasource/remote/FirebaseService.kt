@@ -9,10 +9,12 @@ import com.google.firebase.firestore.snapshots
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -27,10 +29,6 @@ class FirebaseService(
 ) : PlaceService {
     // Firebase Storage 實例
     private val storage: FirebaseStorage = Firebase.storage
-
-    private companion object {
-        private const val TAG = "FirebaseService"
-    }
 
     override fun getPlaces(): Flow<List<PlaceDto>> {
         return firestore.collection(ARTICLE_COLLECTION)
@@ -48,6 +46,7 @@ class FirebaseService(
     override suspend fun addPlace(place: PlaceDto): String {
         // 1. 方法一開始就印出來，確認有沒有呼到
         Log.d("LinLi", "addPlace() called with place: $place")
+        Log.i("LinLi", "id: ${place.id}")
 
         val docRef = firestore.collection(ARTICLE_COLLECTION).document()
         var withId = place
@@ -79,31 +78,61 @@ class FirebaseService(
     }
     override suspend fun updatePlace(place: PlaceDto) {
         var updated = place
-        place.imageUrl.let { raw ->
-            val uri = raw.toUri()
+        // 處理圖片上傳
+        place.imageUrl.toUri().let { uri ->
             if (uri.scheme == "content" || uri.scheme == "file") {
                 val newUrl = uploadImage(uri, place.id)
                 updated = updated.copy(imageUrl = newUrl)
             }
         }
-        firestore.collection(ARTICLE_COLLECTION)
-            .document(place.id)
-            .set(updated, SetOptions.merge())
+
+        // 1. 先查詢符合欄位 id 的文件（最多一筆）
+        val querySnapshot = firestore
+            .collection(ARTICLE_COLLECTION)
+            .whereEqualTo("id", place.id)
+            .limit(1)
+            .get()
+            .await()
+
+        // 2. 取出文件參照並更新
+        val docRef = querySnapshot.documents
+            .firstOrNull()
+            ?.reference
+            ?: throw NoSuchElementException("找不到 id = ${place.id} 的文件")
+
+        docRef.set(updated, SetOptions.merge())
             .await()
     }
 
     override suspend fun deletePlace(id: String) {
-        firestore.collection(ARTICLE_COLLECTION)
-            .document(id)
-            .delete()
-            .await()  // 需引入 kotlinx-coroutines-play-services 才能 await()
+        // 1. 執行查詢並取得最多一筆結果
+        val querySnapshot = firestore
+            .collection(ARTICLE_COLLECTION)
+            .whereEqualTo("id", id)
+            .limit(1)
+            .get()
+            .await()
+
+        // 2. 如果有符合的文件，就呼叫 delete()
+        querySnapshot.documents.firstOrNull()?.reference
+            ?.delete()
+            ?.await()
     }
 
-    override fun getPlaceByIdFlow(id: String): Flow<PlaceDto> =
-        firestore.collection(ARTICLE_COLLECTION)
-            .document(id)
-            .snapshots()
-            .mapNotNull { it.toObject(PlaceDto::class.java)?.copy(id = it.id) }
+    override fun getPlaceByIdFlow(id: String): Flow<PlaceDto> = flow {
+        val querySnapshot = firestore
+            .collection(ARTICLE_COLLECTION)
+            .whereEqualTo("id", id)
+            .limit(1)
+            .get()
+            .await()
+
+        querySnapshot.documents
+            .firstOrNull()
+            ?.toObject(PlaceDto::class.java)?.also {
+                emit(it)
+            }
+    }.flowOn(Dispatchers.IO)
 
     /**
      * 上傳本地圖片至 Firebase Storage，並回傳下載 URL

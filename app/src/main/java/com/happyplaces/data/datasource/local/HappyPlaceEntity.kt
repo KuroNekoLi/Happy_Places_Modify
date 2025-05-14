@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "place_data_table")
 data class HappyPlaceEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    @PrimaryKey
+    val id: String,
     val title: String?,
     val image: String?,
     val description: String?,

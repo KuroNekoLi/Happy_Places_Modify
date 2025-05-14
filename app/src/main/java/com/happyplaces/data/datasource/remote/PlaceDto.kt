@@ -1,11 +1,9 @@
 package com.happyplaces.data.datasource.remote
 
-import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.IgnoreExtraProperties
 
 @IgnoreExtraProperties
 data class PlaceDto(
-    @DocumentId
     val id: String = "",
     val creatorId: String = "",
     val title: String = "",

@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import okhttp3.internal.toLongOrDefault
+import java.util.UUID
 
 class HappyPlaceRepositoryImpl(
     private val placeRemoteDataSource: PlaceRemoteDataSource,
@@ -33,13 +33,15 @@ class HappyPlaceRepositoryImpl(
 ) : HappyPlaceRepository {
     override fun insert(happyPlace: HappyPlace): Flow<ApiResource<Long>> = flow {
         emit(ApiResource.Loading())  // 1. 本地插入前先發 Loading
-        val entity = happyPlace.toHappyPlaceEntity()
+        val id = UUID.randomUUID().toString()
+        val happyPlaceWithUUID = happyPlace.copy(id = id)
+        val entity = happyPlaceWithUUID.toHappyPlaceEntity()
         val rowId = dao.insertData(entity)  // Room 回傳自動產生的主鍵
         emit(ApiResource.Success(rowId))     // 3. 立即回傳 Success 結果
         // 4. Fire-and-forget 背景同步至遠端，不阻塞上方流程
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             try {
-                val dtoWithId = happyPlace.copy(id = rowId.toString()).toPlaceDto()
+                val dtoWithId = happyPlaceWithUUID.toPlaceDto()
                 placeRemoteDataSource.addPlace(dtoWithId)
             } catch (e: Exception) {
                 // 可選：記錄錯誤或 retry
@@ -111,10 +113,11 @@ class HappyPlaceRepositoryImpl(
         emit(ApiResource.Loading())
         // 1. 取得遠端資料
         val remoteDtos = placeRemoteDataSource.getPlaces().first()
+        Log.i("LinLi", "remoteDtos : $remoteDtos")
         // 2. 取得本地現有資料
         val localEntities = dao.getAllDataList()
         // 3. 計算要刪除的 local id、以及本地 id Set
-        val remoteIds = remoteDtos.map { it.id.toLongOrDefault(0) }.toSet()
+        val remoteIds = remoteDtos.map { it.id }.toSet()
         val localIds = localEntities.map { it.id }.toSet()
         val toDelete = localEntities.filter { it.id !in remoteIds }
         // 4. 刪除不存在於遠端的本地項目
@@ -139,7 +142,7 @@ class HappyPlaceRepositoryImpl(
 
 private fun PlaceDto.toHappyPlaceEntity(): HappyPlaceEntity {
     return HappyPlaceEntity(
-        id = this.id.toLongOrDefault(0),
+        id = this.id,
         title = this.title,
         image = this.imageUrl,
         description = this.description,
