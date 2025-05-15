@@ -94,8 +94,8 @@ fun MainScaffold(
                     shape = CircleShape,
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(80.dp)
-                        .offset(y = 50.dp)
+                        .size(60.dp)
+                        .offset(y = 45.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
