@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
@@ -35,7 +34,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.happyplaces.R
 import kotlinx.serialization.Serializable
 
 
@@ -106,7 +104,7 @@ fun MainScaffold(
             }
         },
         topBar = {
-            HappyPlaceToolBar(false, stringResource(id = R.string.app_name))
+//            HappyPlaceToolBar(false, stringResource(id = R.string.app_name))
         },
         floatingActionButtonPosition = FabPosition.Center,
 
