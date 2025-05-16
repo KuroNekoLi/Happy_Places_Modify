@@ -83,51 +83,26 @@ class FirebaseService(
         // 2. 合併更新資料
         val updated = place.copy(imageUrl = imageUrl)
 
-        // 3. 查詢 firestore 中以 field "id" 為條件的文件並取得參考
-        val querySnapshot = firestore
-            .collection(ARTICLE_COLLECTION)
-            .whereEqualTo("id", place.id)
-            .limit(1)
-            .get()
-            .await()
-
-        val docRef = querySnapshot.documents
-            .firstOrNull()?.reference
-            ?: throw NoSuchElementException("找不到 id = ${place.id} 的文件")
+        // 3. 查詢並取得文件參考
+        val docRef = findPlaceDocRefByIdOrNull(place.id)
 
         // 4. 使用該文件參考更新內容
-        docRef.set(updated, SetOptions.merge())
-            .await()
-    }
-
-    override suspend fun deletePlace(id: String) {
-        // 1. 執行查詢並取得最多一筆結果
-        val querySnapshot = firestore
-            .collection(ARTICLE_COLLECTION)
-            .whereEqualTo("id", id)
-            .limit(1)
-            .get()
-            .await()
-
-        // 2. 如果有符合的文件，就呼叫 delete()
-        querySnapshot.documents.firstOrNull()?.reference
-            ?.delete()
+        docRef?.set(updated, SetOptions.merge())
             ?.await()
     }
 
-    override fun getPlaceByIdFlow(id: String): Flow<PlaceDto> = flow {
-        val querySnapshot = firestore
-            .collection(ARTICLE_COLLECTION)
-            .whereEqualTo("id", id)
-            .limit(1)
-            .get()
-            .await()
+    override suspend fun deletePlace(id: String) {
+        // 查詢文件參考，若存在則刪除
+        findPlaceDocRefByIdOrNull(id)?.delete()?.await()
+    }
 
-        querySnapshot.documents
-            .firstOrNull()
-            ?.toObject(PlaceDto::class.java)?.also {
-                emit(it)
-            }
+    override fun getPlaceByIdFlow(id: String): Flow<PlaceDto> = flow {
+        // 使用文件參考查詢
+        val docRef = findPlaceDocRefByIdOrNull(id)
+        if (docRef != null) {
+            val snapshot = docRef.get().await()
+            snapshot.toObject(PlaceDto::class.java)?.let { emit(it) }
+        }
     }.flowOn(Dispatchers.IO)
 
     /**
@@ -158,4 +133,16 @@ class FirebaseService(
         Log.d("LinLi", "  ▶ downloadUrl retrieved: $downloadUrl")
         return downloadUrl
     }
+
+    /**
+     * 取得 Firestore documents 中，field "id" 等於給定 id 的文件參考，若找不到回傳 null。
+     */
+    private suspend fun findPlaceDocRefByIdOrNull(id: String) =
+        firestore.collection(ARTICLE_COLLECTION)
+            .whereEqualTo("id", id)
+            .limit(1)
+            .get()
+            .await()
+            .documents
+            .firstOrNull()?.reference
 }
