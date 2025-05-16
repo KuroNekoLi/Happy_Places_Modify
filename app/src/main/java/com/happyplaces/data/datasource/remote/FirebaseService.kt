@@ -8,6 +8,7 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.snapshots
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
-import java.util.UUID
 
 /** 文章資料庫 */
 const val ARTICLE_COLLECTION = "articles"
@@ -45,13 +45,13 @@ class FirebaseService(
 
     override suspend fun addPlace(place: PlaceDto): String {
         // 先為即將加入的文件建立參照，並以其產生唯一 ID
-        val docRef = firestore.collection(ARTICLE_COLLECTION).document()
+        val docRef = firestore.collection(ARTICLE_COLLECTION).document(place.id)
 
         // 如有本地圖片（content:// 或 file://），先行上傳並取得下載網址
         val finalImageUrl = place.imageUrl.let { raw ->
             val uri = raw.toUri()
             if (uri.scheme == "content" || uri.scheme == "file") {
-                uploadImage(uri, docRef.id)
+                uploadImage(uri, storage.reference.child("$ARTICLE_IMAGE_STORAGE/${place.id}"))
             } else {
                 raw
             }
@@ -71,16 +71,19 @@ class FirebaseService(
         }
     }
     override suspend fun updatePlace(place: PlaceDto) {
-        var updated = place
-        // 處理圖片上傳
-        place.imageUrl.toUri().let { uri ->
+        // 1. 如果有本地圖片，先上傳並取得新 URL
+        val imageUrl = place.imageUrl.toUri().let { uri ->
             if (uri.scheme == "content" || uri.scheme == "file") {
-                val newUrl = uploadImage(uri, place.id)
-                updated = updated.copy(imageUrl = newUrl)
+                uploadImage(uri, storage.reference.child("$ARTICLE_IMAGE_STORAGE/${place.id}"))
+            } else {
+                place.imageUrl
             }
         }
 
-        // 1. 先查詢符合欄位 id 的文件（最多一筆）
+        // 2. 合併更新資料
+        val updated = place.copy(imageUrl = imageUrl)
+
+        // 3. 查詢 firestore 中以 field "id" 為條件的文件並取得參考
         val querySnapshot = firestore
             .collection(ARTICLE_COLLECTION)
             .whereEqualTo("id", place.id)
@@ -88,12 +91,11 @@ class FirebaseService(
             .get()
             .await()
 
-        // 2. 取出文件參照並更新
         val docRef = querySnapshot.documents
-            .firstOrNull()
-            ?.reference
+            .firstOrNull()?.reference
             ?: throw NoSuchElementException("找不到 id = ${place.id} 的文件")
 
+        // 4. 使用該文件參考更新內容
         docRef.set(updated, SetOptions.merge())
             .await()
     }
@@ -132,26 +134,23 @@ class FirebaseService(
      * 上傳本地圖片至 Firebase Storage，並回傳下載 URL
      *
      * @param localUri 本地圖片 Uri
-     * @param docRefId  對應的文章 ID
+     * @param storageReference Firebase Storage 參考
      * @return 圖片的公開下載 URL
      */
-    suspend fun uploadImage(localUri: Uri, docRefId: String): String {
-        Log.d("LinLi", "uploadImage() called with localUri=$localUri, placeId=$docRefId")
+    suspend fun uploadImage(localUri: Uri, storageReference: StorageReference): String {
+        Log.d("LinLi", "uploadImage() called with localUri=$localUri")
         Log.d("LinLi", "  ▶ uploadImage start putFile")
-        // 1. 建立 storage 參考
-        val imageRef = storage.reference
-            .child("$ARTICLE_IMAGE_STORAGE/$docRefId/${UUID.randomUUID()}")
-        // 2. 上傳檔案
+        // 1. 上傳檔案
         try {
-            imageRef.putFile(localUri).await()
+            storageReference.putFile(localUri).await()
             Log.d("LinLi", "  ▶ putFile.await() returned, upload complete")
         } catch (e: Exception) {
             Log.e("LinLi", "  ▶ putFile.await() failed", e)
             throw e
         }
-        // 3. 取得並回傳下載 URL
+        // 2. 取得並回傳下載 URL
         val downloadUrl: String = try {
-            imageRef.downloadUrl.await().toString()
+            storageReference.downloadUrl.await().toString()
         } catch (e: Exception) {
             Log.e("LinLi", "  ▶ downloadUrl.await() failed", e)
             throw e
