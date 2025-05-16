@@ -12,6 +12,7 @@ fun initKoin(app: Application) {
             listOf(
                 databaseModule,
                 repositoryModule,
+                useCaseModule,
                 viewModelModule,
                 networkModule
             )

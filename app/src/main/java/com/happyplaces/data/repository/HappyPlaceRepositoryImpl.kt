@@ -66,8 +66,10 @@ class HappyPlaceRepositoryImpl(
 
     override fun delete(happyPlace: HappyPlace): Flow<ApiResource<Int>> = flow {
         emit(ApiResource.Loading())
-        // 遠端刪除
-        placeRemoteDataSource.deletePlace(id = happyPlace.id)
+        CoroutineScope(Dispatchers.IO).launch {
+            // 遠端刪除
+            placeRemoteDataSource.deletePlace(id = happyPlace.id)
+        }
 
         // 本地刪除
         val count = dao.deleteData(happyPlace.toHappyPlaceEntity())

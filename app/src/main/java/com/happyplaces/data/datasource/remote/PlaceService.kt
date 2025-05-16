@@ -12,4 +12,11 @@ interface PlaceService {
     /** 刪除指定 documentId 的文章 */
     suspend fun deletePlace(id: String)
     fun getPlaceByIdFlow(id: String): Flow<PlaceDto>
+
+    fun getUsers(): Flow<List<UserDto>>
+    suspend fun addUser(user: UserDto): String
+    suspend fun updateUser(user: UserDto)
+    suspend fun deleteUser(id: String)
+    fun getUserByIdFlow(id: String): Flow<UserDto>
+    suspend fun isUserProfileCompleted(id: String): Boolean
 }

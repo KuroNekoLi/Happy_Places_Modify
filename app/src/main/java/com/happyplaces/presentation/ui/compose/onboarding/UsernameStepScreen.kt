@@ -1,5 +1,7 @@
 package com.happyplaces.presentation.ui.compose.onboarding
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -14,11 +16,13 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun UsernameStepScreen(
-    vm: OnboardingViewModel = koinViewModel(),
+    vm: OnboardingViewModel = koinViewModel(
+        viewModelStoreOwner = LocalActivity.current as ComponentActivity
+    ),
     onNext: () -> Unit
 ) = UsernameStepContent(
     state = vm.uiState,
-    onUsernameChange = vm::onUsernameChange,
+    onUsernameChange = vm::onAccountIdChange,
     onNext = onNext
 )
 
@@ -31,11 +35,11 @@ fun UsernameStepContent(
     StepScaffold(
         step = 2, total = 4,
         title = "Choose a username",
-        enableNext = state.usernameValid,
+        enableNext = state.accountIdValid,
         onNext = onNext
     ) {
         OutlinedTextField(
-            value = state.username,
+            value = state.accountId,
             onValueChange = onUsernameChange,
             label = { Text("@username") },
             prefix = { Text("@") },
@@ -43,8 +47,8 @@ fun UsernameStepContent(
             modifier = Modifier.fillMaxWidth()
         )
         Text(
-            if (state.username.length >= 4) "Username available ✓" else "至少 4 個字元",
-            color = if (state.username.length >= 4)
+            if (state.accountId.length >= 4) "Username available ✓" else "至少 4 個字元",
+            color = if (state.accountId.length >= 4)
                 MaterialTheme.colorScheme.primary
             else LocalContentColor.current.copy(alpha = 0.6f),
             style = MaterialTheme.typography.bodySmall
@@ -58,7 +62,7 @@ fun UsernameStepContent(
 fun UsernameStepContentPreview() {
     HappyPlacesTheme {
         UsernameStepContent(
-            state = OnboardingViewModel.UiState(username = "Lin_Li"),
+            state = OnboardingViewModel.UiState(accountId = "Lin_Li"),
             onUsernameChange = {},
             onNext = {}
         )

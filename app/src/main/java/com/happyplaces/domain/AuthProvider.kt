@@ -1,8 +1,8 @@
 package com.happyplaces.domain
 
 
+import com.happyplaces.domain.model.AuthUser
 import com.happyplaces.domain.model.HappyPlaceAuthResult
-import com.happyplaces.domain.model.HappyPlaceUser
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -16,5 +16,5 @@ interface AuthProvider {
     suspend fun signOut()
 
     /** 取得目前已登入的使用者 (若無則為 null) */
-    fun getCurrentUser(): Flow<HappyPlaceUser?>
+    fun getCurrentUser(): Flow<AuthUser?>
 }

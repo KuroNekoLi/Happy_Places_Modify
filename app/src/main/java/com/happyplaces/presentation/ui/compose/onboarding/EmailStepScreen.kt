@@ -1,5 +1,7 @@
 package com.happyplaces.presentation.ui.compose.onboarding
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -13,7 +15,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun EmailStepScreen(
-    vm: OnboardingViewModel = koinViewModel(),   // 或 hiltViewModel()
+    vm: OnboardingViewModel = koinViewModel(
+        viewModelStoreOwner = LocalActivity.current as ComponentActivity
+    ),
     onNext: () -> Unit
 ) = EmailStepContent(
     uiState = vm.uiState,

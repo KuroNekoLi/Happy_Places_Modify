@@ -1,5 +1,7 @@
 package com.happyplaces.presentation.ui.compose.onboarding
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,11 +24,16 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun WelcomeStepScreen(
-    vm: OnboardingViewModel = koinViewModel(),
+    vm: OnboardingViewModel = koinViewModel(
+        viewModelStoreOwner = LocalActivity.current as ComponentActivity
+    ),
     onFinish: () -> Unit
 ) = WelcomeStepContent(
     username = vm.uiState.username,
-    onGo = onFinish
+    onGo = {
+        vm.onFinish()
+        onFinish()
+    }
 )
 
 /* Content */
@@ -45,7 +52,7 @@ fun WelcomeStepContent(
         ) {
             Spacer(Modifier.height(64.dp))
             Text(
-                "Welcome to mapstr ${username.ifBlank { "there" }}!",
+                "Welcome to happy place ${username.ifBlank { "" }}!",
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )

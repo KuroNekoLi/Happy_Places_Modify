@@ -1,5 +1,7 @@
 package com.happyplaces.presentation.ui.compose.onboarding
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,7 +39,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ProfileStepScreen(
-    vm: OnboardingViewModel = koinViewModel(),
+    vm: OnboardingViewModel = koinViewModel(
+        viewModelStoreOwner = LocalActivity.current as ComponentActivity
+    ),
     onNext: () -> Unit
 ) {
     val state = vm.uiState
