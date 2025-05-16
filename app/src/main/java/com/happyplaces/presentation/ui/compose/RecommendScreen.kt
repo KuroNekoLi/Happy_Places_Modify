@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.happyplaces.R
 import com.happyplaces.data.model.mockHappyPlaceLists
 import com.happyplaces.domain.model.HappyPlace
-import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

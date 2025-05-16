@@ -19,7 +19,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.happyplaces.data.model.toHappyPlace
 import com.happyplaces.domain.model.HappyPlace
-import com.happyplaces.presentation.HappyPlaceViewModel
+import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

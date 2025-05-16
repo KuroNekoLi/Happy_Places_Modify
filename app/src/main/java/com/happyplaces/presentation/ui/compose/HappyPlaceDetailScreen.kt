@@ -30,8 +30,8 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.happyplaces.R
-import com.happyplaces.presentation.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

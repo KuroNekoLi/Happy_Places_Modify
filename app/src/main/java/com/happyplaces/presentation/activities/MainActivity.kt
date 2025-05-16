@@ -14,9 +14,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.happyplaces.R
-import com.happyplaces.presentation.HappyPlaceViewModel
-import com.happyplaces.presentation.ui.HappyPlaceNavHost
+import com.happyplaces.presentation.ui.compose.navigation.HappyPlaceNavHost
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
@@ -104,7 +104,7 @@ private fun MainActivity.showMainScreen() {
     setContent {
         val navController = rememberNavController()
         HappyPlacesTheme {
-            HappyPlaceNavHost(navController = navController)
+            HappyPlaceNavHost(navController = navController, isRegistered = false)
         }
     }
 }

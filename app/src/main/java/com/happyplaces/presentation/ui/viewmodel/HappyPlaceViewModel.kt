@@ -1,5 +1,4 @@
-package com.happyplaces.presentation
-
+package com.happyplaces.presentation.ui.viewmodel
 
 import android.content.Context
 import android.location.Address
@@ -19,8 +18,7 @@ import com.happyplaces.domain.HappyPlaceRepository
 import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,8 +35,12 @@ class HappyPlaceViewModel(
     private val repository: HappyPlaceRepository
 ) : ViewModel() {
     val dataListApiResourceFlow = repository.getAllHappyPlaces()
-        .flowOn(IO)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ApiResource.Loading())
+        .flowOn(Dispatchers.IO)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Companion.WhileSubscribed(5000),
+            ApiResource.Loading()
+        )
     private val _uiState = MutableStateFlow(AddPlaceUiState())
     val uiState: StateFlow<AddPlaceUiState> = _uiState
 
@@ -104,19 +106,19 @@ class HappyPlaceViewModel(
     }
 
     fun insert(happyPlace: HappyPlace): Job =
-        CoroutineScope(IO).launch { //使用CoroutineScope而不使用viewModelScope是因為不想在viewModel重新建立時取消工作
-        val resultFlow = repository.insert(happyPlace)
-        resultFlow.collect {
-            withContext(Main) {
-                it.data?.let {
-                    _message.value = "第 $it 個資料已新增"
-                }
-                it.message?.let {
-                    _message.value = it
+        CoroutineScope(Dispatchers.IO).launch { //使用CoroutineScope而不使用viewModelScope是因為不想在viewModel重新建立時取消工作
+            val resultFlow = repository.insert(happyPlace)
+            resultFlow.collect {
+                withContext(Dispatchers.Main) {
+                    it.data?.let {
+                        _message.value = "第 $it 個資料已新增"
+                    }
+                    it.message?.let {
+                        _message.value = it
+                    }
                 }
             }
         }
-    }
 
     fun update() = viewModelScope.launch {
         uiState.value.toHappyPlace()?.let {
@@ -142,13 +144,13 @@ class HappyPlaceViewModel(
         val resultFlow = repository.delete(happyPlace)
         resultFlow.collect {
             it.data?.let { rowsDeleted ->
-                withContext(Main) {
+                withContext(Dispatchers.Main) {
                     _message.value =
                         if (rowsDeleted > 0) "第 $rowsDeleted 個資料已刪除" else "發生錯誤"
                 }
             }
             it.message?.let { errorMessage ->
-                withContext(Main) {
+                withContext(Dispatchers.Main) {
                     _message.value = errorMessage
                 }
             }
@@ -156,27 +158,28 @@ class HappyPlaceViewModel(
     }
 
     /** 依 API 版本選擇 Geocoder 呼叫 */
-    private fun getAddressFromLatLng(lat: Double, lng: Double) = viewModelScope.launch(IO) {
-        val geocoder = Geocoder(application, Locale.getDefault())
+    private fun getAddressFromLatLng(lat: Double, lng: Double) =
+        viewModelScope.launch(Dispatchers.IO) {
+            val geocoder = Geocoder(application, Locale.getDefault())
 
-        // Android 13 (API 33) 以上 ─ 使用非阻塞版
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            geocoder.getFromLocation(lat, lng, 1, object : Geocoder.GeocodeListener {
-                override fun onGeocode(addr: MutableList<Address>) {
-                    addr.firstOrNull()?.toFormatted()?.also(::postAddress)
-                }
+            // Android 13 (API 33) 以上 ─ 使用非阻塞版
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                geocoder.getFromLocation(lat, lng, 1, object : Geocoder.GeocodeListener {
+                    override fun onGeocode(addr: MutableList<Address>) {
+                        addr.firstOrNull()?.toFormatted()?.also(::postAddress)
+                    }
 
-                override fun onError(errorMessage: String?) {
-                    Log.e("Geocoder", errorMessage ?: "unknown error")
-                }
-            })
-        } else {
-            // 舊 API：同步呼叫；因為在 IO 區域，不會阻塞 UI
-            @Suppress("DEPRECATION")
-            val list = geocoder.getFromLocation(lat, lng, 1)
-            list?.firstOrNull()?.toFormatted()?.also(::postAddress)
+                    override fun onError(errorMessage: String?) {
+                        Log.e("Geocoder", errorMessage ?: "unknown error")
+                    }
+                })
+            } else {
+                // 舊 API：同步呼叫；因為在 IO 區域，不會阻塞 UI
+                @Suppress("DEPRECATION")
+                val list = geocoder.getFromLocation(lat, lng, 1)
+                list?.firstOrNull()?.toFormatted()?.also(::postAddress)
+            }
         }
-    }
 
     fun updateCurrentLatLng(lat: Double, lng: Double) {
         // 先更新經緯度 (地圖可立即用)；地址稍後再補
