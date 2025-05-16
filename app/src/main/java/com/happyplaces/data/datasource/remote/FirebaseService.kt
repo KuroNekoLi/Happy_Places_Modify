@@ -44,37 +44,31 @@ class FirebaseService(
     }
 
     override suspend fun addPlace(place: PlaceDto): String {
-        // 1. 方法一開始就印出來，確認有沒有呼到
-        Log.d("LinLi", "addPlace() called with place: $place")
-        Log.i("LinLi", "id: ${place.id}")
-
+        // 先為即將加入的文件建立參照，並以其產生唯一 ID
         val docRef = firestore.collection(ARTICLE_COLLECTION).document()
-        var withId = place
 
-        // 2. 只有在 imageUrl 非 null 時才上傳
-        place.imageUrl.let { raw ->
-            Log.d("LinLi", "  ▶ imageUrl non-null, 開始上傳前準備")
+        // 如有本地圖片（content:// 或 file://），先行上傳並取得下載網址
+        val finalImageUrl = place.imageUrl.let { raw ->
             val uri = raw.toUri()
-            val finalUrl = if (uri.scheme == "content" || uri.scheme == "file") {
+            if (uri.scheme == "content" || uri.scheme == "file") {
                 uploadImage(uri, docRef.id)
             } else {
                 raw
             }
-            Log.d("LinLi", "  ▶ uploadImage 完成，拿到 URL: $finalUrl")
-            withId = withId.copy(imageUrl = finalUrl)
         }
 
-        // 3. 寫入 Firestore，並捕捉例外
-        try {
-            Log.d("LinLi", "  ▶ 準備寫入 Firestore，withId = $withId")
-            docRef.set(withId).await()
-            Log.d("LinLi", "Document written for ID: ${docRef.id}")
+        // 確保寫入的 PlaceDto 內含正確的圖片網址
+        val finalPlace = place.copy(
+            imageUrl = finalImageUrl
+        )
+
+        return try {
+            docRef.set(finalPlace).await()
+            docRef.id
         } catch (e: Exception) {
-            Log.e("LinLi", "  ▶ Failed to write place document", e)
+            Log.e("LinLi", "addPlace() failed", e)
             throw e
         }
-
-        return docRef.id
     }
     override suspend fun updatePlace(place: PlaceDto) {
         var updated = place
@@ -138,15 +132,15 @@ class FirebaseService(
      * 上傳本地圖片至 Firebase Storage，並回傳下載 URL
      *
      * @param localUri 本地圖片 Uri
-     * @param placeId  對應的文章 ID
+     * @param docRefId  對應的文章 ID
      * @return 圖片的公開下載 URL
      */
-    suspend fun uploadImage(localUri: Uri, placeId: String): String {
-        Log.d("LinLi", "uploadImage() called with localUri=$localUri, placeId=$placeId")
+    suspend fun uploadImage(localUri: Uri, docRefId: String): String {
+        Log.d("LinLi", "uploadImage() called with localUri=$localUri, placeId=$docRefId")
         Log.d("LinLi", "  ▶ uploadImage start putFile")
         // 1. 建立 storage 參考
         val imageRef = storage.reference
-            .child("$ARTICLE_IMAGE_STORAGE/$placeId/${UUID.randomUUID()}")
+            .child("$ARTICLE_IMAGE_STORAGE/$docRefId/${UUID.randomUUID()}")
         // 2. 上傳檔案
         try {
             imageRef.putFile(localUri).await()
