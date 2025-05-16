@@ -48,11 +48,8 @@ internal fun StepScaffold(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 黃色進度條
             LinearProgressIndicator(
-                progress = step / total.toFloat(),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                progress = { step / total.toFloat() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(4.dp)
