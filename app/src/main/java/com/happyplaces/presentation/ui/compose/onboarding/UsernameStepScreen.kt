@@ -22,7 +22,6 @@ fun UsernameStepScreen(
     onNext = onNext
 )
 
-/* Content */
 @Composable
 fun UsernameStepContent(
     state: OnboardingViewModel.UiState,
@@ -32,13 +31,15 @@ fun UsernameStepContent(
     StepScaffold(
         step = 2, total = 4,
         title = "Choose a username",
-        enableNext = state.username.length >= 4,
+        enableNext = state.usernameValid,
         onNext = onNext
     ) {
         OutlinedTextField(
             value = state.username,
             onValueChange = onUsernameChange,
             label = { Text("@username") },
+            prefix = { Text("@") },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         Text(

@@ -14,7 +14,10 @@ class OnboardingViewModel : ViewModel() {
         val username: String = "",
         val avatarUri: Uri? = null,
         val bio: String = "",
-    )
+    ) {
+        val usernameValid: Boolean
+            get() = username.length >= 4
+    }
 
     var uiState by mutableStateOf(UiState())
         private set
@@ -28,7 +31,13 @@ class OnboardingViewModel : ViewModel() {
     }
 
     fun onUsernameChange(value: String) {
-        uiState = uiState.copy(username = value)
+        val clean = value
+            .replace("@", "")
+            .take(20)
+            .trim()
+            .filter { it.isLetterOrDigit() || it == '_' }
+
+        uiState = uiState.copy(username = clean)
     }
 
     fun onAvatarPicked(uri: Uri) {

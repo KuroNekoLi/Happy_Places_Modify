@@ -38,7 +38,8 @@ fun EmailStepContent(
             onValueChange = onEmailChange,
             label = { Text("E-mail") },
             isError = uiState.email.isNotBlank() && !uiState.emailValid,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
         if (uiState.email.isNotBlank() && !uiState.emailValid) {
             Text(
