@@ -19,11 +19,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -54,8 +52,10 @@ class HappyPlaceRepositoryImpl(
 
     override fun update(happyPlace: HappyPlace): Flow<ApiResource<Int>> = flow {
         emit(ApiResource.Loading())
-        // 遠端更新
-        placeRemoteDataSource.updatePlace(place = happyPlace.toPlaceDto())
+        CoroutineScope(Dispatchers.IO).launch {
+            // 遠端更新
+            placeRemoteDataSource.updatePlace(place = happyPlace.toPlaceDto())
+        }
 
         // 本地更新
         val count = dao.updateData(happyPlace.toHappyPlaceEntity())
@@ -80,22 +80,11 @@ class HappyPlaceRepositoryImpl(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getHappyPlaceById(id: String): Flow<ApiResource<HappyPlace>> =
-        placeRemoteDataSource.getPlaceByIdFlow(id)        // Flow<PlaceDto>
-            .flatMapLatest { dto ->
-                // 1. 寫入 Room
-                val entity = dto.toHappyPlaceEntity()
-                dao.insertData(entity)
-                // 2. 回傳本地 Flow
-                dao.getHappyPlaceByIdFlow(id)             // Flow<HappyPlaceEntity?>
-            }
-            .map { entity ->
-                entity?.toHappyPlace()
-                    ?.let { ApiResource.Success(it) }
-                    ?: ApiResource.Error("查無 id = $id 的資料")
-            }
-            .onStart { emit(ApiResource.Loading()) }
-            .catch { e -> emit(ApiResource.Error(e.message ?: "未知錯誤")) }
-            .flowOn(Dispatchers.IO)
+        dao.getHappyPlaceByIdFlow(id).map { entity ->
+            entity?.toHappyPlace()
+                ?.let { ApiResource.Success(it) }
+                ?: ApiResource.Error("查無 id = $id 的資料")
+        }
 
     override fun getAllHappyPlaces(): Flow<ApiResource<List<HappyPlace>>> = flow {
         // 1. 發送 Loading 狀態

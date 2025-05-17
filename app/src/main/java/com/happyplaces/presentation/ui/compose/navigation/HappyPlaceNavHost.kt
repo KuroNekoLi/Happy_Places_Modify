@@ -24,7 +24,11 @@ import com.happyplaces.presentation.ui.compose.Profile
 import com.happyplaces.presentation.ui.compose.Recommend
 import com.happyplaces.presentation.ui.compose.RecommendScreen
 import com.happyplaces.presentation.ui.compose.Search
+import com.happyplaces.presentation.ui.compose.profile.ProfileScreen
+import com.happyplaces.presentation.ui.compose.profile.SettingsScreen
+import com.happyplaces.presentation.ui.viewmodel.AuthViewModel
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 
 @Serializable
@@ -44,6 +48,9 @@ data object Home
 
 @Serializable
 data object Onboarding
+
+@Serializable
+data object Settings
 
 @Composable
 fun HappyPlaceNavHost(
@@ -89,12 +96,17 @@ fun NavGraphBuilder.mainNavGraph(
                 onBottomNavigate = navController::navigateTopLevel,
                 onAddClick = { navController.navigate(Add) },
                 content = { paddingValues ->
-                    Text(
-                        modifier = Modifier.padding(paddingValues),
-                        text = "Profile"
-                    )
+                    ProfileScreen(modifier = Modifier.padding(paddingValues)){
+                        navController.navigate(Settings)
+                    }
                 }
             )
+        }
+        composable<Settings> {
+            val authViewModel: AuthViewModel = koinViewModel()
+            SettingsScreen{
+                authViewModel.signOut()
+            }
         }
         composable<MyMap> {
             val currentDestination = rememberCurrentDestination(navController)

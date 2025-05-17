@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import kotlinx.serialization.Serializable
 
 
@@ -114,34 +115,40 @@ fun MainScaffold(
 }
 
 
-@Preview
+@Preview(showSystemUi = true)
 @Composable
 fun MainScaffoldPreview() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    MainScaffold(
-        currentDestination = currentDestination,
-        onBottomNavigate = { topLevelRoute ->
-            navController.navigate(topLevelRoute) {
-                // Pop up to the start destination of the graph to
-                // avoid building up a large stack of destinations
-                // on the back stack as users select items
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
+    HappyPlacesTheme {
+        MainScaffold(
+            currentDestination = currentDestination,
+            onBottomNavigate = { topLevelRoute ->
+                navController.navigate(topLevelRoute) {
+                    // Pop up to the start destination of the graph to
+                    // avoid building up a large stack of destinations
+                    // on the back stack as users select items
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    // Avoid multiple copies of the same destination when
+                    // reselecting the same item
+                    launchSingleTop = true
+                    // Restore state when reselecting a previously selected item
+                    restoreState = true
                 }
-                // Avoid multiple copies of the same destination when
-                // reselecting the same item
-                launchSingleTop = true
-                // Restore state when reselecting a previously selected item
-                restoreState = true
+            },
+            content = { paddingValues ->
+                NavHost(
+                    navController,
+                    startDestination = Profile,
+                    Modifier.padding(paddingValues)
+                ) {
+                    composable<Profile> { Text("Profile") }
+                    composable<MyMap> { Text("MyMap") }
+                }
             }
-        },
-        content = { paddingValues ->
-            NavHost(navController, startDestination = Profile, Modifier.padding(paddingValues)) {
-                composable<Profile> { Text("Profile") }
-                composable<MyMap> { Text("MyMap") }
-            }
-        }
-    )
+        )
+    }
 }

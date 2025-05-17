@@ -11,5 +11,5 @@ import org.koin.dsl.module
 val viewModelModule = module {
     viewModel { HappyPlaceViewModel(androidContext(), get()) }
     viewModel { OnboardingViewModel(get(), get()) }
-    viewModel { AuthViewModel(get(), get()) }
+    viewModel { AuthViewModel(get(), get(), get()) }
 }

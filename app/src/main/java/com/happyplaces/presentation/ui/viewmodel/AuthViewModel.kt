@@ -3,6 +3,7 @@ package com.happyplaces.presentation.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.happyplaces.domain.GetCurrentUserUseCase
+import com.happyplaces.domain.SignOutUseCase
 import com.happyplaces.domain.UserUseCase
 import com.happyplaces.domain.model.User
 import com.happyplaces.util.ApiResource
@@ -13,10 +14,12 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val userUseCase: UserUseCase,
-    val getCurrentUserUseCase: GetCurrentUserUseCase
+    getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
     @OptIn(ExperimentalCoroutinesApi::class)
     val authUiState: StateFlow<AuthUiState> =
@@ -52,6 +55,12 @@ class AuthViewModel(
                 started = SharingStarted.Lazily,
                 initialValue = AuthUiState.Loading
             )
+
+    fun signOut() {
+        viewModelScope.launch {
+            signOutUseCase.invoke()
+        }
+    }
 }
 
 sealed class AuthUiState {
