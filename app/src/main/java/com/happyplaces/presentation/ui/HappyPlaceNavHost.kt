@@ -22,6 +22,8 @@ import com.happyplaces.presentation.ui.compose.Profile
 import com.happyplaces.presentation.ui.compose.Recommend
 import com.happyplaces.presentation.ui.compose.RecommendScreen
 import com.happyplaces.presentation.ui.compose.Search
+import com.happyplaces.presentation.ui.compose.profile.ProfileScreen
+import com.happyplaces.presentation.ui.compose.profile.SettingsScreen
 import kotlinx.serialization.Serializable
 
 
@@ -39,6 +41,9 @@ data class Map(val id: String)
 
 @Serializable
 data object Home
+
+@Serializable
+data object Settings
 
 @Composable
 fun HappyPlaceNavHost(
@@ -94,9 +99,8 @@ fun HappyPlaceNavHost(
                     onBottomNavigate = navController::navigateTopLevel,
                     onAddClick = { navController.navigate(Add) },
                     content = { paddingValues ->
-                        Text(
-                            modifier = Modifier.padding(paddingValues),
-                            text = "Profile"
+                        ProfileScreen(
+                            onSettingsClick = { navController.navigate(Settings) }
                         )
                     }
                 )
@@ -124,6 +128,13 @@ fun HappyPlaceNavHost(
                             modifier = Modifier.padding(paddingValues),
                             text = "Search"
                         )
+                    }
+                )
+            }
+            composable<Settings> {
+                SettingsScreen(
+                    onLogout = {
+                        // TODO: logout
                     }
                 )
             }

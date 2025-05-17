@@ -34,6 +34,7 @@ fun ProfileScreen(
     accountName: String = "john.doe@example.com",
     introduction: String = "John Doe is a software engineer",
     avatarUrl: String = "https://picsum.photos/200/300",
+    onSettingsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -49,9 +50,9 @@ fun ProfileScreen(
                     contentDescription = null
                 )
             }
-            IconButton({}) {
+            IconButton(onClick = onSettingsClick) {
                 Icon(
-                    modifier = Modifier.size(25.dp),
+                    modifier = Modifier.size(24.dp),
                     imageVector = Icons.Default.Settings,
                     contentDescription = null
                 )
@@ -122,7 +123,8 @@ fun PreviewProfileScreen() {
         ProfileScreen(
             username = "John Doe",
             introduction = "這是個非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常長的文字",
-            avatarUrl = ""
+            avatarUrl = "",
+            onSettingsClick = {}
         )
     }
 }

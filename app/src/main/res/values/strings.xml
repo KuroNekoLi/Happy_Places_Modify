@@ -21,5 +21,9 @@
     <string name="facebook_application_id" translatable="false">1003688418519046</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb1003688418519046</string>
     <string name="facebook_client_token" translatable="false">6ea8610314833af56be2745b0eddb6f8</string>
+    <string name="settings">設定</string>
+    <string name="version">版本號</string>
+    <string name="privacy_policy">隱私權條款</string>
+    <string name="logout">登出</string>
 
 </resources>
