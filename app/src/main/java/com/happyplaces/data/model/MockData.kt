@@ -10,7 +10,8 @@ val mockHappyPlace = HappyPlace(
     date = "2022/05/01",
     location = "台北市北區大安街",
     latitude = 25.048333,
-    longitude = 121.783333
+    longitude = 121.783333,
+    creatorId = "1234"
 )
 val mockHappyPlaceLists = listOf<HappyPlace>(
     HappyPlace(
@@ -21,7 +22,8 @@ val mockHappyPlaceLists = listOf<HappyPlace>(
         date = "2022/05/01",
         location = "台北市北區大安街",
         latitude = 25.048333,
-        longitude = 121.783333
+        longitude = 121.783333,
+        creatorId = "5678"
     ),
     mockHappyPlace
 )

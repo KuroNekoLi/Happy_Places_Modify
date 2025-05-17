@@ -127,8 +127,10 @@ class HappyPlaceViewModel(
             }
         }
 
-    suspend fun update() = uiState.value.toHappyPlace()
-        ?.let { repository.update(it).flowOn(Dispatchers.IO).stateIn(viewModelScope) }
+    suspend fun update() = uiState.value.toHappyPlace()?.let {
+        //TODO: 就算圖片沒變更也會上傳新的圖片，待優化
+        repository.update(it).flowOn(Dispatchers.IO).stateIn(viewModelScope)
+    }
 
     fun delete(happyPlace: HappyPlace) = viewModelScope.launch {
         val resultFlow = repository.delete(happyPlace)
