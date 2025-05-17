@@ -24,6 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -47,6 +48,8 @@ class HappyPlaceViewModel(
 
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
+
+    private lateinit var oldPlace: AddPlaceUiState
 
     fun onTitleChange(v: String) = _uiState.update { it.copy(title = v) }
     fun onDescriptionChange(v: String) = _uiState.update { it.copy(description = v) }
@@ -96,7 +99,10 @@ class HappyPlaceViewModel(
             }
 
             isEditMode -> {
-                update()
+                viewModelScope.launch {
+                    if (uiState.value != oldPlace) update()
+                }
+                _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
             }
 
             else -> uiState.value.toHappyPlace()?.let { happyPlace ->
@@ -121,14 +127,8 @@ class HappyPlaceViewModel(
             }
         }
 
-    fun update() = viewModelScope.launch {
-        uiState.value.toHappyPlace()?.let {
-            launch {
-                repository.update(it).flowOn(Dispatchers.IO).stateIn(viewModelScope)
-            }
-            _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
-        }
-    }
+    suspend fun update() = uiState.value.toHappyPlace()
+        ?.let { repository.update(it).flowOn(Dispatchers.IO).stateIn(viewModelScope) }
 
     fun delete(happyPlace: HappyPlace) = viewModelScope.launch {
         val resultFlow = repository.delete(happyPlace)
@@ -200,10 +200,10 @@ class HappyPlaceViewModel(
     fun getHappyPlaceById(id: String) {
         viewModelScope.launch {
             Log.i("LinLi", "id : $id")
-            repository.getHappyPlaceById(id).collect {
-                Log.i("LinLi", "it : ${it.data}")
-                Log.i("LinLi", "it : ${it.message}")
+            repository.getHappyPlaceById(id).firstOrNull()?.let {
                 it.data?.let {
+                    Log.i("LinLi", "oldPlace : $it")
+                    oldPlace = it.toAddPlaceUiState()
                     _uiState.value = it.toAddPlaceUiState()
                 }
             }
