@@ -16,4 +16,6 @@ interface AuthProvider {
 
     /** 取得目前已登入的使用者 (若無則為 null) */
     fun getCurrentUser(): Flow<User?>
+
+    suspend fun getMyId(): String?
 }

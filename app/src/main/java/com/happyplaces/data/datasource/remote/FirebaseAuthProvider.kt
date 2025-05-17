@@ -38,4 +38,6 @@ class FirebaseAuthProvider : AuthProvider {
         firebaseAuth.addAuthStateListener(listener)
         awaitClose { firebaseAuth.removeAuthStateListener(listener) }
     }
+
+    override suspend fun getMyId(): String? = firebaseAuth.currentUser?.uid
 }
