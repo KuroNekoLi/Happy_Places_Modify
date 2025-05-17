@@ -3,6 +3,8 @@ package com.happyplaces.data.datasource.remote
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.snapshots
@@ -28,8 +30,10 @@ const val USER_COLLECTION = "users"
 /** Firebase Storage 路徑 */
 const val ARTICLE_IMAGE_STORAGE = "article_images"
 const val USER_IMAGE_STORAGE = "user_images"
+
 class FirebaseService(
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
+    private val firebaseAuth: FirebaseAuth = Firebase.auth
 ) : PlaceService {
     // Firebase Storage 實例
     private val storage: FirebaseStorage = Firebase.storage
@@ -72,6 +76,7 @@ class FirebaseService(
             throw e
         }
     }
+
     override suspend fun updatePlace(place: PlaceDto) {
         // 1. 如果有本地圖片，先上傳並取得新 URL
         val imageUrl = place.imageUrl.toUri().let { uri ->
@@ -179,6 +184,12 @@ class FirebaseService(
         return snapshot.exists() && snapshot.getBoolean("profileCompleted") == true
     }
 
+    override suspend fun getCurrentUser(): UserDto? =
+        firebaseAuth.currentUser?.uid?.let {
+            firestore.document("$USER_COLLECTION/$it").get().await().toObject(UserDto::class.java)
+        }
+
+
     /**
      * 取得所有使用者資料
      */
@@ -200,7 +211,10 @@ class FirebaseService(
     override suspend fun addUser(user: UserDto): String {
         val finalImageUrl = user.avatarUrl.resolveUri(
             onLocal = { uri ->
-                uploadImage(user.avatarUrl.toUri(), storage.reference.child("$USER_IMAGE_STORAGE/${user.id}"))
+                uploadImage(
+                    user.avatarUrl.toUri(),
+                    storage.reference.child("$USER_IMAGE_STORAGE/${user.id}")
+                )
             },
             onRemote = { it }
         )

@@ -13,7 +13,8 @@ val repositoryModule = module {
     factory<HappyPlaceRepository> {
         HappyPlaceRepositoryImpl(
             placeRemoteDataSource = get(),
-            dao = get()
+            dao = get(),
+            placeService = get()
         )
     }
     factory<UserRepository> { UserRepositoryImpl(get()) }

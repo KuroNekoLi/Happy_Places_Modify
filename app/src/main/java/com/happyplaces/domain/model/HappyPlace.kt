@@ -8,5 +8,6 @@ data class HappyPlace(
     val date: String?,
     val location: String?,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val creatorId: String = ""
 )

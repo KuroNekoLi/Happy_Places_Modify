@@ -5,6 +5,7 @@ import com.happyplaces.data.datasource.local.HappyPlaceEntity
 import com.happyplaces.data.datasource.local.UserDao
 import com.happyplaces.data.datasource.remote.PlaceDto
 import com.happyplaces.data.datasource.remote.PlaceRemoteDataSource
+import com.happyplaces.data.datasource.remote.PlaceService
 import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.domain.repository.HappyPlaceRepository
 import com.happyplaces.util.ApiResource
@@ -27,19 +28,24 @@ import java.util.UUID
 
 class HappyPlaceRepositoryImpl(
     private val placeRemoteDataSource: PlaceRemoteDataSource,
+    private val placeService: PlaceService,
     private val dao: UserDao
 ) : HappyPlaceRepository {
     override fun insert(happyPlace: HappyPlace): Flow<ApiResource<Long>> = flow {
         emit(ApiResource.Loading())  // 1. 本地插入前先發 Loading
         val id = UUID.randomUUID().toString()
-        val happyPlaceWithUUID = happyPlace.copy(id = id)
-        val entity = happyPlaceWithUUID.toHappyPlaceEntity()
+        val currentUser = placeService.getCurrentUser()
+        val finalHappyPlace = happyPlace.copy(
+            creatorId = currentUser?.id.orEmpty(),
+            id = id
+        )
+        val entity = finalHappyPlace.toHappyPlaceEntity()
         val rowId = dao.insertData(entity)  // Room 回傳自動產生的主鍵
         emit(ApiResource.Success(rowId))     // 3. 立即回傳 Success 結果
         // 4. Fire-and-forget 背景同步至遠端，不阻塞上方流程
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             try {
-                val dtoWithId = happyPlaceWithUUID.toPlaceDto()
+                val dtoWithId = finalHappyPlace.toPlaceDto()
                 placeRemoteDataSource.addPlace(dtoWithId)
             } catch (e: Exception) {
                 // 可選：記錄錯誤或 retry
@@ -140,6 +146,7 @@ private fun PlaceDto.toHappyPlaceEntity(): HappyPlaceEntity {
         date = this.createdAt.toDateString(),
         location = this.address,
         latitude = this.latitude,
-        longitude = this.longitude
+        longitude = this.longitude,
+        creatorId = this.creatorId
     )
 }

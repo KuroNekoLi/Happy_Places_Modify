@@ -42,7 +42,8 @@ fun HappyPlace.toHappyPlaceEntity() = HappyPlaceEntity(
     date = this.date,
     location = this.location,
     latitude = this.latitude,
-    longitude = this.longitude
+    longitude = this.longitude,
+    creatorId = this.creatorId
 )
 
 const val dateFormatPattern = "yyyy.MM.dd"
@@ -58,7 +59,7 @@ fun HappyPlace.toPlaceDto(): PlaceDto {
 
     return PlaceDto(
         id = this.id,
-        creatorId = "Lin",
+        creatorId = this.creatorId,
         title = this.title.orEmpty(),
         description = this.description.orEmpty(),
         visitDate = parsedDate,
