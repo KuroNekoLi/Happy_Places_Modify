@@ -20,4 +20,5 @@ interface PlaceService {
     fun getUserByIdFlow(id: String): Flow<UserDto>
     suspend fun isUserProfileCompleted(id: String): Boolean
     suspend fun getCurrentUser(): UserDto?
+    fun getMyPlaces(): Flow<List<PlaceDto>>
 }

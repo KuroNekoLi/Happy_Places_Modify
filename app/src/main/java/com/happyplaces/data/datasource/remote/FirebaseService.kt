@@ -189,6 +189,18 @@ class FirebaseService(
             firestore.document("$USER_COLLECTION/$it").get().await().toObject(UserDto::class.java)
         }
 
+    override fun getMyPlaces(): Flow<List<PlaceDto>> {
+        return firestore.collection(ARTICLE_COLLECTION)
+            .whereEqualTo("creatorId", firebaseAuth.currentUser?.uid)
+            .snapshots()
+            .map {
+                it.toObjects(PlaceDto::class.java)
+            }
+            .catch { e ->
+                emit(emptyList())
+            }
+    }
+
 
     /**
      * 取得所有使用者資料
