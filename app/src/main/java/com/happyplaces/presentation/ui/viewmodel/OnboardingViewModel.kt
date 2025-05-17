@@ -16,7 +16,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class OnboardingViewModel(
@@ -75,15 +74,16 @@ class OnboardingViewModel(
                     createdAt = System.currentTimeMillis(),
                     profileCompleted = true
                 )
-            ).first()
-            when (result) {
-                is ApiResource.Success -> Log.d("OnFinish", "User added successfully")
-                is ApiResource.Error -> Log.e(
-                    "OnFinish",
-                    "Error adding user: ${result.message}"
-                )
+            ).collect {
+                when (it) {
+                    is ApiResource.Success -> Log.d("OnFinish", "User added successfully")
+                    is ApiResource.Error -> Log.e(
+                        "OnFinish",
+                        "Error adding user: ${it.message}"
+                    )
 
-                is ApiResource.Loading -> Log.d("OnFinish", "Adding user in progress")
+                    is ApiResource.Loading -> Log.d("OnFinish", "Adding user in progress")
+                }
             }
         }
     }
