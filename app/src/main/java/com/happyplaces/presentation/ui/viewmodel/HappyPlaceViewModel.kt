@@ -19,6 +19,7 @@ import com.happyplaces.domain.repository.HappyPlaceRepository
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -109,7 +110,7 @@ class HappyPlaceViewModel(
         CoroutineScope(Dispatchers.IO).launch { //使用CoroutineScope而不使用viewModelScope是因為不想在viewModel重新建立時取消工作
             val resultFlow = repository.insert(happyPlace)
             resultFlow.collect {
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     it.data?.let {
                         _message.value = "第 $it 個資料已新增"
                     }
@@ -122,21 +123,10 @@ class HappyPlaceViewModel(
 
     fun update() = viewModelScope.launch {
         uiState.value.toHappyPlace()?.let {
-            val resultFlow = repository.update(it)
-            resultFlow.collect {
-                it.data?.let {
-                    if (it > 0) {
-                        _message.value = "第 $it 個資料已更新"
-                    } else {
-                        _message.value = "發生錯誤"
-                    }
-                    _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
-//                _uiState.update { it.copy(event = if (numberOfRows > 0) AddPlaceEvent.ShowToast("第 $numberOfRows 個資料已更新") else AddPlaceEvent.ShowToast("發生錯誤")) }
-                }
-                it.message?.let {
-                    _message.value = it
-                }
+            launch {
+                repository.update(it).flowOn(Dispatchers.IO).stateIn(viewModelScope)
             }
+            _uiState.update { it.copy(event = AddPlaceEvent.NavigateBack) }
         }
     }
 
@@ -144,13 +134,13 @@ class HappyPlaceViewModel(
         val resultFlow = repository.delete(happyPlace)
         resultFlow.collect {
             it.data?.let { rowsDeleted ->
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     _message.value =
                         if (rowsDeleted > 0) "第 $rowsDeleted 個資料已刪除" else "發生錯誤"
                 }
             }
             it.message?.let { errorMessage ->
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     _message.value = errorMessage
                 }
             }
