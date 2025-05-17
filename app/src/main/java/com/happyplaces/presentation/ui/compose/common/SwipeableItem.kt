@@ -1,4 +1,4 @@
-package com.happyplaces.presentation.ui.compose
+package com.happyplaces.presentation.ui.compose.common
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

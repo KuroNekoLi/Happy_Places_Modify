@@ -74,6 +74,7 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.happyplaces.BuildConfig
 import com.happyplaces.R
 import com.happyplaces.data.model.AddPlaceEvent
+import com.happyplaces.presentation.ui.compose.common.HappyPlaceToolBar
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import com.happyplaces.util.SetupPreviewKoin

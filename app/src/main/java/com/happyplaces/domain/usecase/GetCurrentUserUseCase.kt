@@ -1,5 +1,6 @@
-package com.happyplaces.domain
+package com.happyplaces.domain.usecase
 
+import com.happyplaces.domain.AuthProvider
 import com.happyplaces.domain.model.User
 import kotlinx.coroutines.flow.Flow
 

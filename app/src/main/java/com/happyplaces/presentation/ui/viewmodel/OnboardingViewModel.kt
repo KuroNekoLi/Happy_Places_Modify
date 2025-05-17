@@ -8,9 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.happyplaces.domain.GetCurrentUserUseCase
-import com.happyplaces.domain.UserUseCase
 import com.happyplaces.domain.model.User
+import com.happyplaces.domain.usecase.GetCurrentUserUseCase
+import com.happyplaces.domain.usecase.UserUseCase
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

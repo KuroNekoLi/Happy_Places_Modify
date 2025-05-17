@@ -8,18 +8,6 @@ import com.happyplaces.presentation.ui.compose.onboarding.EmailStepScreen
 import com.happyplaces.presentation.ui.compose.onboarding.ProfileStepScreen
 import com.happyplaces.presentation.ui.compose.onboarding.UsernameStepScreen
 import com.happyplaces.presentation.ui.compose.onboarding.WelcomeStepScreen
-import kotlinx.serialization.Serializable
-
-
-@Serializable
-    data object Email
-@Serializable
-    data object Username
-@Serializable
-    data object Profile
-@Serializable
-    data object Welcome
-
 
 fun NavGraphBuilder.onboardingNavGraph(
     navController: NavHostController

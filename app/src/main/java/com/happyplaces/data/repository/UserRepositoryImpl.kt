@@ -1,8 +1,9 @@
-package com.happyplaces.data.datasource.remote
+package com.happyplaces.data.repository
 
-import com.happyplaces.domain.UserRepository
+import com.happyplaces.data.datasource.remote.PlaceService
 import com.happyplaces.domain.model.User
 import com.happyplaces.domain.model.toUserDto
+import com.happyplaces.domain.repository.UserRepository
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

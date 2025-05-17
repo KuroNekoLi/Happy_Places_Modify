@@ -1,4 +1,4 @@
-package com.happyplaces.presentation.ui.compose
+package com.happyplaces.presentation.ui.compose.common
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.happyplaces.data.model.mockHappyPlaceLists
 import com.happyplaces.domain.model.HappyPlace
-import com.happyplaces.presentation.ui.compose.common.Avatar
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @Composable

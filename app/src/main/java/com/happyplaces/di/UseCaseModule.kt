@@ -1,8 +1,8 @@
 package com.happyplaces.di
 
-import com.happyplaces.domain.GetCurrentUserUseCase
-import com.happyplaces.domain.SignOutUseCase
-import com.happyplaces.domain.UserUseCase
+import com.happyplaces.domain.usecase.GetCurrentUserUseCase
+import com.happyplaces.domain.usecase.SignOutUseCase
+import com.happyplaces.domain.usecase.UserUseCase
 import org.koin.dsl.module
 
 /** 使用案例層 */

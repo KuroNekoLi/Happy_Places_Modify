@@ -1,7 +1,7 @@
 package com.happyplaces.data.repository
 
-import com.happyplaces.domain.HappyPlaceRepository
 import com.happyplaces.domain.model.HappyPlace
+import com.happyplaces.domain.repository.HappyPlaceRepository
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

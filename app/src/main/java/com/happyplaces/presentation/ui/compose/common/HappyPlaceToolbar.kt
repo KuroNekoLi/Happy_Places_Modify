@@ -1,4 +1,4 @@
-package com.happyplaces.presentation.ui.compose
+package com.happyplaces.presentation.ui.compose.common
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
