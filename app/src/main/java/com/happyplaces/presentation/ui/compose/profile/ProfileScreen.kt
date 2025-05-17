@@ -30,6 +30,7 @@ import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @Composable
 fun ProfileScreen(
+    modifier: Modifier = Modifier,
     username: String = "John Doe",
     accountName: String = "john.doe@example.com",
     introduction: String = "John Doe is a software engineer",
@@ -37,7 +38,7 @@ fun ProfileScreen(
     onSettingsClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
     ) {
         Row(
@@ -116,7 +117,7 @@ fun ProfileScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewProfileScreen() {
     HappyPlacesTheme {

@@ -100,6 +100,7 @@ fun HappyPlaceNavHost(
                     onAddClick = { navController.navigate(Add) },
                     content = { paddingValues ->
                         ProfileScreen(
+                            modifier = Modifier.padding(paddingValues),
                             onSettingsClick = { navController.navigate(Settings) }
                         )
                     }
