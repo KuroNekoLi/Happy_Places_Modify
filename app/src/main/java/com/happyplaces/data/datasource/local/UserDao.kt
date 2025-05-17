@@ -26,6 +26,9 @@ interface UserDao {
     @Query("SELECT * FROM place_data_table")
     fun getAllData(): Flow<List<HappyPlaceEntity>>
 
+    @Query("SELECT * FROM place_data_table WHERE creatorId = :creatorId")
+    fun getPlacesByCreatorId(creatorId: String): Flow<List<HappyPlaceEntity>>
+
     @Query("SELECT * FROM place_data_table WHERE id = :id")
     fun getHappyPlaceById(id: String): HappyPlaceEntity?
 

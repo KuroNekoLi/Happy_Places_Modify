@@ -36,7 +36,7 @@ class HappyPlaceViewModel(
     private val application: Context,
     private val repository: HappyPlaceRepository
 ) : ViewModel() {
-    val dataListApiResourceFlow = repository.getAllHappyPlaces()
+    val allPlacesApiResourceFlow = repository.getAllHappyPlaces()
         .flowOn(Dispatchers.IO)
         .stateIn(
             viewModelScope,

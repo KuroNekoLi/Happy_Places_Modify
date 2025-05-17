@@ -31,7 +31,7 @@ fun RecommendScreen(
     onEdit: (HappyPlace) -> Unit = {},
     onItemClick: (HappyPlace) -> Unit = {}
 ) {
-    val dataListApiResourceFlow by viewModel.dataListApiResourceFlow.collectAsState()
+    val dataListApiResourceFlow by viewModel.allPlacesApiResourceFlow.collectAsState()
     RecommendScreen(
         modifier = modifier,
         list = dataListApiResourceFlow.data ?: emptyList(),

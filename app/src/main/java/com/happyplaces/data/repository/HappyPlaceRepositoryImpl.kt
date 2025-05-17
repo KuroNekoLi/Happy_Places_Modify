@@ -115,6 +115,18 @@ class HappyPlaceRepositoryImpl(
         .catch { e -> emit(ApiResource.Error(e.message ?: "未知錯誤")) }
         .flowOn(Dispatchers.IO)
 
+    override fun getMyPlaces(): Flow<ApiResource<List<HappyPlace>>> =
+        flow {
+            // 1. 發送 Loading 狀態
+            emit(ApiResource.Loading())
+            // 2. 收集本地資料庫的所有資料並發射 Success
+            authProvider.getMyId()?.let {
+                dao.getPlacesByCreatorId(it).collect { entities ->
+                    val list = entities.map { it.toHappyPlace() }
+                    emit(ApiResource.Success(list))
+                }
+            } ?: emit(ApiResource.Error("未登入"))
+        }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun updateAllHappyPlaces(): Flow<ApiResource<Unit>> = flow {
