@@ -2,8 +2,7 @@ package com.happyplaces.data.datasource.remote
 
 import com.google.firebase.auth.FirebaseAuth
 import com.happyplaces.domain.AuthProvider
-import com.happyplaces.domain.model.AuthUser
-import com.happyplaces.domain.model.HappyPlaceAuthResult
+import com.happyplaces.domain.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -11,7 +10,7 @@ import kotlinx.coroutines.flow.callbackFlow
 class FirebaseAuthProvider : AuthProvider {
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-    override suspend fun signIn(): HappyPlaceAuthResult {
+    override suspend fun signIn(): User? {
         throw UnsupportedOperationException(
             "請在 View/UseCase 層啟動 FirebaseUI 並將結果傳入"
         )
@@ -21,16 +20,17 @@ class FirebaseAuthProvider : AuthProvider {
         firebaseAuth.signOut()
     }
 
-    override fun getCurrentUser(): Flow<AuthUser?> = callbackFlow {
+    override fun getCurrentUser(): Flow<User?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
             trySend(
                 auth.currentUser?.let {
-                    AuthUser(
+                    User(
                         id = it.uid,
-                        name = it.displayName ?: "",
-                        email = it.email ?: "",
-                        image = it.photoUrl.toString(),
-                        isAnonymous = it.isAnonymous
+                        name = it.displayName.orEmpty(),
+                        avatarUrl = it.photoUrl.toString(),
+                        email = it.email.orEmpty(),
+                        profileCompleted = true,
+                        isAnonymous = false
                     )
                 }
             )

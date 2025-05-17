@@ -34,18 +34,18 @@ fun EmailStepContent(
     StepScaffold(
         step = 1, total = 4,
         title = "Enter your email address",
-        enableNext = uiState.emailValid,
+        enableNext = uiState.emailIsValid,
         onNext = onNext
     ) {
         OutlinedTextField(
             value = uiState.email,
             onValueChange = onEmailChange,
             label = { Text("E-mail") },
-            isError = uiState.email.isNotBlank() && !uiState.emailValid,
+            isError = uiState.email.isNotBlank() && !uiState.emailIsValid,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
-        if (uiState.email.isNotBlank() && !uiState.emailValid) {
+        if (uiState.email.isNotBlank() && !uiState.emailIsValid) {
             Text(
                 "格式有誤，請再次確認",
                 color = MaterialTheme.colorScheme.error,
@@ -61,8 +61,7 @@ fun EmailStepContentPreview() {
     HappyPlacesTheme {
         EmailStepContent(
             uiState = OnboardingViewModel.UiState(
-                email = "lin_li@cmoney.com.tw",
-                emailValid = true
+                email = "lin_li@cmoney.com.tw"
             ),
             onEmailChange = {},
             onNext = {}

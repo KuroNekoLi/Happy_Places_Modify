@@ -33,7 +33,7 @@ class AuthViewModel(
                                     User(
                                         id = user.id,
                                         name = user.name,
-                                        avatarUrl = user.image,
+                                        avatarUrl = user.avatarUrl,
                                         email = user.email,
                                         profileCompleted = resource.data == true,  // 這裡拿到真正的 Boolean
                                         isAnonymous = user.isAnonymous

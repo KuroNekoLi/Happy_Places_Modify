@@ -10,11 +10,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.happyplaces.domain.GetCurrentUserUseCase
 import com.happyplaces.domain.UserUseCase
-import com.happyplaces.domain.model.AuthUser
 import com.happyplaces.domain.model.User
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class OnboardingViewModel(
@@ -23,43 +25,46 @@ class OnboardingViewModel(
 ) : ViewModel() {
     init {
         viewModelScope.launch {
-            getCurrentUserUseCase().collect {
-                it?.let { setUser(it) }
-            }
+            getCurrentUserUseCase()
+                .filterNotNull()
+                .distinctUntilChanged()
+                .collect { //Flow<User?>
+                    setUser(it)
+                }
         }
     }
 
     data class UiState(
         val id: String = "",
         val email: String = "",
-        val emailValid: Boolean = false,
         val accountId: String = "",
         val avatarUri: Uri? = null,
         val username: String = "",
         val bio: String = "",
     ) {
         val accountIdValid: Boolean
-            get() = accountId.length >= 4
+            get() = accountId.length in 4..20
+        val emailIsValid: Boolean
+            get() = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     var uiState by mutableStateOf(UiState())
         private set
 
-    fun setUser(authUser: AuthUser) {
-//        if (authUser.isAnonymous.not()) {
+    fun setUser(user: User) {
         uiState = uiState.copy(
-            id = authUser.id,
-            accountId = authUser.name,
-            avatarUri = authUser.image.toUri(),
-            email = authUser.email
+            id = user.id,
+            accountId = user.accountID,
+            username = user.name,
+            avatarUri = user.avatarUrl.toUri(),
+            email = user.email
         )
-//        }
     }
 
     fun onFinish() {
         CoroutineScope(Dispatchers.IO).launch {
             Log.i("LinLi", "onFinish: uiState = $uiState")
-            userUseCase.addUser(
+            val result = userUseCase.addUser(
                 User(
                     id = uiState.id,
                     name = uiState.username,
@@ -70,24 +75,23 @@ class OnboardingViewModel(
                     createdAt = System.currentTimeMillis(),
                     profileCompleted = true
                 )
-            ).collect { result ->
-                when (result) {
-                    is ApiResource.Success -> Log.d("OnFinish", "User added successfully")
-                    is ApiResource.Error -> Log.e(
-                        "OnFinish",
-                        "Error adding user: ${result.message}"
-                    )
+            ).first()
+            when (result) {
+                is ApiResource.Success -> Log.d("OnFinish", "User added successfully")
+                is ApiResource.Error -> Log.e(
+                    "OnFinish",
+                    "Error adding user: ${result.message}"
+                )
 
-                    is ApiResource.Loading -> Log.d("OnFinish", "Adding user in progress")
-                }
+                is ApiResource.Loading -> Log.d("OnFinish", "Adding user in progress")
             }
         }
     }
+
     // --------- 事件 ----------
     fun onEmailChange(value: String) {
         uiState = uiState.copy(
-            email = value,
-            emailValid = EMAIL_REGEX.matches(value)
+            email = value
         )
     }
 
@@ -107,11 +111,5 @@ class OnboardingViewModel(
 
     fun onBioChange(value: String) {
         uiState = uiState.copy(bio = value)
-    }
-
-    companion object {
-        // RFC-5322 相容度適中的正規式
-        private val EMAIL_REGEX =
-            "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
     }
 }
