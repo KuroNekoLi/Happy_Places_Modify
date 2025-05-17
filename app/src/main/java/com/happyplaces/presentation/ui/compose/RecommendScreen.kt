@@ -1,11 +1,7 @@
 package com.happyplaces.presentation.ui.compose
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,12 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.happyplaces.R
 import com.happyplaces.data.model.mockHappyPlaceLists
 import com.happyplaces.domain.model.HappyPlace
-import com.happyplaces.presentation.ui.compose.common.HappyPlaceItem
-import com.happyplaces.presentation.ui.compose.common.SwipeableItem
+import com.happyplaces.presentation.ui.compose.common.happyPlaceItems
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -31,14 +25,29 @@ fun RecommendScreen(
     onEdit: (HappyPlace) -> Unit = {},
     onItemClick: (HappyPlace) -> Unit = {}
 ) {
+    //TODO: 根據狀態顯示
     val dataListApiResourceFlow by viewModel.allPlacesApiResourceFlow.collectAsState()
-    RecommendScreen(
-        modifier = modifier,
-        list = dataListApiResourceFlow.data ?: emptyList(),
-        onEdit = onEdit,
-        onDelete = viewModel::delete,
-        onItemClick = onItemClick
-    )
+    val list = dataListApiResourceFlow.data ?: emptyList()
+    if (list.isEmpty()) {
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Text(stringResource(R.string.note_text_no_happy_places_found_yes))
+        }
+    } else {
+        LazyColumn(
+            modifier = modifier
+        ) {
+            happyPlaceItems(
+                list = list,
+                isItemSwipeEnabled = false,
+                onDelete = viewModel::delete,
+                onEdit = onEdit,
+                onItemClick = onItemClick
+            )
+        }
+    }
 }
 
 @Composable
@@ -47,7 +56,8 @@ fun RecommendScreen(
     list: List<HappyPlace>,
     onDelete: (HappyPlace) -> Unit,
     onEdit: (HappyPlace) -> Unit,
-    onItemClick: (HappyPlace) -> Unit
+    onItemClick: (HappyPlace) -> Unit,
+    isItemSwipeEnabled: Boolean = true
 ) {
     if (list.isEmpty()) {
         Box(
@@ -60,25 +70,13 @@ fun RecommendScreen(
         LazyColumn(
             modifier = modifier
         ) {
-            items(
-                items = list,
-                key = { it.id }
-            ) { place ->
-                SwipeableItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .clickable(onClick = { onItemClick(place) }),
-                    onDelete = { onDelete(place) },
-                    onEdit = { onEdit(place) }
-                ) {
-                    HappyPlaceItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        place = place,
-                        onItemClick = onItemClick,
-                    )
-                }
-            }
+            happyPlaceItems(
+                list = list,
+                isItemSwipeEnabled = isItemSwipeEnabled,
+                onDelete = onDelete,
+                onEdit = onEdit,
+                onItemClick = onItemClick
+            )
         }
     }
 }

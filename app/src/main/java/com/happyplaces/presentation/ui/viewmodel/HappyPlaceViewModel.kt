@@ -16,6 +16,7 @@ import com.happyplaces.data.model.toAddPlaceUiState
 import com.happyplaces.data.model.toHappyPlace
 import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.domain.repository.HappyPlaceRepository
+import com.happyplaces.domain.usecase.GetMyIdUseCase
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,15 +36,31 @@ import java.util.Locale
 
 class HappyPlaceViewModel(
     private val application: Context,
-    private val repository: HappyPlaceRepository
+    private val repository: HappyPlaceRepository,
+    private val getMyIdUseCase: GetMyIdUseCase
 ) : ViewModel() {
-    val allPlacesApiResourceFlow = repository.getAllHappyPlaces()
-        .flowOn(Dispatchers.IO)
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Companion.WhileSubscribed(5000),
-            ApiResource.Loading()
-        )
+    // 取得所有他人快樂地點，並過濾出自己以外的資料
+    // TODO: 先在此處做篩選，之後應該會移動到邏輯層
+    val allPlacesApiResourceFlow: StateFlow<ApiResource<List<HappyPlace>>> =
+        repository.getAllHappyPlaces()
+            .flowOn(Dispatchers.IO)
+            .map { resource ->
+                when (resource) {
+                    is ApiResource.Success<List<HappyPlace>> -> {
+                        val myId = getMyIdUseCase.invoke()
+                        ApiResource.Success(resource.data?.filter { it.creatorId != myId }
+                            ?: emptyList())
+                    }
+
+                    is ApiResource.Error -> resource
+                    is ApiResource.Loading -> ApiResource.Loading<List<HappyPlace>>()
+                }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = ApiResource.Loading<List<HappyPlace>>()
+            )
     private val _uiState = MutableStateFlow(AddPlaceUiState())
     val uiState: StateFlow<AddPlaceUiState> = _uiState
 
