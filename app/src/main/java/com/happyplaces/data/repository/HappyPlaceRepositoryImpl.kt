@@ -6,6 +6,7 @@ import com.happyplaces.data.datasource.local.UserDao
 import com.happyplaces.data.datasource.remote.PlaceDto
 import com.happyplaces.data.datasource.remote.PlaceRemoteDataSource
 import com.happyplaces.data.datasource.remote.PlaceService
+import com.happyplaces.domain.AuthProvider
 import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.domain.repository.HappyPlaceRepository
 import com.happyplaces.util.ApiResource
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -30,7 +32,8 @@ import java.util.UUID
 class HappyPlaceRepositoryImpl(
     private val placeRemoteDataSource: PlaceRemoteDataSource,
     private val placeService: PlaceService,
-    private val dao: UserDao
+    private val dao: UserDao,
+    private val authProvider: AuthProvider
 ) : HappyPlaceRepository {
     override fun insert(happyPlace: HappyPlace): Flow<ApiResource<Long>> = flow {
         emit(ApiResource.Loading())  // 1. 本地插入前先發 Loading
@@ -59,14 +62,21 @@ class HappyPlaceRepositoryImpl(
 
     override fun update(happyPlace: HappyPlace): Flow<ApiResource<Int>> = flow {
         emit(ApiResource.Loading())
-        CoroutineScope(Dispatchers.IO).launch {
-            // 遠端更新
-            placeRemoteDataSource.updatePlace(place = happyPlace.toPlaceDto())
-        }
-
+        // 取得當前使用者
+        val currentUser = authProvider.getCurrentUser().firstOrNull()
+        // 建立含使用者 ID 的更新資料
+        val newPlace = happyPlace.copy(creatorId = currentUser?.id.orEmpty())
         // 本地更新
-        val count = dao.updateData(happyPlace.toHappyPlaceEntity())
+        val count = dao.updateData(newPlace.toHappyPlaceEntity())
         emit(ApiResource.Success(count))
+        // Fire-and-forget 背景遠端更新
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            try {
+                placeRemoteDataSource.updatePlace(newPlace.toPlaceDto())
+            } catch (e: Exception) {
+                Log.e("Repo", "Remote update failed", e)
+            }
+        }
     }
         .catch { e -> emit(ApiResource.Error(e.localizedMessage ?: "更新失敗")) }
         .flowOn(Dispatchers.IO)

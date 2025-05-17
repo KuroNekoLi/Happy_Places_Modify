@@ -1,7 +1,7 @@
 package com.happyplaces.domain.model
 
 data class HappyPlace(
-    val id: String = "",
+    val id: String,
     val title: String?,
     val image: String?,
     val description: String?,
@@ -9,5 +9,5 @@ data class HappyPlace(
     val location: String?,
     val latitude: Double,
     val longitude: Double,
-    val creatorId: String = ""
+    val creatorId: String
 )

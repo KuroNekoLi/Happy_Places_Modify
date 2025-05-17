@@ -27,7 +27,8 @@ fun AddPlaceUiState.toHappyPlace(): HappyPlace? {
         date = this.date,
         location = this.location,
         latitude = this.latitude,
-        longitude = this.longitude
+        longitude = this.longitude,
+        creatorId = ""
     )
 }
 

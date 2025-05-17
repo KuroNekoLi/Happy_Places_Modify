@@ -14,7 +14,8 @@ val repositoryModule = module {
         HappyPlaceRepositoryImpl(
             placeRemoteDataSource = get(),
             dao = get(),
-            placeService = get()
+            placeService = get(),
+            authProvider = get()
         )
     }
     factory<UserRepository> { UserRepositoryImpl(get()) }

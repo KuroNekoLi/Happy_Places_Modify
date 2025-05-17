@@ -15,7 +15,8 @@ fun HappyPlaceEntity.toHappyPlace(): HappyPlace = HappyPlace(
     date = date,
     location = location,
     latitude = latitude,
-    longitude = longitude
+    longitude = longitude,
+    creatorId = creatorId
 )
 
 fun PlaceDto.toHappyPlace(): HappyPlace {
@@ -23,14 +24,15 @@ fun PlaceDto.toHappyPlace(): HappyPlace {
     val formattedDate = dateFormat.format(Date(this.visitDate))
 
     return HappyPlace(
-        id = "0", // 因為 Room 會 autoGenerate，所以設為 0
+        id = this.id,
         title = this.title,
         image = this.imageUrl,
         description = this.description,
         date = formattedDate,
         location = this.address,
         latitude = this.latitude,
-        longitude = this.longitude
+        longitude = this.longitude,
+        creatorId = this.creatorId
     )
 }
 
