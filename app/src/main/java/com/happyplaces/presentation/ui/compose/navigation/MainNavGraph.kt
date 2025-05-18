@@ -1,5 +1,7 @@
 package com.happyplaces.presentation.ui.compose.navigation
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
@@ -59,7 +61,9 @@ fun NavGraphBuilder.mainNavGraph(
             )
         }
         composable<Settings> {
-            val authViewModel: AuthViewModel = koinViewModel()
+            val authViewModel: AuthViewModel = koinViewModel(
+                viewModelStoreOwner = LocalActivity.current as ComponentActivity
+            )
             SettingsScreen {
                 authViewModel.signOut()
             }
