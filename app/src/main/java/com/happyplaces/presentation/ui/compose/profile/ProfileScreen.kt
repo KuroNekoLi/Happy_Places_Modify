@@ -43,9 +43,15 @@ fun ProfileScreen(
     onSettingsClick: () -> Unit
 ) {
     val list by viewModel.myPlaces.collectAsState()
+    val apiResource by viewModel.user.collectAsState()
+    val user = apiResource?.data
     list.data?.let {
         ProfileScreen(
             modifier = modifier,
+            username = user?.name.orEmpty(),
+            accountName = user?.accountID.orEmpty(),
+            introduction = user?.bio.orEmpty(),
+            avatarUrl = user?.avatarUrl.orEmpty(),
             list = it
         ) {
             onSettingsClick()
@@ -56,10 +62,10 @@ fun ProfileScreen(
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    username: String = "John Doe",
-    accountName: String = "john.doe@example.com",
-    introduction: String = "John Doe is a software engineer",
-    avatarUrl: String = "https://picsum.photos/200/300",
+    username: String,
+    accountName: String,
+    introduction: String,
+    avatarUrl: String,
     list: List<HappyPlace>,
     onItemClick: (HappyPlace) -> Unit = {},
     onSettingsClick: () -> Unit
@@ -97,7 +103,7 @@ fun ProfileScreen(
             ) {
                 Column {
                     Text(
-                        text = username,
+                        text = if (username.isBlank()) accountName else username,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -107,7 +113,7 @@ fun ProfileScreen(
                         fontWeight = FontWeight.Normal
                     )
                 }
-                Avatar(imageUrl = "", size = 100.dp)
+                Avatar(imageUrl = avatarUrl, size = 100.dp)
             }
             Text(
                 modifier = Modifier
@@ -160,7 +166,8 @@ fun PreviewProfileScreen() {
             introduction = "這是個非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常長的文字",
             avatarUrl = "",
             list = mockHappyPlaceLists,
-            onSettingsClick = {}
+            onSettingsClick = {},
+            accountName = "@1234",
         )
     }
 }

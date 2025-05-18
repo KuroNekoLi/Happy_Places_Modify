@@ -1,5 +1,6 @@
 package com.happyplaces.di
 
+import com.happyplaces.domain.usecase.GetCurrentAuthUseCase
 import com.happyplaces.domain.usecase.GetCurrentUserUseCase
 import com.happyplaces.domain.usecase.GetMyIdUseCase
 import com.happyplaces.domain.usecase.GetMyPlacesUseCase
@@ -15,4 +16,5 @@ val useCaseModule = module {
     factory { GetMyPlacesUseCase(get()) }
     factory { GetMyIdUseCase(get()) }
     factory { GetMyIdUseCase(get()) }
+    factory { GetCurrentAuthUseCase(get()) }
 }
