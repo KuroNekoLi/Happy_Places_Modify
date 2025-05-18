@@ -25,13 +25,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import com.happyplaces.BuildConfig
 import com.happyplaces.R
+import com.happyplaces.data.Constant.PRIVACY_POLICY_URL
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     versionName: String = BuildConfig.VERSION_NAME,
-    privacyPolicyUrl: String = "https://www.google.com.tw",
+    privacyPolicyUrl: String = PRIVACY_POLICY_URL,
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
