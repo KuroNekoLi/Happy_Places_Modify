@@ -30,9 +30,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.happyplaces.R
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import com.happyplaces.presentation.ui.viewmodel.OnboardingViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -74,10 +76,11 @@ fun ProfileStepContent(
     ) {
         // ① 頭貼區
         Box(contentAlignment = Alignment.BottomEnd, modifier = Modifier.size(120.dp)) {
-            if (state.avatarUri != null) {
+            if (state.avatarUri.toString().isEmpty().not()) {
                 AsyncImage(
                     model = state.avatarUri,
                     contentDescription = null,
+                    placeholder = painterResource(id = R.drawable.add_screen_image_placeholder),
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
