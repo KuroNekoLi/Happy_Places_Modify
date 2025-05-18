@@ -3,31 +3,26 @@ package com.happyplaces.presentation.ui.compose.profile
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.happyplaces.R
 import com.happyplaces.data.model.mockHappyPlaceLists
 import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.presentation.ui.compose.common.Avatar
@@ -87,12 +82,12 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                IconButton({}) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.add_friend),
-                        contentDescription = null
-                    )
-                }
+//                IconButton({}) {
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.add_friend),
+//                        contentDescription = null
+//                    )
+//                }
                 IconButton(onClick = onSettingsClick) {
                     Icon(
                         modifier = Modifier.size(24.dp),
@@ -132,30 +127,30 @@ fun ProfileScreen(
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                OutlinedButton(
-                    modifier = Modifier
-                        .weight(1f),
-                    onClick = {}
-                ) {
-                    Text(text = "Edit My Profile")
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                OutlinedButton(
-                    modifier = Modifier
-                        .weight(1f),
-                    onClick = {}
-                ) {
-                    Text(text = "Edit My Map")
-
-                }
-            }
+//            Row(
+//                Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 16.dp)
+//                    .padding(horizontal = 16.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                OutlinedButton(
+//                    modifier = Modifier
+//                        .weight(1f),
+//                    onClick = {}
+//                ) {
+//                    Text(text = "Edit My Profile")
+//                }
+//                Spacer(modifier = Modifier.width(16.dp))
+//                OutlinedButton(
+//                    modifier = Modifier
+//                        .weight(1f),
+//                    onClick = {}
+//                ) {
+//                    Text(text = "Edit My Map")
+//
+//                }
+//            }
         }
         happyPlaceItems(
             list = list,
