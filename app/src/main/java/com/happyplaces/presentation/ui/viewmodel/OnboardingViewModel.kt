@@ -9,7 +9,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.happyplaces.domain.model.User
-import com.happyplaces.domain.usecase.GetCurrentUserUseCase
+import com.happyplaces.domain.usecase.GetCurrentAuthUseCase
 import com.happyplaces.domain.usecase.UserUseCase
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.CoroutineScope
@@ -19,12 +19,12 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class OnboardingViewModel(
-    getCurrentUserUseCase: GetCurrentUserUseCase,
+    getCurrentAuthUseCase: GetCurrentAuthUseCase,
     private val userUseCase: UserUseCase
 ) : ViewModel() {
     init {
         viewModelScope.launch {
-            getCurrentUserUseCase()
+            getCurrentAuthUseCase()
                 .filterNotNull()
                 .distinctUntilChanged()
                 .collect { //Flow<User?>

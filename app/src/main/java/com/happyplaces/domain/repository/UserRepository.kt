@@ -5,6 +5,7 @@ import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    suspend fun addUser(user: User): Flow<ApiResource<Unit>>
-    suspend fun isUserProfileCompleted(id: String): Flow<ApiResource<Boolean>>
+    fun addUser(user: User): Flow<ApiResource<Unit>>
+    fun isUserProfileCompleted(id: String): Flow<ApiResource<Boolean>>
+    fun getCurrentUser(): Flow<ApiResource<User?>>
 }

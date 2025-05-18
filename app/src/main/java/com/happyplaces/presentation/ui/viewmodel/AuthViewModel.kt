@@ -3,7 +3,7 @@ package com.happyplaces.presentation.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.happyplaces.domain.model.User
-import com.happyplaces.domain.usecase.GetCurrentUserUseCase
+import com.happyplaces.domain.usecase.GetCurrentAuthUseCase
 import com.happyplaces.domain.usecase.SignOutUseCase
 import com.happyplaces.domain.usecase.UserUseCase
 import com.happyplaces.util.ApiResource
@@ -18,12 +18,12 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val userUseCase: UserUseCase,
-    getCurrentUserUseCase: GetCurrentUserUseCase,
+    getCurrentAuthUseCase: GetCurrentAuthUseCase,
     private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
     @OptIn(ExperimentalCoroutinesApi::class)
     val authUiState: StateFlow<AuthUiState> =
-        getCurrentUserUseCase()                                         // Flow<UserEntity?>
+        getCurrentAuthUseCase()                                         // Flow<UserEntity?>
             .flatMapLatest { user ->                                    // 當 user 有變動時，取消舊的 profileCompleted 查詢
                 if (user == null) {
                     flowOf(AuthUiState.LoggedOut)

@@ -21,4 +21,11 @@ class ProfileViewModel(
             SharingStarted.Companion.WhileSubscribed(5000),
             ApiResource.Loading()
         )
+    val user = currentUserUseCase.invoke()
+        .flowOn(Dispatchers.IO)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Companion.WhileSubscribed(5000),
+            null
+        )
 }
