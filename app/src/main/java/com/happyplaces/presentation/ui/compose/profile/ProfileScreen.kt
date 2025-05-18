@@ -33,6 +33,7 @@ import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.presentation.ui.compose.common.Avatar
 import com.happyplaces.presentation.ui.compose.common.happyPlaceItems
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.viewmodel.ProfileViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -40,10 +41,13 @@ import org.koin.androidx.compose.koinViewModel
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = koinViewModel(),
+    onEdit: (HappyPlace) -> Unit,
+    onItemClick: (HappyPlace) -> Unit,
     onSettingsClick: () -> Unit
 ) {
     val list by viewModel.myPlaces.collectAsState()
     val apiResource by viewModel.user.collectAsState()
+    val happyPlaceViewModel: HappyPlaceViewModel = koinViewModel()
     val user = apiResource?.data
     list.data?.let {
         ProfileScreen(
@@ -52,10 +56,12 @@ fun ProfileScreen(
             accountName = user?.accountID.orEmpty(),
             introduction = user?.bio.orEmpty(),
             avatarUrl = user?.avatarUrl.orEmpty(),
-            list = it
-        ) {
-            onSettingsClick()
-        }
+            list = it,
+            onEdit = onEdit,
+            onDelete = happyPlaceViewModel::delete,
+            onItemClick = onItemClick,
+            onSettingsClick = onSettingsClick
+        )
     }
 }
 
@@ -67,8 +73,10 @@ fun ProfileScreen(
     introduction: String,
     avatarUrl: String,
     list: List<HappyPlace>,
-    onItemClick: (HappyPlace) -> Unit = {},
-    onSettingsClick: () -> Unit
+    onItemClick: (HappyPlace) -> Unit,
+    onSettingsClick: () -> Unit,
+    onDelete: (HappyPlace) -> Unit,
+    onEdit: (HappyPlace) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -152,7 +160,9 @@ fun ProfileScreen(
         happyPlaceItems(
             list = list,
             isItemSwipeEnabled = true,
-            onItemClick = onItemClick
+            onItemClick = onItemClick,
+            onEdit = onEdit,
+            onDelete = onDelete
         )
     }
 }
@@ -168,6 +178,9 @@ fun PreviewProfileScreen() {
             list = mockHappyPlaceLists,
             onSettingsClick = {},
             accountName = "@1234",
+            onItemClick = {},
+            onEdit = {},
+            onDelete = {}
         )
     }
 }

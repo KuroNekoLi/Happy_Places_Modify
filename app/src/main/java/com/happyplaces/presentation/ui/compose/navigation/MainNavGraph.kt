@@ -54,9 +54,16 @@ fun NavGraphBuilder.mainNavGraph(
                 onBottomNavigate = navController::navigateTopLevel,
                 onAddClick = { navController.navigate(Add) },
                 content = { paddingValues ->
-                    ProfileScreen(modifier = Modifier.padding(paddingValues)) {
-                        navController.navigate(Settings)
-                    }
+                    ProfileScreen(
+                        modifier = Modifier.padding(paddingValues),
+                        onSettingsClick = { navController.navigate(Settings) },
+                        onItemClick = { haHapPlace ->
+                            navController.navigate(Detail(haHapPlace.id))
+                        },
+                        onEdit = { haHapPlace ->
+                            navController.navigate(Edit(haHapPlace.id))
+                        }
+                    )
                 }
             )
         }
