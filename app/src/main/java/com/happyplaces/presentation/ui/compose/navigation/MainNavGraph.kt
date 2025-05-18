@@ -108,13 +108,13 @@ fun NavGraphBuilder.mainNavGraph(
             MapScreen(id = it.toRoute<Map>().id, onBackClick = { navController.popBackStack() })
         }
         composable<Add> {
-            AddHappyPlaceScreen { navController.popBackStack() }
+            AddHappyPlaceScreen { navController.navigate(Profile) }
         }
         composable<Edit> { backStackEntry ->
             val detail: Edit = backStackEntry.toRoute()
             AddHappyPlaceScreen(
                 id = detail.id,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.navigate(Profile) }
             )
         }
     }
