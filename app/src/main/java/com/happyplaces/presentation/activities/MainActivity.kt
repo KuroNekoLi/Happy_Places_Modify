@@ -46,6 +46,9 @@ class MainActivity : AppCompatActivity() {
                         is AuthUiState.LoggedIn -> {
                             keepSplash = false
                             showMainScreen(it.user.profileCompleted)
+                            if (it.user.profileCompleted) {
+                                viewModel.updateAllHappyPlaces()
+                            }
                         }
 
                         is AuthUiState.LoggedOut -> {
@@ -69,7 +72,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        viewModel.updateAllHappyPlaces()
 
         viewModel.apply {
             message.observe(this@MainActivity) {

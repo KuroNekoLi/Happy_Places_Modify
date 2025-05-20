@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.snapshots
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -38,18 +39,15 @@ class FirebaseService(
     // Firebase Storage 實例
     private val storage: FirebaseStorage = Firebase.storage
 
-    override fun getPlaces(): Flow<List<PlaceDto>> {
-        return firestore.collection(ARTICLE_COLLECTION)
-            .snapshots()
-            .map {
-                Log.i("LinLi", "getPlaces() called $it")
-                it.toObjects(PlaceDto::class.java)
-            }
-            .catch { e ->
-                Log.e("LinLi", "getPlaces() failed", e)
-                emit(emptyList())
-            }
-    }
+    override fun getPlaces(): Flow<List<PlaceDto>> = flow {
+        val data = firestore.collection(ARTICLE_COLLECTION)
+            .get(Source.SERVER)
+            .await()
+            .toObjects(PlaceDto::class.java)
+        emit(data)
+    }.catch { e ->
+        emit(emptyList())
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun addPlace(place: PlaceDto): String {
         // 先為即將加入的文件建立參照，並以其產生唯一 ID

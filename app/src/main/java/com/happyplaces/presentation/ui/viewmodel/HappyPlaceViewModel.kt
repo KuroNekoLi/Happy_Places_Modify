@@ -199,13 +199,8 @@ class HappyPlaceViewModel(
 
     fun updateAllHappyPlaces() {
         viewModelScope.launch {
-            repository.updateAllHappyPlaces().collect {
-                it.data?.let {
-
-                }
-            }
+            repository.updateAllHappyPlaces().stateIn(viewModelScope)
         }
-
     }
 
     /** 將 Address 轉成完整字串 */

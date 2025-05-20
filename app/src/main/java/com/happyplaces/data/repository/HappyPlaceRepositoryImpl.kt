@@ -20,7 +20,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
@@ -132,7 +131,7 @@ class HappyPlaceRepositoryImpl(
     override fun updateAllHappyPlaces(): Flow<ApiResource<Unit>> = flow {
         emit(ApiResource.Loading())
         // 1. 取得遠端資料
-        val remoteDtos = placeRemoteDataSource.getPlaces().drop(1).first()
+        val remoteDtos = placeRemoteDataSource.getPlaces().first()
         Log.i("LinLi", "remoteDtos : $remoteDtos")
         // 2. 取得本地現有資料
         val localEntities = dao.getAllDataList()
