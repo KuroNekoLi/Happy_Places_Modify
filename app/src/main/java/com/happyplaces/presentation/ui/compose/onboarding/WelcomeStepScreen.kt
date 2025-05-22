@@ -19,19 +19,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
+import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.viewmodel.OnboardingViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun WelcomeStepScreen(
-    vm: OnboardingViewModel = koinViewModel(
+    onboardingViewModel: OnboardingViewModel = koinViewModel(
         viewModelStoreOwner = LocalActivity.current as ComponentActivity
     ),
+    happyPlaceViewModel: HappyPlaceViewModel = koinViewModel(),
     onFinish: () -> Unit
 ) = WelcomeStepContent(
-    username = vm.uiState.username,
+    username = onboardingViewModel.uiState.username,
     onGo = {
-        vm.onFinish()
+        onboardingViewModel.onFinish()
+        happyPlaceViewModel.updateAllHappyPlaces()
         onFinish()
     }
 )
