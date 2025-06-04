@@ -22,15 +22,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_20
-        targetCompatibility JavaVersion.VERSION_20
+        // Use the installed JDK version to avoid toolchain resolution failures
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     buildFeatures {
         viewBinding = true
     }
     kotlin {
-        jvmToolchain(20)
+        // Gradle fails if the requested toolchain is not installed. Use
+        // the available JDK version (21) instead of 20.
+        jvmToolchain(21)
     }
     namespace 'com.happyplaces'
 
