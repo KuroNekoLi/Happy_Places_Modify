@@ -29,12 +29,15 @@ fun HappyPlaceNavHost(
  */
 fun NavController.navigateTopLevel(route: Any) {
     navigate(route) {
-        // 回到 graph 的 startDestination，並保留其狀態
-        popUpTo(graph.findStartDestination().id) { saveState = true }
-        // 避免在 back stack 上出現多個相同目的地
-        launchSingleTop = true
-        // 若目的地曾被儲存過，回復其狀態
-        restoreState = true
+        // 回到該 NavGraph 的 startDestination，但 **不要**保存
+        // 目前頂層目的地以下的子堆疊（例如 Add、Detail 等非頂層頁面），
+        // 以避免「Recommend → Add → Profile → Recommend」時
+        // 還原到 Add 的情況。
+        popUpTo(graph.findStartDestination().id) {
+            saveState = false   // 不保存子目的地的 back stack
+        }
+        launchSingleTop = true      // 避免建立重複實例
+        restoreState = true         // 若先前已儲存頂層目的地本身的狀態，則還原
     }
 }
 
