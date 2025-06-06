@@ -98,6 +98,11 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
 
+    // ─── Testing ────────────────────────────────────────────────────
+    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.2")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
     // ─── Retrofit + OkHttp BOM ───────────────────────────────────────
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)

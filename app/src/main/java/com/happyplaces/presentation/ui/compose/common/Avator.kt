@@ -24,6 +24,7 @@ fun Avatar(
 ) {
     val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
+
     val data = if (isPreview) {
         R.drawable.icon
     } else {
@@ -36,6 +37,7 @@ fun Avatar(
             .crossfade(true)
             .build(),
         placeholder = painterResource(id = R.drawable.add_screen_image_placeholder),
+        error = painterResource(id = R.drawable.add_screen_image_placeholder),
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier
