@@ -9,11 +9,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,6 +35,7 @@ import com.happyplaces.presentation.ui.compose.common.happyPlaceItems
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import com.happyplaces.util.ApiResource
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -37,6 +46,7 @@ import org.koin.androidx.compose.koinViewModel
  * @param onEdit 編輯地點的回調函數
  * @param onItemClick 點擊地點項目的回調函數
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecommendScreen(
     modifier: Modifier = Modifier,
@@ -45,6 +55,24 @@ fun RecommendScreen(
     onItemClick: (HappyPlace) -> Unit = {}
 ) {
     val dataListApiResource by viewModel.allPlacesApiResourceFlow.collectAsState()
+    var isRefreshing by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    // 監聽 ApiResource 狀態變化，當不是 Loading 時停止刷新
+    LaunchedEffect(dataListApiResource) {
+        if (dataListApiResource !is ApiResource.Loading) {
+            isRefreshing = false
+        }
+    }
+
+    val onRefresh: () -> Unit = {
+        isRefreshing = true
+        coroutineScope.launch {
+            viewModel.updateAllHappyPlaces()
+        }
+    }
+
+    val pullToRefreshState = rememberPullToRefreshState()
 
     when (dataListApiResource) {
         is ApiResource.Loading -> {
@@ -58,7 +86,9 @@ fun RecommendScreen(
                 list = list,
                 onEdit = onEdit,
                 onItemClick = onItemClick,
-                onDelete = viewModel::delete
+                onDelete = viewModel::delete,
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh
             )
         }
 
@@ -66,9 +96,7 @@ fun RecommendScreen(
             ErrorScreen(
                 modifier = modifier,
                 errorMessage = dataListApiResource.message ?: "發生未知錯誤",
-                onRetry = {
-                    viewModel.updateAllHappyPlaces()
-                }
+                onRetry = onRefresh
             )
         }
     }
@@ -90,13 +118,16 @@ private fun LoadingScreen(modifier: Modifier = Modifier) {
 /**
  * 成功狀態畫面元件
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SuccessScreen(
     modifier: Modifier = Modifier,
     list: List<HappyPlace>,
     onEdit: (HappyPlace) -> Unit,
     onItemClick: (HappyPlace) -> Unit,
-    onDelete: (HappyPlace) -> Unit
+    onDelete: (HappyPlace) -> Unit,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit
 ) {
     if (list.isEmpty()) {
         Box(
@@ -110,16 +141,22 @@ private fun SuccessScreen(
             )
         }
     } else {
-        LazyColumn(
-            modifier = modifier
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            modifier = Modifier.fillMaxSize()
         ) {
-            happyPlaceItems(
-                list = list,
-                isItemSwipeEnabled = false,
-                onDelete = onDelete,
-                onEdit = onEdit,
-                onItemClick = onItemClick
-            )
+            LazyColumn(
+                modifier = modifier
+            ) {
+                happyPlaceItems(
+                    list = list,
+                    isItemSwipeEnabled = false,
+                    onDelete = onDelete,
+                    onEdit = onEdit,
+                    onItemClick = onItemClick
+                )
+            }
         }
     }
 }
@@ -226,7 +263,9 @@ fun SuccessScreenWithDataPreview() {
             list = mockHappyPlaceLists,
             onEdit = {},
             onItemClick = {},
-            onDelete = {}
+            onDelete = {},
+            isRefreshing = false,
+            onRefresh = {}
         )
     }
 }
@@ -242,7 +281,9 @@ fun SuccessScreenEmptyPreview() {
             list = emptyList(),
             onEdit = {},
             onItemClick = {},
-            onDelete = {}
+            onDelete = {},
+            isRefreshing = false,
+            onRefresh = {}
         )
     }
 }
