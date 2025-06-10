@@ -1,29 +1,89 @@
 <resources>
     <string name="app_name">Happy Places</string>
 
+    <!-- Add/Edit Page -->
     <string name="edit_text_hint_title">Title</string>
     <string name="edit_text_hint_description">Description</string>
     <string name="edit_text_hint_date">Date</string>
     <string name="edit_text_hint_location">Location</string>
     <string name="text_add_image">ADD IMAGE</string>
     <string name="btn_text_save">SAVE</string>
-    <string name="note_text_no_happy_places_found_yes">No Happy Places Found Yet.Kindly add One.</string>
-
-    <string name="image_content_description">image</string>
-
-    <string name="btn_text_view_on_map">VIEW ON MAP</string>
-    <string name="add_place_select_current_location_text">SELECT CURRENT LOCATION</string>
-    <string name="google_maps_api_key">AIzaSyAkX5us2KAt0IGSP1q7sztXRThRXUY9Oaw</string>
+    <string name="btn_text_update">UPDATE</string>
     <string name="add_happy_place">Add Happy Place</string>
     <string name="edit_happy_place">Edit Happy Place</string>
-    <string name="btn_text_update">Update</string>
-    <!-- Facebook application ID and custom URL scheme (app ID prefixed by 'fb'). -->
+    <string name="add_place_select_current_location_text">SELECT CURRENT LOCATION</string>
+
+    <!-- Main Screen and Lists -->
+    <string name="note_text_no_happy_places_found_yes">No Happy Places Found Yet. Kindly add One.</string>
+
+    <!-- Detail Page -->
+    <string name="btn_text_view_on_map">VIEW ON MAP</string>
+    <string name="image_content_description">image</string>
+
+    <!-- Navigation and Bottom Menu -->
+    <string name="bottom_nav_recommend">Recommend</string>
+    <string name="bottom_nav_search">Search</string>
+    <string name="bottom_nav_my_map">My Map</string>
+    <string name="bottom_nav_profile">Profile</string>
+
+    <!-- Search Page -->
+    <string name="search_hint">Search places, descriptions or addresses...</string>
+    <string name="search_include_my_places">Include my places</string>
+    <string name="search_no_input">Enter keywords to start searching</string>
+    <string name="search_no_results">No relevant places found</string>
+    <string name="search_failed">Search failed</string>
+    <string name="search_clear">Clear search</string>
+    <string name="search_empty_hint">Enter keywords to start searching</string>
+    <string name="include_my_places">Include my places</string>
+    <string name="unknown_error">Unknown error occurred</string>
+
+    <!-- My Map Page -->
+    <string name="my_map_empty_message">No places yet\nGo add your first happy place!</string>
+    <string name="my_map_loading">Loading places...</string>
+    <string name="my_map_load_failed">Failed to load map</string>
+    <string name="loading_places">Loading places...</string>
+    <string name="no_places_message">No places yet\nGo add your first happy place!</string>
+    <string name="map_load_failed">Failed to load map</string>
+
+    <!-- Settings Page -->
+    <string name="settings">Settings</string>
+    <string name="version">Version</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="logout">Logout</string>
+    <string name="language">Language</string>
+    <string name="language_system">Follow System</string>
+    <string name="language_chinese">繁體中文</string>
+    <string name="language_english">English</string>
+
+    <!-- Common Text -->
+    <string name="loading">Loading</string>
+    <string name="loading_failed">Loading Failed</string>
+    <string name="retry">Retry</string>
+    <string name="refresh">Refresh</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="error_unknown">Unknown error occurred</string>
+    <string name="error_network">Network connection failed, please check network settings and try again</string>
+
+    <!-- Onboarding Flow -->
+    <string name="onboarding_welcome">Welcome to Happy Places</string>
+    <string name="onboarding_email_hint">Email</string>
+    <string name="onboarding_username_hint">Username</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_complete">Complete</string>
+
+    <!-- Pull to Refresh -->
+    <string name="pull_to_refresh">Pull to refresh</string>
+
+    <!-- Form Validation -->
+    <string name="validation_title_required">Please enter title</string>
+    <string name="validation_description_required">Please enter description</string>
+    <string name="validation_location_required">Please select location</string>
+    <string name="validation_image_required">Please add image</string>
+
+    <!-- API Keys and Facebook (Non-translatable) -->
+    <string name="google_maps_api_key" translatable="false">AIzaSyAkX5us2KAt0IGSP1q7sztXRThRXUY9Oaw</string>
     <string name="facebook_application_id" translatable="false">1003688418519046</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb1003688418519046</string>
     <string name="facebook_client_token" translatable="false">6ea8610314833af56be2745b0eddb6f8</string>
-    <string name="settings">設定</string>
-    <string name="version">版本號</string>
-    <string name="privacy_policy">隱私權條款</string>
-    <string name="logout">登出</string>
-
 </resources>

@@ -1,5 +1,6 @@
 package com.happyplaces.presentation.ui.compose.common
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.offset
@@ -24,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
@@ -34,6 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.happyplaces.R
 import com.happyplaces.presentation.ui.compose.navigation.MyMap
 import com.happyplaces.presentation.ui.compose.navigation.Profile
 import com.happyplaces.presentation.ui.compose.navigation.Recommend
@@ -41,13 +44,17 @@ import com.happyplaces.presentation.ui.compose.navigation.Search
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 
 
-data class BottomNavigationRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
+data class BottomNavigationRoute<T : Any>(
+    @StringRes val nameRes: Int,
+    val route: T,
+    val icon: ImageVector
+)
 
 val bottomNavigationRoutes = listOf(
-    BottomNavigationRoute("Recommend", Recommend, Icons.Default.Recommend),
-    BottomNavigationRoute("Search", Search, Icons.Default.Search),
-    BottomNavigationRoute("My Map", MyMap, Icons.Default.Map),
-    BottomNavigationRoute("Profile", Profile, Icons.Default.Person),
+    BottomNavigationRoute(R.string.bottom_nav_recommend, Recommend, Icons.Default.Recommend),
+    BottomNavigationRoute(R.string.bottom_nav_search, Search, Icons.Default.Search),
+    BottomNavigationRoute(R.string.bottom_nav_my_map, MyMap, Icons.Default.Map),
+    BottomNavigationRoute(R.string.bottom_nav_profile, Profile, Icons.Default.Person),
 )
 
 @Composable
@@ -65,10 +72,10 @@ fun MainScaffold(
                         icon = {
                             Icon(
                                 topLevelRoute.icon,
-                                contentDescription = topLevelRoute.name
+                                contentDescription = stringResource(id = topLevelRoute.nameRes)
                             )
                         },
-                        label = { Text(topLevelRoute.name) },
+                        label = { Text(stringResource(id = topLevelRoute.nameRes)) },
                         selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true,
                         onClick = {
                             onBottomNavigate(topLevelRoute.route)

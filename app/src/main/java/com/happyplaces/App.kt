@@ -9,12 +9,17 @@ import coil3.memory.MemoryCache
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.happyplaces.di.initKoin
+import com.happyplaces.util.LanguageManager
 import okio.Path.Companion.toOkioPath
 import java.io.File
 
 class App : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
+
+        // 初始化語言設定
+        LanguageManager.initializeLanguage(this)
+        
         // 手動初始化 Facebook SDK
         FacebookSdk.sdkInitialize(applicationContext)
         // 啟用 App Events（選用）

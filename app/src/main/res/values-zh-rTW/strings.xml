@@ -1,0 +1,83 @@
+<resources>
+    <string name="app_name">快樂地點</string>
+
+    <!-- 新增/編輯頁面 -->
+    <string name="edit_text_hint_title">標題</string>
+    <string name="edit_text_hint_description">描述</string>
+    <string name="edit_text_hint_date">日期</string>
+    <string name="edit_text_hint_location">地點</string>
+    <string name="text_add_image">新增圖片</string>
+    <string name="btn_text_save">儲存</string>
+    <string name="btn_text_update">更新</string>
+    <string name="add_happy_place">新增快樂地點</string>
+    <string name="edit_happy_place">編輯快樂地點</string>
+    <string name="add_place_select_current_location_text">選擇目前位置</string>
+
+    <!-- 主畫面和列表 -->
+    <string name="note_text_no_happy_places_found_yes">還沒有快樂地點，請新增一個</string>
+
+    <!-- 詳情頁面 -->
+    <string name="btn_text_view_on_map">在地圖上查看</string>
+    <string name="image_content_description">圖片</string>
+
+    <!-- 導航和底部選單 -->
+    <string name="bottom_nav_recommend">推薦</string>
+    <string name="bottom_nav_search">搜尋</string>
+    <string name="bottom_nav_my_map">我的地圖</string>
+    <string name="bottom_nav_profile">個人檔案</string>
+
+    <!-- 搜尋頁面 -->
+    <string name="search_hint">搜尋地點、描述或地址...</string>
+    <string name="search_include_my_places">包含我的地點</string>
+    <string name="search_no_input">輸入關鍵字開始搜尋</string>
+    <string name="search_no_results">找不到相關的地點</string>
+    <string name="search_failed">搜尋失敗</string>
+    <string name="search_clear">清除搜尋</string>
+    <string name="search_empty_hint">輸入關鍵字開始搜尋</string>
+    <string name="include_my_places">包含我的地點</string>
+    <string name="unknown_error">發生未知錯誤</string>
+
+    <!-- 我的地圖頁面 -->
+    <string name="my_map_empty_message">還沒有任何地點\n去新增你的第一個快樂地點吧！</string>
+    <string name="my_map_loading">載入地點中...</string>
+    <string name="my_map_load_failed">載入地圖失敗</string>
+    <string name="loading_places">載入地點中...</string>
+    <string name="no_places_message">還沒有任何地點\n去新增你的第一個快樂地點吧！</string>
+    <string name="map_load_failed">載入地圖失敗</string>
+
+    <!-- 設定頁面 -->
+    <string name="settings">設定</string>
+    <string name="version">版本號</string>
+    <string name="privacy_policy">隱私權條款</string>
+    <string name="logout">登出</string>
+    <string name="language">語言</string>
+    <string name="language_system">跟隨系統</string>
+    <string name="language_chinese">繁體中文</string>
+    <string name="language_english">English</string>
+
+    <!-- 通用文字 -->
+    <string name="loading">載入中</string>
+    <string name="loading_failed">載入失敗</string>
+    <string name="retry">重試</string>
+    <string name="refresh">重新整理</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">確認</string>
+    <string name="error_unknown">發生未知錯誤</string>
+    <string name="error_network">網路連線失敗，請檢查網路設定後重試</string>
+
+    <!-- 入門流程 -->
+    <string name="onboarding_welcome">歡迎使用快樂地點</string>
+    <string name="onboarding_email_hint">電子郵件</string>
+    <string name="onboarding_username_hint">使用者名稱</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_complete">完成</string>
+
+    <!-- Pull to Refresh -->
+    <string name="pull_to_refresh">下拉重新整理</string>
+
+    <!-- 表單驗證 -->
+    <string name="validation_title_required">請輸入標題</string>
+    <string name="validation_description_required">請輸入描述</string>
+    <string name="validation_location_required">請選擇地點</string>
+    <string name="validation_image_required">請新增圖片</string>
+</resources>

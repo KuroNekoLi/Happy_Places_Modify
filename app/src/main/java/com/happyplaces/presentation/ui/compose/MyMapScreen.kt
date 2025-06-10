@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.happyplaces.R
 import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import com.happyplaces.presentation.ui.viewmodel.ProfileViewModel
@@ -88,7 +90,7 @@ private fun LoadingScreen(modifier: Modifier = Modifier) {
         ) {
             CircularProgressIndicator()
             Text(
-                text = "載入地點中...",
+                text = stringResource(id = R.string.loading_places),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 16.dp)
             )
@@ -132,7 +134,7 @@ private fun EmptyMapScreen(modifier: Modifier = Modifier) {
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Text(
-                text = "還沒有任何地點\n去新增你的第一個快樂地點吧！",
+                text = stringResource(id = R.string.no_places_message),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -220,7 +222,7 @@ private fun ErrorMapScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "載入地圖失敗",
+                text = stringResource(id = R.string.map_load_failed),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.error
             )
@@ -270,7 +272,7 @@ fun EmptyStateCardPreview() {
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Text(
-                    text = "還沒有任何地點\n去新增你的第一個快樂地點吧！",
+                    text = stringResource(id = R.string.no_places_message),
                     style = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface,

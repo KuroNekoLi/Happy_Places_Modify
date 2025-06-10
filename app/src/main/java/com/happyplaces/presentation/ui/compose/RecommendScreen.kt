@@ -179,7 +179,7 @@ private fun ErrorScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "載入失敗",
+                text = stringResource(R.string.loading_failed),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.error
             )
@@ -191,7 +191,7 @@ private fun ErrorScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = onRetry) {
-                Text("重新整理")
+                Text(stringResource(R.string.refresh))
             }
         }
     }

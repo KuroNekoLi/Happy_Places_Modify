@@ -34,9 +34,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.happyplaces.R
 import com.happyplaces.data.model.mockHappyPlaceLists
 import com.happyplaces.domain.model.HappyPlace
 import com.happyplaces.presentation.ui.compose.common.happyPlaceItems
@@ -131,11 +133,11 @@ private fun SearchInputSection(
         value = searchQuery,
         onValueChange = onSearchQueryChange,
         modifier = Modifier.fillMaxWidth(),
-        placeholder = { Text("搜尋地點、描述或地址...") },
+        placeholder = { Text(stringResource(R.string.search_hint)) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "搜尋"
+                contentDescription = stringResource(R.string.bottom_nav_search)
             )
         },
         trailingIcon = {
@@ -143,7 +145,7 @@ private fun SearchInputSection(
                 IconButton(onClick = onClearSearch) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "清除搜尋"
+                        contentDescription = stringResource(R.string.search_clear)
                     )
                 }
             }
@@ -174,7 +176,7 @@ private fun SearchOptionsSection(
                 onCheckedChange = { onToggleIncludeMyPlaces() }
             )
             Text(
-                text = "包含我的地點",
+                text = stringResource(R.string.include_my_places),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -225,7 +227,7 @@ private fun SearchResultsSection(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "輸入關鍵字開始搜尋",
+                            text = stringResource(R.string.search_empty_hint),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
@@ -239,7 +241,7 @@ private fun SearchResultsSection(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "找不到相關的地點",
+                        text = stringResource(R.string.search_no_results),
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center
                     )
@@ -274,19 +276,19 @@ private fun SearchResultsSection(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "搜尋失敗",
+                        text = stringResource(R.string.search_failed),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = searchResults.message ?: "發生未知錯誤",
+                        text = searchResults.message ?: stringResource(R.string.unknown_error),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onRefresh) {
-                        Text("重試")
+                        Text(stringResource(R.string.retry))
                     }
                 }
             }
