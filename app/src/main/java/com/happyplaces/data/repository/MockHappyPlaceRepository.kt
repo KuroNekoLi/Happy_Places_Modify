@@ -59,15 +59,48 @@ class MockHappyPlaceRepository(
         emit(ApiResource.Success(mockHappyPlaceLists.toList()))
     }
 
+    /**
+     * 取得其他人的快樂地點（Mock 版本返回所有地點）
+     */
+    override fun getOthersHappyPlaces(): Flow<ApiResource<List<HappyPlace>>> = flow {
+        emit(ApiResource.Loading())
+        emit(ApiResource.Success(mockHappyPlaceLists.toList()))
+    }
+
+    /**
+     * 搜尋快樂地點
+     */
+    override fun searchHappyPlaces(
+        query: String,
+        includeMyPlaces: Boolean
+    ): Flow<ApiResource<List<HappyPlace>>> = flow {
+        emit(ApiResource.Loading())
+        val filteredPlaces = mockHappyPlaceLists.filter { place ->
+            (place.title?.contains(query, ignoreCase = true) ?: false) ||
+                    (place.description?.contains(query, ignoreCase = true) ?: false) ||
+                    (place.location?.contains(query, ignoreCase = true) ?: false)
+        }
+        emit(ApiResource.Success(filteredPlaces))
+    }
+
     override fun getMyPlaces(): Flow<ApiResource<List<HappyPlace>>> = flow {
         emit(ApiResource.Loading())
         emit(ApiResource.Success(mockHappyPlaceLists.toList()))
     }
 
-
     override fun updateAllHappyPlaces(): Flow<ApiResource<Unit>> {
         return flow {
             emit(ApiResource.Success(Unit))
         }
+    }
+
+    /**
+     * 獲取分頁的快樂地點資料（Mock 版本）
+     */
+    override suspend fun getAllHappyPlacesPaged(
+        pageSize: Int,
+        lastDocument: com.google.firebase.firestore.DocumentSnapshot?
+    ): ApiResource<Pair<List<HappyPlace>, com.google.firebase.firestore.DocumentSnapshot?>> {
+        return ApiResource.Success(Pair(mockHappyPlaceLists.toList(), null))
     }
 }

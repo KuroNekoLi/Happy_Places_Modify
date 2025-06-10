@@ -4,6 +4,7 @@ import com.happyplaces.presentation.ui.viewmodel.AuthViewModel
 import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.viewmodel.OnboardingViewModel
 import com.happyplaces.presentation.ui.viewmodel.ProfileViewModel
+import com.happyplaces.presentation.ui.viewmodel.SearchViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -14,4 +15,5 @@ val viewModelModule = module {
     viewModel { OnboardingViewModel(get(), get()) }
     viewModel { AuthViewModel(get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
+    viewModel { SearchViewModel(get()) }
 }

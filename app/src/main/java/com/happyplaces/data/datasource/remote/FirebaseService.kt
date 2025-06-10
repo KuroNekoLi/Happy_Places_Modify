@@ -199,6 +199,108 @@ class FirebaseService(
             }
     }
 
+    /**
+     * 取得其他人的地點（不包含自己的）
+     */
+    override fun getOthersPlaces(): Flow<List<PlaceDto>> = flow {
+        val currentUserId = firebaseAuth.currentUser?.uid
+        if (currentUserId != null) {
+            val data = firestore.collection(ARTICLE_COLLECTION)
+                .whereNotEqualTo("creatorId", currentUserId)
+                .get(Source.SERVER)
+                .await()
+                .toObjects(PlaceDto::class.java)
+            emit(data)
+        } else {
+            // 如果未登入，返回所有地點
+            val data = firestore.collection(ARTICLE_COLLECTION)
+                .get(Source.SERVER)
+                .await()
+                .toObjects(PlaceDto::class.java)
+            emit(data)
+        }
+    }.catch { e ->
+        Log.e("LinLi", "getOthersPlaces() failed", e)
+        emit(emptyList())
+    }.flowOn(Dispatchers.IO)
+
+    /**
+     * 搜尋地點
+     * Firebase 的文字搜尋有限，這裡使用簡單的 title 和 description 匹配
+     */
+    override fun searchPlaces(query: String, includeMyPlaces: Boolean): Flow<List<PlaceDto>> =
+        flow {
+            val currentUserId = firebaseAuth.currentUser?.uid
+
+            // 構建查詢
+            val baseQuery = firestore.collection(ARTICLE_COLLECTION)
+
+            // 如果不包含自己的地點且已登入，則排除自己的
+            val filteredQuery = if (!includeMyPlaces && currentUserId != null) {
+                baseQuery.whereNotEqualTo("creatorId", currentUserId)
+            } else {
+                baseQuery
+            }
+
+            val data = filteredQuery
+                .get(Source.SERVER)
+                .await()
+                .toObjects(PlaceDto::class.java)
+                .filter { place ->
+                    // 本地端過濾：搜尋 title 或 description 或 address
+                    val searchQuery = query.lowercase()
+                    place.title.lowercase().contains(searchQuery) ||
+                            place.description.lowercase().contains(searchQuery) ||
+                            place.address.lowercase().contains(searchQuery)
+                }
+
+            emit(data)
+        }.catch { e ->
+            Log.e("LinLi", "searchPlaces() failed", e)
+            emit(emptyList())
+        }.flowOn(Dispatchers.IO)
+
+    /**
+     * 分頁取得其他人的地點
+     */
+    override suspend fun getOthersPlacesPaged(
+        pageSize: Int,
+        lastDocument: com.google.firebase.firestore.DocumentSnapshot?
+    ): Pair<List<PlaceDto>, com.google.firebase.firestore.DocumentSnapshot?> {
+        return try {
+            val currentUserId = firebaseAuth.currentUser?.uid
+
+            val baseQuery = if (currentUserId != null) {
+                firestore.collection(ARTICLE_COLLECTION)
+                    .whereNotEqualTo("creatorId", currentUserId)
+                    .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(pageSize.toLong())
+            } else {
+                firestore.collection(ARTICLE_COLLECTION)
+                    .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(pageSize.toLong())
+            }
+
+            val query = if (lastDocument != null) {
+                baseQuery.startAfter(lastDocument)
+            } else {
+                baseQuery
+            }
+
+            val snapshot = query.get().await()
+            val places = snapshot.toObjects(PlaceDto::class.java)
+            val nextDocument = if (snapshot.documents.isNotEmpty()) {
+                snapshot.documents.lastOrNull()
+            } else {
+                null
+            }
+
+            Pair(places, nextDocument)
+        } catch (e: Exception) {
+            Log.e("LinLi", "getOthersPlacesPaged() failed", e)
+            Pair(emptyList(), null)
+        }
+    }
 
     /**
      * 取得所有使用者資料

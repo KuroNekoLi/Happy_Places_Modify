@@ -20,14 +20,12 @@ import com.happyplaces.domain.usecase.GetMyIdUseCase
 import com.happyplaces.util.ApiResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -39,23 +37,10 @@ class HappyPlaceViewModel(
     private val repository: HappyPlaceRepository,
     private val getMyIdUseCase: GetMyIdUseCase
 ) : ViewModel() {
-    // 取得所有他人快樂地點，並過濾出自己以外的資料
-    // TODO: 先在此處做篩選，之後應該會移動到邏輯層
+    // 取得所有他人快樂地點，直接從 Firebase 查詢不包含自己的資料
     val allPlacesApiResourceFlow: StateFlow<ApiResource<List<HappyPlace>>> =
-        repository.getAllHappyPlaces()
+        repository.getOthersHappyPlaces()
             .flowOn(Dispatchers.IO)
-            .map { resource ->
-                when (resource) {
-                    is ApiResource.Success<List<HappyPlace>> -> {
-                        val myId = getMyIdUseCase.invoke()
-                        ApiResource.Success(resource.data?.filter { it.creatorId != myId }
-                            ?: emptyList())
-                    }
-
-                    is ApiResource.Error -> resource
-                    is ApiResource.Loading -> ApiResource.Loading<List<HappyPlace>>()
-                }
-            }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -134,7 +119,7 @@ class HappyPlaceViewModel(
         CoroutineScope(Dispatchers.IO).launch { //使用CoroutineScope而不使用viewModelScope是因為不想在viewModel重新建立時取消工作
             val resultFlow = repository.insert(happyPlace)
             resultFlow.collect {
-                withContext(Main) {
+                withContext(Dispatchers.Main) {
                     it.data?.let {
                         _message.value = "第 $it 個資料已新增"
                     }
@@ -154,13 +139,13 @@ class HappyPlaceViewModel(
         val resultFlow = repository.delete(happyPlace)
         resultFlow.collect {
             it.data?.let { rowsDeleted ->
-                withContext(Main) {
+                withContext(Dispatchers.Main) {
                     _message.value =
                         if (rowsDeleted > 0) "第 $rowsDeleted 個資料已刪除" else "發生錯誤"
                 }
             }
             it.message?.let { errorMessage ->
-                withContext(Main) {
+                withContext(Dispatchers.Main) {
                     _message.value = errorMessage
                 }
             }

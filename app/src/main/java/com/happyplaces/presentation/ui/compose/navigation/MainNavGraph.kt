@@ -3,7 +3,6 @@ package com.happyplaces.presentation.ui.compose.navigation
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -13,12 +12,10 @@ import androidx.navigation.toRoute
 import com.happyplaces.presentation.ui.compose.AddHappyPlaceScreen
 import com.happyplaces.presentation.ui.compose.HappyPlaceDetailScreen
 import com.happyplaces.presentation.ui.compose.MapScreen
+import com.happyplaces.presentation.ui.compose.MyMapScreen
 import com.happyplaces.presentation.ui.compose.RecommendScreen
+import com.happyplaces.presentation.ui.compose.SearchScreen
 import com.happyplaces.presentation.ui.compose.common.MainScaffold
-import com.happyplaces.presentation.ui.compose.common.MyMap
-import com.happyplaces.presentation.ui.compose.common.Profile
-import com.happyplaces.presentation.ui.compose.common.Recommend
-import com.happyplaces.presentation.ui.compose.common.Search
 import com.happyplaces.presentation.ui.compose.profile.ProfileScreen
 import com.happyplaces.presentation.ui.compose.profile.SettingsScreen
 import com.happyplaces.presentation.ui.viewmodel.AuthViewModel
@@ -82,9 +79,11 @@ fun NavGraphBuilder.mainNavGraph(
                 onBottomNavigate = navController::navigateTopLevel,
                 onAddClick = { navController.navigate(Add) },
                 content = { paddingValues ->
-                    Text(
+                    MyMapScreen(
                         modifier = Modifier.padding(paddingValues),
-                        text = "MyMap"
+                        onMarkerClick = { haHapPlace ->
+                            navController.navigate(Detail(haHapPlace.id))
+                        }
                     )
                 }
             )
@@ -96,9 +95,14 @@ fun NavGraphBuilder.mainNavGraph(
                 onBottomNavigate = navController::navigateTopLevel,
                 onAddClick = { navController.navigate(Add) },
                 content = { paddingValues ->
-                    Text(
+                    SearchScreen(
                         modifier = Modifier.padding(paddingValues),
-                        text = "Search"
+                        onEdit = { haHapPlace ->
+                            navController.navigate(Edit(haHapPlace.id))
+                        },
+                        onItemClick = { haHapPlace ->
+                            navController.navigate(Detail(haHapPlace.id))
+                        }
                     )
                 }
             )

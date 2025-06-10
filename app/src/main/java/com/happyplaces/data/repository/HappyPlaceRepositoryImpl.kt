@@ -114,6 +114,68 @@ class HappyPlaceRepositoryImpl(
         .catch { e -> emit(ApiResource.Error(e.message ?: "未知錯誤")) }
         .flowOn(Dispatchers.IO)
 
+    /**
+     * 獲取分頁的快樂地點資料
+     * 從 Firebase 獲取資料並過濾掉自己的資料
+     */
+    override suspend fun getAllHappyPlacesPaged(
+        pageSize: Int,
+        lastDocument: com.google.firebase.firestore.DocumentSnapshot?
+    ): ApiResource<Pair<List<HappyPlace>, com.google.firebase.firestore.DocumentSnapshot?>> {
+        return try {
+            Log.i("LinLi", "getAllHappyPlacesPaged: pageSize=$pageSize")
+
+            // 從遠端獲取分頁資料
+            val (placeDtos, nextDocument) = placeRemoteDataSource.getOthersPlacesPaged(
+                pageSize,
+                lastDocument
+            )
+
+            // 轉換為 HappyPlace
+            val happyPlaces = placeDtos.map { it.toHappyPlace() }
+
+            Log.i(
+                "LinLi",
+                "getAllHappyPlacesPaged: 獲取 ${happyPlaces.size} 個地點，下一頁: ${nextDocument?.id}"
+            )
+
+            ApiResource.Success(Pair(happyPlaces, nextDocument))
+
+        } catch (e: Exception) {
+            Log.e("LinLi", "getAllHappyPlacesPaged 失敗", e)
+            ApiResource.Error(e.message ?: "獲取分頁資料失敗")
+        }
+    }
+
+    /**
+     * 取得其他人的快樂地點（從 Firebase 直接查詢，不包含自己的）
+     */
+    override fun getOthersHappyPlaces(): Flow<ApiResource<List<HappyPlace>>> = flow {
+        emit(ApiResource.Loading())
+        placeRemoteDataSource.getOthersPlaces().collect { placeDtos ->
+            val happyPlaces = placeDtos.map { it.toHappyPlace() }
+            emit(ApiResource.Success(happyPlaces))
+        }
+    }
+        .catch { e -> emit(ApiResource.Error(e.message ?: "獲取推薦地點失敗")) }
+        .flowOn(Dispatchers.IO)
+
+    /**
+     * 搜尋快樂地點
+     */
+    override fun searchHappyPlaces(
+        query: String,
+        includeMyPlaces: Boolean
+    ): Flow<ApiResource<List<HappyPlace>>> = flow {
+        emit(ApiResource.Loading())
+        placeRemoteDataSource.searchPlaces(query, includeMyPlaces).collect { placeDtos ->
+            val happyPlaces = placeDtos.map { it.toHappyPlace() }
+            emit(ApiResource.Success(happyPlaces))
+        }
+    }
+        .catch { e -> emit(ApiResource.Error(e.message ?: "搜尋失敗")) }
+        .flowOn(Dispatchers.IO)
+
     override fun getMyPlaces(): Flow<ApiResource<List<HappyPlace>>> =
         flow {
             // 1. 發送 Loading 狀態

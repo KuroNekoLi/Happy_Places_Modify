@@ -23,6 +23,15 @@ data object Welcome
 data object Home
 
 @Serializable
+data object Recommend
+
+@Serializable
+data object Search
+
+@Serializable
+data object MyMap
+
+@Serializable
 data object Add
 
 @Serializable

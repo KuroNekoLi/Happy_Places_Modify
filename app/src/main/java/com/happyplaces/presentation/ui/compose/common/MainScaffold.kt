@@ -34,23 +34,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.happyplaces.presentation.ui.compose.navigation.MyMap
+import com.happyplaces.presentation.ui.compose.navigation.Profile
+import com.happyplaces.presentation.ui.compose.navigation.Recommend
+import com.happyplaces.presentation.ui.compose.navigation.Search
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
-import kotlinx.serialization.Serializable
 
 
 data class BottomNavigationRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
-
-@Serializable
-data object Profile
-
-@Serializable
-data object MyMap
-
-@Serializable
-data object Search
-
-@Serializable
-data object Recommend
 
 val bottomNavigationRoutes = listOf(
     BottomNavigationRoute("Recommend", Recommend, Icons.Default.Recommend),
