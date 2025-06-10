@@ -199,7 +199,23 @@ class HappyPlaceViewModel(
 
     fun updateAllHappyPlaces() {
         viewModelScope.launch {
-            repository.updateAllHappyPlaces().stateIn(viewModelScope)
+            repository.updateAllHappyPlaces()
+                .flowOn(Dispatchers.IO)
+                .collect { result ->
+                    when (result) {
+                        is ApiResource.Success -> {
+                            Log.d("HappyPlaceViewModel", "資料更新成功")
+                        }
+
+                        is ApiResource.Error -> {
+                            Log.e("HappyPlaceViewModel", "資料更新失敗: ${result.message}")
+                        }
+
+                        is ApiResource.Loading -> {
+                            Log.d("HappyPlaceViewModel", "正在更新資料...")
+                        }
+                    }
+                }
         }
     }
 
