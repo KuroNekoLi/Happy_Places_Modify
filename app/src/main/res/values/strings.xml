@@ -66,7 +66,14 @@
     <string name="error_network">Network connection failed, please check network settings and try again</string>
 
     <!-- Onboarding Flow -->
-    <string name="onboarding_welcome">Welcome to Happy Places</string>
+    <string name="onboarding_welcome">Welcome to Happy Places %1$s!</string>
+    <string name="onboarding_description">We\'re now going to personalize your experience.</string>
+    <string name="onboarding_lets_go">Let\'s go</string>
+    <string name="onboarding_email_title">Enter your email address</string>
+    <string name="onboarding_email_error">Invalid format, please check again</string>
+    <string name="onboarding_profile_title">Complete your profile</string>
+    <string name="onboarding_bio_label">Write your bio</string>
+    <string name="onboarding_bio_placeholder">Tell us about yourself...</string>
     <string name="onboarding_email_hint">Email</string>
     <string name="onboarding_username_hint">Username</string>
     <string name="onboarding_next">Next</string>
@@ -74,6 +81,15 @@
 
     <!-- Pull to Refresh -->
     <string name="pull_to_refresh">Pull to refresh</string>
+
+    <!-- Image Picker -->
+    <string name="image_source_dialog_title">Select Image Source</string>
+    <string name="image_source_gallery">Choose from Gallery</string>
+    <string name="image_source_camera">Take Photo</string>
+
+    <!-- Permissions -->
+    <string name="camera_permission_denied">Camera permission denied</string>
+    <string name="location_permission_denied">Location permission denied</string>
 
     <!-- Form Validation -->
     <string name="validation_title_required">Please enter title</string>

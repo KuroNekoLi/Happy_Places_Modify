@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -70,7 +71,7 @@ fun ProfileStepContent(
 ) {
     StepScaffold(
         step = 3, total = 4,
-        title = "Complete your profile",
+        title = stringResource(R.string.onboarding_profile_title),
         enableNext = state.avatarUri != null,
         onNext = onNext
     ) {
@@ -113,8 +114,8 @@ fun ProfileStepContent(
         OutlinedTextField(
             value = state.bio,
             onValueChange = onBioChange,
-            label = { Text("Write your bio") },
-            placeholder = { Text("Tell us about yourself ...") },
+            label = { Text(stringResource(R.string.onboarding_bio_label)) },
+            placeholder = { Text(stringResource(R.string.onboarding_bio_placeholder)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 120.dp),

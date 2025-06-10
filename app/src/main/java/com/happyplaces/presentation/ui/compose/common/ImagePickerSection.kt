@@ -100,20 +100,20 @@ fun ImageSourceDialog(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("選擇圖片來源") },
+            title = { Text(stringResource(R.string.image_source_dialog_title)) },
             text = {
                 Column {
                     TextButton(onClick = {
                         onGalleryClick()
                         onDismiss()
                     }) {
-                        Text("從相簿中選擇")
+                        Text(stringResource(R.string.image_source_gallery))
                     }
                     TextButton(onClick = {
                         onCameraClick()
                         onDismiss()
                     }) {
-                        Text("從相機中拍照")
+                        Text(stringResource(R.string.image_source_camera))
                     }
                 }
             },

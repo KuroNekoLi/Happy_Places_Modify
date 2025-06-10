@@ -377,7 +377,11 @@ private fun rememberActivityLaunchers(
             onCapturedPhotoUri(capturedUri)
             cameraLauncher.launch(capturedUri)
         } else {
-            Toast.makeText(context, "相機權限被拒絕", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.camera_permission_denied),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -445,7 +449,11 @@ private fun rememberActivityLaunchers(
                 e.printStackTrace()
             }
         } else {
-            Toast.makeText(context, "位置權限被拒絕", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.location_permission_denied),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

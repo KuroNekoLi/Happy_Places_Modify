@@ -8,7 +8,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.happyplaces.R
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import com.happyplaces.presentation.ui.viewmodel.OnboardingViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -33,21 +35,21 @@ fun EmailStepContent(
 ) {
     StepScaffold(
         step = 1, total = 4,
-        title = "Enter your email address",
+        title = stringResource(R.string.onboarding_email_title),
         enableNext = uiState.emailIsValid,
         onNext = onNext
     ) {
         OutlinedTextField(
             value = uiState.email,
             onValueChange = onEmailChange,
-            label = { Text("E-mail") },
+            label = { Text(stringResource(R.string.onboarding_email_hint)) },
             isError = uiState.email.isNotBlank() && !uiState.emailIsValid,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
         if (uiState.email.isNotBlank() && !uiState.emailIsValid) {
             Text(
-                "格式有誤，請再次確認",
+                stringResource(R.string.onboarding_email_error),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )

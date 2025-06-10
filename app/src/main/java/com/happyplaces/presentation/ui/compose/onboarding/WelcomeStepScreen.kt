@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.happyplaces.R
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.viewmodel.OnboardingViewModel
@@ -55,13 +57,13 @@ fun WelcomeStepContent(
         ) {
             Spacer(Modifier.height(64.dp))
             Text(
-                "Welcome to happy place ${username.ifBlank { "" }}!",
+                stringResource(R.string.onboarding_welcome, username.ifBlank { "" }),
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                "We’re now going to personalize your experience.",
+                stringResource(R.string.onboarding_description),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
@@ -71,7 +73,7 @@ fun WelcomeStepContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-            ) { Text("Let’s go") }
+            ) { Text(stringResource(R.string.onboarding_lets_go)) }
         }
     }
 }
