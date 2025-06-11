@@ -1,16 +1,8 @@
 package com.happyplaces.presentation.ui.compose
 
 import android.Manifest
-import android.app.Activity
-import android.app.DatePickerDialog
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Looper
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -47,19 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.widget.Autocomplete
-import com.google.android.libraries.places.widget.AutocompleteActivity
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
-import com.happyplaces.BuildConfig
 import com.happyplaces.R
 import com.happyplaces.data.model.AddPlaceEvent
 import com.happyplaces.presentation.ui.compose.common.HappyPlaceToolBar
@@ -68,13 +48,17 @@ import com.happyplaces.presentation.ui.compose.common.ImageSourceDialog
 import com.happyplaces.presentation.ui.compose.common.ValidatedTextField
 import com.happyplaces.presentation.ui.theme.HappyPlacesTheme
 import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
+import com.happyplaces.util.ActivityLauncherHelper
+import com.happyplaces.util.DatePickerUtils
 import com.happyplaces.util.SetupPreviewKoin
 import org.koin.androidx.compose.koinViewModel
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
+/**
+ * 新增或編輯快樂地點畫面
+ * @param id 地點 ID，如果為 null 則為新增模式
+ * @param viewModel ViewModel 實例
+ * @param onBack 返回回調
+ */
 @Composable
 fun AddHappyPlaceScreen(
     id: String? = null,
@@ -101,7 +85,7 @@ fun AddHappyPlaceScreen(
     }
 
     // Activity Result Launchers
-    val activityLaunchers = rememberActivityLaunchers(
+    val activityLaunchers = ActivityLauncherHelper.rememberActivityLaunchers(
         onImagePicked = viewModel::onImagePicked,
         onLocationSelected = viewModel::onLocationSelected,
         onLocationUpdate = viewModel::updateCurrentLatLng,
@@ -116,23 +100,16 @@ fun AddHappyPlaceScreen(
     uiState.event?.let { event ->
         LaunchedEffect(event) {
             when (event) {
-                AddPlaceEvent.ShowDatePicker -> showDatePicker(context, viewModel::onDateSelected)
+                AddPlaceEvent.ShowDatePicker -> {
+                    DatePickerUtils.showDatePicker(context, viewModel::onDateSelected)
+                }
+                
                 AddPlaceEvent.ShowImagePicker -> {
                     showImageDialog = true
                 }
 
                 AddPlaceEvent.ShowPlacesAutocomplete -> {
-                    val fields = listOf(
-                        Place.Field.ID,
-                        Place.Field.NAME,
-                        Place.Field.LAT_LNG,
-                        Place.Field.ADDRESS
-                    )
-                    val intent = Autocomplete.IntentBuilder(
-                        AutocompleteActivityMode.FULLSCREEN,
-                        fields
-                    ).build(context)
-                    activityLaunchers.placeLauncher.launch(intent)
+                    ActivityLauncherHelper.showPlacesAutocomplete(context, activityLaunchers)
                 }
 
                 AddPlaceEvent.RequestCurrentLocation -> {
@@ -149,13 +126,12 @@ fun AddHappyPlaceScreen(
                 }
 
                 AddPlaceEvent.NavigateBack -> currentOnBack()
+
                 is AddPlaceEvent.ShowError -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
                 }
 
-                AddPlaceEvent.ShowLoading -> { /* Handled by UI state */
-                }
-
+                AddPlaceEvent.ShowLoading,
                 AddPlaceEvent.HideLoading -> { /* Handled by UI state */
                 }
             }
@@ -191,6 +167,18 @@ fun AddHappyPlaceScreen(
     )
 }
 
+/**
+ * 新增快樂地點內容 UI
+ * @param uiState UI 狀態
+ * @param onTitleChange 標題變更回調
+ * @param onDescriptionChange 描述變更回調
+ * @param onDateClick 日期點擊回調
+ * @param onLocationClick 位置點擊回調
+ * @param onSelectCurrentLocation 選擇當前位置回調
+ * @param onAddImageClick 新增圖片點擊回調
+ * @param onSaveClick 儲存點擊回調
+ * @param onBack 返回回調
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddHappyPlaceContent(
@@ -328,167 +316,6 @@ private fun AddHappyPlaceContent(
             }
         }
     }
-}
-
-// Data class to hold all activity launchers
-data class ActivityLaunchers(
-    val pickMediaLauncher: androidx.activity.result.ActivityResultLauncher<PickVisualMediaRequest>,
-    val cameraLauncher: androidx.activity.result.ActivityResultLauncher<Uri>,
-    val cameraPermissionLauncher: androidx.activity.result.ActivityResultLauncher<String>,
-    val placeLauncher: androidx.activity.result.ActivityResultLauncher<Intent>,
-    val locationPermissionLauncher: androidx.activity.result.ActivityResultLauncher<Array<String>>
-)
-
-@Composable
-private fun rememberActivityLaunchers(
-    onImagePicked: (Uri) -> Unit,
-    onLocationSelected: (String, Double, Double) -> Unit,
-    onLocationUpdate: (Double, Double) -> Unit,
-    onCapturedPhotoUri: (Uri?) -> Unit,
-    onShowImageDialog: (Boolean) -> Unit
-): ActivityLaunchers {
-    val context = LocalContext.current
-
-    val pickMediaLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let {
-            context.contentResolver.takePersistableUriPermission(
-                it, Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-            onImagePicked(it)
-        }
-    }
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            // Get the captured photo URI from the remember state
-            // This will be set by the cameraPermissionLauncher
-        }
-    }
-
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            val capturedUri = buildFileUri(context)
-            onCapturedPhotoUri(capturedUri)
-            cameraLauncher.launch(capturedUri)
-        } else {
-            Toast.makeText(
-                context,
-                context.getString(R.string.camera_permission_denied),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    val placeLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        when (result.resultCode) {
-            Activity.RESULT_OK -> {
-                val place = Autocomplete.getPlaceFromIntent(result.data!!)
-                onLocationSelected(
-                    place.formattedAddress.orEmpty(),
-                    place.location?.latitude ?: 0.0,
-                    place.location?.longitude ?: 0.0
-                )
-            }
-
-            AutocompleteActivity.RESULT_ERROR -> {
-                result.data?.let { intent ->
-                    val status = Autocomplete.getStatusFromIntent(intent)
-                    Log.e("PlacePicker", "Places Autocomplete error: ${status.statusMessage}")
-                    Toast.makeText(
-                        context,
-                        "Get place failed, please contact the developer.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-
-            Activity.RESULT_CANCELED -> {
-                Log.i("PlacePicker", "Places Autocomplete canceled by user")
-            }
-        }
-    }
-
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { _ ->
-        val hasFine = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        val hasCoarse = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (hasFine && hasCoarse) {
-            val client = LocationServices.getFusedLocationProviderClient(context)
-            try {
-                val locationRequest = LocationRequest.Builder(
-                    Priority.PRIORITY_HIGH_ACCURACY,
-                    10_000L
-                ).setMinUpdateIntervalMillis(5_000L).build()
-
-                client.requestLocationUpdates(
-                    locationRequest,
-                    object : LocationCallback() {
-                        override fun onLocationResult(result: LocationResult) {
-                            result.lastLocation?.let { loc ->
-                                onLocationUpdate(loc.latitude, loc.longitude)
-                            }
-                        }
-                    },
-                    Looper.getMainLooper()
-                )
-            } catch (e: SecurityException) {
-                e.printStackTrace()
-            }
-        } else {
-            Toast.makeText(
-                context,
-                context.getString(R.string.location_permission_denied),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    return ActivityLaunchers(
-        pickMediaLauncher,
-        cameraLauncher,
-        cameraPermissionLauncher,
-        placeLauncher,
-        locationPermissionLauncher
-    )
-}
-
-private fun buildFileUri(context: Context): Uri {
-    val storage = if (
-        android.os.Environment.MEDIA_MOUNTED == android.os.Environment.getExternalStorageState()
-    ) context.externalCacheDir else context.cacheDir
-    val file = File.createTempFile("tmp_img", ".jpg", storage).apply { deleteOnExit() }
-    return FileProvider.getUriForFile(
-        context,
-        "${BuildConfig.APPLICATION_ID}.provider",
-        file
-    )
-}
-
-private fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
-    val cal = Calendar.getInstance()
-    DatePickerDialog(
-        context,
-        { _, y, m, d ->
-            val fmt = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
-            val dateStr = fmt.format(Calendar.getInstance().apply { set(y, m, d) }.time)
-            onDateSelected(dateStr)
-        },
-        cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]
-    ).show()
 }
 
 @Preview(showBackground = true)
