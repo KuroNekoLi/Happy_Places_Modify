@@ -30,7 +30,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -93,65 +92,42 @@ fun AddHappyPlaceScreen(
         onShowImageDialog = { showImageDialog = it }
     )
 
-    // Handle one-off events - key by the event to prevent duplicate handling
-    val currentOnEventConsumed by rememberUpdatedState(newValue = viewModel::onEventConsumed)
-    val currentOnBack by rememberUpdatedState(newValue = onBack)
-
     uiState.event?.let { event ->
         LaunchedEffect(event) {
             when (event) {
-                AddPlaceEvent.ShowDatePicker -> {
+                AddPlaceEvent.ShowDatePicker ->
                     DatePickerUtils.showDatePicker(context, viewModel::onDateSelected)
-                }
-                
-                AddPlaceEvent.ShowImagePicker -> {
+
+                AddPlaceEvent.ShowImagePicker ->
                     showImageDialog = true
-                }
 
-                AddPlaceEvent.ShowPlacesAutocomplete -> {
+                AddPlaceEvent.ShowPlacesAutocomplete ->
                     ActivityLauncherHelper.showPlacesAutocomplete(context, activityLaunchers)
-                }
 
-                AddPlaceEvent.RequestCurrentLocation -> {
+                AddPlaceEvent.RequestCurrentLocation ->
                     activityLaunchers.locationPermissionLauncher.launch(
                         arrayOf(
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION
                         )
                     )
-                }
 
-                is AddPlaceEvent.ShowToast -> {
+                is AddPlaceEvent.ShowToast ->
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
 
-                AddPlaceEvent.NavigateBack -> currentOnBack()
-
-                is AddPlaceEvent.ShowError -> {
+                is AddPlaceEvent.ShowError ->
                     Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
-                }
+
+                AddPlaceEvent.NavigateBack ->
+                    onBack()
 
                 AddPlaceEvent.ShowLoading,
-                AddPlaceEvent.HideLoading -> { /* Handled by UI state */
+                AddPlaceEvent.HideLoading -> { /* UIState already handles loading */
                 }
             }
-            currentOnEventConsumed()
+            viewModel.onEventConsumed()
         }
     }
-
-    // Image source dialog
-    ImageSourceDialog(
-        showDialog = showImageDialog,
-        onDismiss = { showImageDialog = false },
-        onGalleryClick = {
-            activityLaunchers.pickMediaLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        },
-        onCameraClick = {
-            activityLaunchers.cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
-    )
 
     // Main UI
     AddHappyPlaceContent(
@@ -163,7 +139,17 @@ fun AddHappyPlaceScreen(
         onSelectCurrentLocation = viewModel::onSelectCurrentLocation,
         onAddImageClick = viewModel::onAddImageClick,
         onSaveClick = viewModel::onSaveClick,
-        onBack = onBack
+        onBack = onBack,
+        showImageDialog = showImageDialog,
+        onDismissImageDialog = { showImageDialog = false },
+        onGalleryClick = {
+            activityLaunchers.pickMediaLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        },
+        onCameraClick = {
+            activityLaunchers.cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
     )
 }
 
@@ -178,6 +164,10 @@ fun AddHappyPlaceScreen(
  * @param onAddImageClick 新增圖片點擊回調
  * @param onSaveClick 儲存點擊回調
  * @param onBack 返回回調
+ * @param showImageDialog 是否顯示圖片來源對話框
+ * @param onDismissImageDialog 關閉圖片來源對話框回調
+ * @param onGalleryClick 點擊相簿按鈕回調
+ * @param onCameraClick 點擊相機按鈕回調
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -190,7 +180,11 @@ private fun AddHappyPlaceContent(
     onSelectCurrentLocation: () -> Unit,
     onAddImageClick: () -> Unit,
     onSaveClick: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    showImageDialog: Boolean,
+    onDismissImageDialog: () -> Unit,
+    onGalleryClick: () -> Unit,
+    onCameraClick: () -> Unit,
 ) {
     val textFieldColor = TextFieldDefaults.colors().copy(
         disabledTextColor = MaterialTheme.colorScheme.onSurface,
@@ -315,6 +309,13 @@ private fun AddHappyPlaceContent(
                     style = MaterialTheme.typography.labelLarge
                 )
             }
+
+            ImageSourceDialog(
+                showDialog = showImageDialog,
+                onDismiss = onDismissImageDialog,
+                onGalleryClick = onGalleryClick,
+                onCameraClick = onCameraClick
+            )
         }
     }
 }
@@ -337,7 +338,11 @@ fun AddHappyPlaceScreenPreviews() {
             onSelectCurrentLocation = {},
             onAddImageClick = {},
             onSaveClick = {},
-            onBack = {}
+            onBack = {},
+            showImageDialog = false,
+            onDismissImageDialog = {},
+            onGalleryClick = {},
+            onCameraClick = {}
         )
     }
 }
