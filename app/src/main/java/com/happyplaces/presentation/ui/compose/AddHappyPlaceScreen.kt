@@ -253,6 +253,7 @@ private fun AddHappyPlaceContent(
                 value = uiState.location,
                 onValueChange = {},
                 label = { Text(stringResource(R.string.edit_text_hint_location)) },
+                enabled = false,
                 readOnly = true,
                 isError = uiState.locationError != null,
                 modifier = Modifier
