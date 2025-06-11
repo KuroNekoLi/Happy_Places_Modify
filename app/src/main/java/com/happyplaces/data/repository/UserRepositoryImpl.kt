@@ -39,4 +39,24 @@ class UserRepositoryImpl(private val placeService: PlaceService) : UserRepositor
             emit(ApiResource.Error(e.message ?: "未知錯誤"))
         }
     }
+
+    override fun checkAccountIdExists(accountId: String): Flow<ApiResource<Boolean>> = flow {
+        emit(ApiResource.Loading())
+        try {
+            val exists = placeService.checkAccountIdExists(accountId)
+            emit(ApiResource.Success(exists))
+        } catch (e: Exception) {
+            emit(ApiResource.Error(e.message ?: "檢查帳號時發生錯誤"))
+        }
+    }
+
+    override fun updateUser(user: User): Flow<ApiResource<Unit>> = flow {
+        emit(ApiResource.Loading())
+        try {
+            placeService.updateUser(user.toUserDto())
+            emit(ApiResource.Success(Unit))
+        } catch (e: Exception) {
+            emit(ApiResource.Error(e.message ?: "更新用戶資訊時發生錯誤"))
+        }
+    }
 }

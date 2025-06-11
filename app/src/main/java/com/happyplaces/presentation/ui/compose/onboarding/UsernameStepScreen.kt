@@ -35,7 +35,7 @@ fun UsernameStepContent(
     StepScaffold(
         step = 2, total = 4,
         title = "Choose a username",
-        enableNext = state.accountIdValid,
+        enableNext = state.accountIdValid && !state.isCheckingAccountId,
         onNext = onNext
     ) {
         OutlinedTextField(
@@ -44,15 +44,44 @@ fun UsernameStepContent(
             label = { Text("@username") },
             prefix = { Text("@") },
             singleLine = true,
+            isError = state.accountIdError != null,
             modifier = Modifier.fillMaxWidth()
         )
-        Text(
-            if (state.accountId.length >= 4) "Username available ✓" else "至少 4 個字元",
-            color = if (state.accountId.length >= 4)
-                MaterialTheme.colorScheme.primary
-            else LocalContentColor.current.copy(alpha = 0.6f),
-            style = MaterialTheme.typography.bodySmall
-        )
+
+        // 狀態顯示
+        when {
+            state.isCheckingAccountId -> {
+                Text(
+                    "檢查帳號中...",
+                    color = LocalContentColor.current.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            state.accountIdError != null -> {
+                Text(
+                    state.accountIdError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            state.accountId.length >= 4 && state.accountIdError == null -> {
+                Text(
+                    "帳號可以使用 ✓",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            else -> {
+                Text(
+                    "至少 4 個字元",
+                    color = LocalContentColor.current.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
     }
 }
 

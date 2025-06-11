@@ -20,7 +20,8 @@ import com.happyplaces.R
 @Composable
 fun Avatar(
     imageUrl: String?,
-    size: Dp = 64.dp
+    size: Dp = 64.dp,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
@@ -40,7 +41,7 @@ fun Avatar(
         error = painterResource(id = R.drawable.add_screen_image_placeholder),
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = Modifier
+        modifier = modifier
             .size(size)
             .clip(CircleShape)
     )

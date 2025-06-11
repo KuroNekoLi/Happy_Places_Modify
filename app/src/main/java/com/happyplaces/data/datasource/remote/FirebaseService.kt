@@ -345,9 +345,21 @@ class FirebaseService(
      * 更新使用者資料
      */
     override suspend fun updateUser(user: UserDto) {
+        // 1. 如果有本地圖片，先上傳並取得新 URL
+        val avatarUrl = user.avatarUrl.resolveUri(
+            onLocal = { uri ->
+                uploadImage(uri, storage.reference.child("$USER_IMAGE_STORAGE/${user.id}"))
+            },
+            onRemote = { it }
+        )
+
+        // 2. 合併更新資料
+        val updated = user.copy(avatarUrl = avatarUrl)
+
+        // 3. 更新 Firestore 文件
         firestore.collection(USER_COLLECTION)
             .document(user.id)
-            .set(user, SetOptions.merge())
+            .set(updated, SetOptions.merge())
             .await()
     }
 
@@ -371,4 +383,24 @@ class FirebaseService(
             .await()
         snapshot.toObject(UserDto::class.java)?.let { emit(it) }
     }.flowOn(Dispatchers.IO)
+
+    /**
+     * 檢查帳號 ID 是否已存在
+     * @param accountId 要檢查的帳號 ID
+     * @return Boolean 如果存在返回 true，否則返回 false
+     */
+    override suspend fun checkAccountIdExists(accountId: String): Boolean {
+        return try {
+            val snapshot = firestore.collection(USER_COLLECTION)
+                .whereEqualTo("accountID", accountId)
+                .limit(1)
+                .get()
+                .await()
+
+            !snapshot.isEmpty
+        } catch (e: Exception) {
+            Log.e("LinLi", "checkAccountIdExists() failed", e)
+            throw e
+        }
+    }
 }

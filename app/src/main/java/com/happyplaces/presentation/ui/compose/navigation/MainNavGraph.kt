@@ -16,6 +16,7 @@ import com.happyplaces.presentation.ui.compose.MyMapScreen
 import com.happyplaces.presentation.ui.compose.RecommendScreen
 import com.happyplaces.presentation.ui.compose.SearchScreen
 import com.happyplaces.presentation.ui.compose.common.MainScaffold
+import com.happyplaces.presentation.ui.compose.profile.EditProfileScreen
 import com.happyplaces.presentation.ui.compose.profile.ProfileScreen
 import com.happyplaces.presentation.ui.compose.profile.SettingsScreen
 import com.happyplaces.presentation.ui.viewmodel.AuthViewModel
@@ -54,6 +55,7 @@ fun NavGraphBuilder.mainNavGraph(
                     ProfileScreen(
                         modifier = Modifier.padding(paddingValues),
                         onSettingsClick = { navController.navigate(Settings) },
+                        onEditProfile = { navController.navigate(EditProfile) },
                         onItemClick = { haHapPlace ->
                             navController.navigate(Detail(haHapPlace.id))
                         },
@@ -127,6 +129,9 @@ fun NavGraphBuilder.mainNavGraph(
                 id = detail.id,
                 onBack = { navController.navigateTopLevel(Profile) }
             )
+        }
+        composable<EditProfile> {
+            EditProfileScreen(onBack = { navController.popBackStack() })
         }
     }
 }

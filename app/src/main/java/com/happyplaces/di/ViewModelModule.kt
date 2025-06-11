@@ -1,6 +1,7 @@
 package com.happyplaces.di
 
 import com.happyplaces.presentation.ui.viewmodel.AuthViewModel
+import com.happyplaces.presentation.ui.viewmodel.EditProfileViewModel
 import com.happyplaces.presentation.ui.viewmodel.HappyPlaceViewModel
 import com.happyplaces.presentation.ui.viewmodel.OnboardingViewModel
 import com.happyplaces.presentation.ui.viewmodel.ProfileViewModel
@@ -16,4 +17,5 @@ val viewModelModule = module {
     viewModel { AuthViewModel(get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
     viewModel { SearchViewModel(get()) }
+    viewModel { EditProfileViewModel(get(), get()) }
 }

@@ -43,7 +43,8 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel(),
     onEdit: (HappyPlace) -> Unit,
     onItemClick: (HappyPlace) -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onEditProfile: () -> Unit = {}
 ) {
     val list by viewModel.myPlaces.collectAsState()
     val apiResource by viewModel.user.collectAsState()
@@ -60,7 +61,8 @@ fun ProfileScreen(
             onEdit = onEdit,
             onDelete = happyPlaceViewModel::delete,
             onItemClick = onItemClick,
-            onSettingsClick = onSettingsClick
+            onSettingsClick = onSettingsClick,
+            onEditProfile = onEditProfile
         )
     }
 }
@@ -76,7 +78,8 @@ fun ProfileScreen(
     onItemClick: (HappyPlace) -> Unit,
     onSettingsClick: () -> Unit,
     onDelete: (HappyPlace) -> Unit,
-    onEdit: (HappyPlace) -> Unit
+    onEdit: (HappyPlace) -> Unit,
+    onEditProfile: () -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -142,7 +145,7 @@ fun ProfileScreen(
                 OutlinedButton(
                     modifier = Modifier
                         .weight(1f),
-                    onClick = {}
+                    onClick = onEditProfile
                 ) {
                     Text(text = "Edit My Profile")
                 }
@@ -180,8 +183,8 @@ fun PreviewProfileScreen() {
             accountName = "@1234",
             onItemClick = {},
             onEdit = {},
-            onDelete = {}
+            onDelete = {},
+            onEditProfile = {}
         )
     }
 }
-

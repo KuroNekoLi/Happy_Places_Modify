@@ -43,4 +43,11 @@ interface PlaceService {
     suspend fun isUserProfileCompleted(id: String): Boolean
     suspend fun getCurrentUser(): UserDto?
     fun getMyPlaces(): Flow<List<PlaceDto>>
+
+    /**
+     * 檢查帳號 ID 是否已存在
+     * @param accountId 要檢查的帳號 ID
+     * @return Boolean 如果存在返回 true，否則返回 false
+     */
+    suspend fun checkAccountIdExists(accountId: String): Boolean
 }

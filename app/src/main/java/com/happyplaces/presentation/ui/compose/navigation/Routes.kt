@@ -45,3 +45,6 @@ data class Map(val id: String)
 
 @Serializable
 data object Settings
+
+@Serializable
+data object EditProfile

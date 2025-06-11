@@ -40,9 +40,11 @@ class OnboardingViewModel(
         val avatarUri: Uri? = null,
         val username: String = "",
         val bio: String = "",
+        val isCheckingAccountId: Boolean = false,
+        val accountIdError: String? = null,
     ) {
         val accountIdValid: Boolean
-            get() = accountId.length in 4..20
+            get() = accountId.length >= 4 && accountIdError == null
         val emailIsValid: Boolean
             get() = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
@@ -50,6 +52,10 @@ class OnboardingViewModel(
     var uiState by mutableStateOf(UiState())
         private set
 
+    /**
+     * 設定用戶資訊
+     * @param user 用戶物件
+     */
     fun setUser(user: User) {
         uiState = uiState.copy(
             id = user.id,
@@ -60,14 +66,23 @@ class OnboardingViewModel(
         )
     }
 
+    /**
+     * 完成註冊流程
+     */
     fun onFinish() {
         CoroutineScope(Dispatchers.IO).launch {
             Log.i("LinLi", "onFinish: uiState = $uiState")
+            val finalAccountId = if (uiState.accountId.startsWith("@")) {
+                uiState.accountId
+            } else {
+                "@${uiState.accountId}"
+            }
+            
             val result = userUseCase.addUser(
                 User(
                     id = uiState.id,
                     name = uiState.username,
-                    accountID = uiState.accountId,
+                    accountID = finalAccountId,
                     avatarUrl = uiState.avatarUri?.toString() ?: "",
                     email = uiState.email,
                     bio = uiState.bio,
@@ -88,13 +103,20 @@ class OnboardingViewModel(
         }
     }
 
-    // --------- 事件 ----------
+    /**
+     * 電子郵件變更事件
+     * @param value 新的電子郵件值
+     */
     fun onEmailChange(value: String) {
         uiState = uiState.copy(
             email = value
         )
     }
 
+    /**
+     * 帳號 ID 變更事件
+     * @param value 新的帳號 ID 值
+     */
     fun onAccountIdChange(value: String) {
         val clean = value
             .replace("@", "")
@@ -102,13 +124,71 @@ class OnboardingViewModel(
             .trim()
             .filter { it.isLetterOrDigit() || it == '_' }
 
-        uiState = uiState.copy(accountId = clean)
+        uiState = uiState.copy(
+            accountId = clean,
+            accountIdError = null
+        )
+
+        // 如果長度符合要求，檢查帳號是否可用
+        if (clean.length >= 4) {
+            checkAccountIdAvailability("@$clean")
+        }
     }
 
+    /**
+     * 檢查帳號 ID 是否可用
+     * @param accountId 要檢查的帳號 ID（包含 @ 符號）
+     */
+    private fun checkAccountIdAvailability(accountId: String) {
+        viewModelScope.launch {
+            uiState = uiState.copy(isCheckingAccountId = true)
+
+            userUseCase.checkAccountIdExists(accountId).collect { result ->
+                when (result) {
+                    is ApiResource.Success<Boolean> -> {
+                        uiState = uiState.copy(
+                            isCheckingAccountId = false,
+                            accountIdError = if (result.data == true) {
+                                "此帳號已被使用"
+                            } else null
+                        )
+                    }
+
+                    is ApiResource.Error<Boolean> -> {
+                        uiState = uiState.copy(
+                            isCheckingAccountId = false,
+                            accountIdError = "檢查帳號時發生錯誤"
+                        )
+                    }
+
+                    is ApiResource.Loading<Boolean> -> {
+                        uiState = uiState.copy(isCheckingAccountId = true)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 頭像選擇事件
+     * @param uri 頭像 URI
+     */
     fun onAvatarPicked(uri: Uri) {
         uiState = uiState.copy(avatarUri = uri)
     }
 
+    /**
+     * 使用者暱稱變更事件
+     * @param value 新的暱稱值
+     */
+    fun onUsernameChange(value: String) {
+        uiState = uiState.copy(username = value)
+    }
+
+    /**
+     * 個人簡介變更事件
+     * @param value 新的個人簡介值
+     */
     fun onBioChange(value: String) {
         uiState = uiState.copy(bio = value)
     }
